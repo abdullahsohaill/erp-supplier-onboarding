@@ -41,3 +41,19 @@
 | Fusion boundary | Integration stories keep Fusion creation behind OIC. |
 | NFR coverage | Non-functional requirements apply across stories and are tracked separately from the story-to-FR mapping. US-013 also supports NFR-004 for sensitive data protection. |
 | Wireframes | Stories are ready to drive later wireframes, but no wireframes are generated in this phase. |
+
+## Selected Use Case Diagrams
+
+These diagrams are visual companions to the story table. The acceptance criteria and functional requirement mappings above remain the source of truth.
+
+### US-001: Create and Submit Supplier Request
+
+![US-001 use case diagram for creating and submitting a supplier request](assets/use-case-us-001-create-submit.png)
+
+### US-004: Review Validation and Duplicate Evidence
+
+![US-004 use case diagram for reviewing validation and duplicate evidence](assets/use-case-us-004-validation-duplicate-review.png)
+
+### US-011: Submit Approved Supplier to Fusion
+
+![US-011 use case diagram for submitting approved supplier to Fusion](assets/use-case-us-011-fusion-submission.png)
