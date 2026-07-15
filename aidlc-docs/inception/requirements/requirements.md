@@ -323,7 +323,3 @@ Verification: AI prompt/output review.
 ## Requirement Traceability
 
 Detailed customer requirement traceability is maintained in `customer-requirements-traceability.md`.
-
-## Answered Assumptions
-
-The detailed question gate has been answered in `requirement-verification-questions.md` using conservative prototype assumptions from the customer transcript. These answers should be reviewed by the user/customer before final sign-off.

@@ -4,7 +4,7 @@
 
 - **Project**: Supplier Onboarding, Duplicate Detection, and Risk Scoring
 - **Phase**: AI-DLC Inception / Application Design
-- **Status**: Complete for proposal review and wireframe preparation; final implementation design is pending review/approval of answered assumptions in `../requirements/requirement-verification-questions.md`
+- **Status**: Complete for proposal review and wireframe preparation; final implementation design depends on customer tenancy, security, and Fusion API validation
 - **Wireframes**: Explicitly deferred until requirements/design review is complete
 
 ## 1. Executive Technical Summary
@@ -126,6 +126,65 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | REF_HIGH_RISK_COUNTRY | country_code, country_name, risk_level, active_flag, effective_from, effective_to | Configurable country risk. |
 | REF_RISK_RULE | rule_code, rule_name, weight, severity, active_flag, version | Risk scoring configuration. |
 | REF_DUPLICATE_RULE | rule_code, rule_name, weight, critical_trigger_flag, active_flag, version | Duplicate scoring configuration. |
+
+### 7.4 Data Relationship Model
+
+```mermaid
+erDiagram
+    SUPPLIER_REQUEST ||--o{ SUPPLIER_REQUEST_SITE : has
+    SUPPLIER_REQUEST ||--o{ SUPPLIER_REQUEST_CONTACT : has
+    SUPPLIER_REQUEST ||--o{ SUPPLIER_REQUEST_BANK : may_have
+    SUPPLIER_REQUEST ||--o{ SUPPLIER_REQUEST_DOCUMENT : tracks
+    SUPPLIER_REQUEST ||--o{ STATUS_HISTORY : records
+    SUPPLIER_REQUEST ||--o{ VALIDATION_RESULT : produces
+    SUPPLIER_REQUEST ||--o{ DUPLICATE_MATCH : produces
+    SUPPLIER_REQUEST ||--o{ RISK_ASSESSMENT : produces
+    SUPPLIER_REQUEST ||--o{ AI_SUMMARY : produces
+    AI_SUMMARY ||--o{ AI_SUMMARY_FEEDBACK : may_receive
+    SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : has
+    REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST : classifies
+    REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST_SITE : maps
+    EXISTING_SUPPLIER_REF ||--o{ EXISTING_SUPPLIER_SITE_REF : has
+    EXISTING_SUPPLIER_REF ||--o{ DUPLICATE_MATCH : candidate
+```
+
+Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, and integration logs. Reference tables provide business-unit, supplier-type, high-risk-country, duplicate-rule, and risk-rule configuration. Existing supplier reference tables provide the candidate records used by duplicate detection.
+
+### 7.5 Database Schema Design Detail
+
+The following schema design is sufficient for wireframes, API contracts, and prototype DDL generation. Physical names may be adjusted to match the customer's database naming standards during implementation.
+
+| Table | Primary Key | Foreign Keys / Relationships | Required Constraints and Indexes |
+|---|---|---|---|
+| SUPPLIER_REQUEST | request_id | business_unit_id -> REF_BUSINESS_UNIT.business_unit_id; supplier_type -> REF_SUPPLIER_TYPE.supplier_type_code | Unique request_number; index status, requester_user, country_code, submitted_at; check expected_annual_spend >= 0; status constrained to approved status list. |
+| SUPPLIER_REQUEST_SITE | site_id | request_id -> SUPPLIER_REQUEST.request_id; intended_business_unit_id -> REF_BUSINESS_UNIT.business_unit_id | Index request_id; require country_code and address_line1 for submitted requests; one primary site per request by filtered/functional unique rule where supported. |
+| SUPPLIER_REQUEST_CONTACT | contact_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and email_domain; validate contact_email format in service/rule layer; normalize email_domain for matching. |
+| SUPPLIER_REQUEST_BANK | bank_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and account_hash; never store unmasked account number; account_hash nullable when bank data is not provided. |
+| SUPPLIER_REQUEST_DOCUMENT | document_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, document_type, missing_flag; metadata_json stores document metadata only for phase one. |
+| STATUS_HISTORY | history_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and action_timestamp; action_comment required for reject, correction, and duplicate decisions. |
+| VALIDATION_RESULT | validation_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, rule_code, is_blocking; active validation result set should be replaced or versioned per validation run. |
+| DUPLICATE_MATCH | match_id | request_id -> SUPPLIER_REQUEST.request_id; candidate_supplier_id may reference EXISTING_SUPPLIER_REF.supplier_ref_id for Fusion/mock candidates | Index request_id, match_level, match_score; matched_fields_json stores explainable signal details. |
+| RISK_ASSESSMENT | risk_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, risk_level, created_at; risk_reasons_json stores factor-level reasons and weights. |
+| AI_SUMMARY | summary_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, prompt_version, created_at; source_facts_hash supports traceability to the risk/duplicate facts used. |
+| AI_SUMMARY_FEEDBACK | feedback_id | summary_id -> AI_SUMMARY.summary_id; request_id -> SUPPLIER_REQUEST.request_id | Optional/future table; index summary_id and request_id. |
+| EXISTING_SUPPLIER_REF | supplier_ref_id | None | Unique supplier_number where available; index normalized_name, country_code, tax_registration_number, email_domain, bank_account_hash. |
+| EXISTING_SUPPLIER_SITE_REF | site_ref_id | supplier_ref_id -> EXISTING_SUPPLIER_REF.supplier_ref_id | Index supplier_ref_id, country_code, business_unit_code, address_normalized. |
+| INTEGRATION_LOG | log_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, oic_instance_id, retry_eligible_flag; payload/response values should be references, not raw sensitive payloads. |
+| REF_BUSINESS_UNIT | business_unit_id | None | Unique business_unit_code; active_flag check; fusion_mapping_code required for active values used in Fusion payloads. |
+| REF_SUPPLIER_TYPE | supplier_type_id | None | Unique supplier_type_code; active_flag check; tax_required_flag drives validation rules. |
+| REF_HIGH_RISK_COUNTRY | country_code, effective_from | None | Index active_flag and effective dates; overlapping active ranges should be prevented by rule/data load control. |
+| REF_RISK_RULE | rule_code, version | None | Index active_flag and severity; weight numeric and non-negative. |
+| REF_DUPLICATE_RULE | rule_code, version | None | Index active_flag and critical_trigger_flag; weight numeric and non-negative. |
+
+### 7.6 Schema Implementation Notes
+
+- Use generated numeric identities or UUIDs for technical primary keys, depending on customer ATP standards.
+- Use UTC timestamps for audit fields and display localized values in Visual Builder.
+- Store JSON details in `*_json` fields only for explainability payloads that are naturally variable, such as matched duplicate fields and risk reasons.
+- Keep normalized duplicate-search fields separate from original display values.
+- Apply soft deactivation to reference data through `active_flag`; do not delete reference rows used by historical requests.
+- Use database constraints for structural integrity and service-layer rules for conditional business validation.
+- Keep full bank account values out of ATP unless the customer explicitly approves secure encrypted storage; the prototype baseline stores masked display and hash/token values only.
 
 ## 8. ORDS API Design
 
@@ -602,22 +661,16 @@ Property-based testing is recommended for deterministic normalization, duplicate
 - Bank account creation in Fusion is not included unless explicitly approved.
 - Production deployment would need formal security review, data retention policy, monitoring, alerting, backup/recovery, and operational support model.
 
-## 20. Answered Assumptions To Review
+## 20. Approved Baseline Assumptions and Environment Validations
 
-The following are answered in `requirement-verification-questions.md` using conservative prototype assumptions and should be reviewed before sign-off:
+The verification questions in `requirement-verification-questions.md` have been reviewed by the user and are accepted as the wireframe baseline. The following items should still be validated with the customer or implementation environment before final build sign-off:
 
-- Exact role behavior for single Reviewer and Support/Admin.
-- Mandatory field rules for tax registration.
-- Bank data storage and Fusion bank account scope.
-- One-site vs multi-site phase-one scope.
-- Attachment metadata vs upload.
-- Real-time duplicate preview.
-- Risk levels and thresholds.
-- AI provider/runtime.
-- Real Fusion vs mock Fusion integration mode.
-- Integration log detail visibility.
-- Security, resiliency, and testing extension enforcement.
-- Demo data source and exact demo scope.
+- Customer tenancy access for Fusion supplier APIs and required privileges.
+- Final Fusion payload fields for supplier header and site creation.
+- Customer identity/SSO role mapping for Requester, Reviewer, and Support/Admin User.
+- Customer-approved AI runtime or confirmation that mock AI is used for the prototype demo.
+- Security review for bank masking, payload references, and log redaction.
+- Whether production document upload, sanctions screening, or Fusion bank account creation are later added outside phase one.
 
 ## 21. Technical Design Completeness Assessment
 
@@ -625,11 +678,11 @@ The following are answered in `requirement-verification-questions.md` using cons
 |---|---|---|
 | Architecture | Complete for proposal and wireframe readiness | Oracle stack boundaries are defined. |
 | Personas and access | Complete for proposal and wireframe readiness | Uses Requester, Reviewer, Support/Admin User only. |
-| Data model | Complete baseline | Final DDL can be produced after answered assumptions are accepted. |
+| Data model and database schema | Complete for proposal and wireframe readiness | ATP entities, relationships, constraints, indexes, and implementation notes are defined; final DDL can be generated during construction. |
 | ORDS APIs | Complete baseline | Endpoint catalog and contracts are defined; OpenAPI spec can be generated later. |
-| Duplicate detection | Complete baseline | Thresholds are answered as configurable ATP reference data; review required. |
-| Risk scoring | Complete baseline | Critical level and weights are answered as defaults; review required. |
-| AI design | Complete baseline | Provider/runtime answered as customer-approved enterprise AI service; review required. |
+| Duplicate detection | Complete baseline | Thresholds are configurable ATP reference data. |
+| Risk scoring | Complete baseline | Critical level and weights are configurable defaults. |
+| AI design | Complete baseline | Provider/runtime remains customer-approved enterprise AI service or mock for demo. |
 | OIC/Fusion integration | Complete baseline | Real Fusion payload validation depends on customer tenancy access. |
 | Security | Complete baseline | Role and masking controls defined; formal security review needed before production. |
 | Wireframes | Not started by design | Ready to begin after requirements/design review approval. |

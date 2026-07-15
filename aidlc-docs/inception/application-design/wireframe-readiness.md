@@ -8,9 +8,9 @@ Wireframes are intentionally not generated yet. This document captures what must
 |---|---|---|
 | Personas | Ready | Requester, Reviewer, Support/Admin User. |
 | User stories | Ready for review | 14 consolidated stories with acceptance criteria and requirement mapping. |
-| Requirements | Ready for review | Functional/NFR tables with detailed acceptance criteria. |
-| Technical design | Ready for review | Complete for proposal and wireframe preparation; final build details depend on review of answered assumptions and customer tenancy validation. |
-| Answered assumptions | Answered, needs review | 34 AI-DLC questions are answered with rationale in `requirement-verification-questions.md`. |
+| Requirements | Approved for wireframe baseline | 15 FRs and 8 NFRs reviewed by user. |
+| Technical design | Ready for final review | Complete for proposal and wireframe preparation; final build details depend on customer tenancy/security validation. |
+| Answered assumptions | Approved for wireframe baseline | 34 AI-DLC questions were reviewed by user and accepted as the working baseline. |
 
 ## What We Need Before Wireframing
 
@@ -41,8 +41,8 @@ Wireframes are intentionally not generated yet. This document captures what must
 
 ## Wireframe Entry Criteria
 
-- [ ] Requirements reviewed.
+- [x] Requirements reviewed.
 - [ ] Technical design reviewed.
-- [ ] Answered assumptions reviewed or changes listed.
+- [x] Answered assumptions reviewed or changes listed.
 - [ ] Screen inventory approved.
 - [ ] User explicitly asks to begin wireframes.

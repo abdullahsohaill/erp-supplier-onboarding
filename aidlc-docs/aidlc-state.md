@@ -48,4 +48,4 @@
 - [ ] Operations placeholder
 
 ## Current Review Gate
-Review the consolidated requirements package: 15 functional requirements, 8 non-functional requirements, 3 personas, 14 user stories, the technical design completeness assessment, and wireframe readiness notes. The verification questions in `aidlc-docs/inception/requirements/requirement-verification-questions.md` have been answered using the customer requirements document and implementation judgment; approve or edit those assumptions before starting wireframes. Wireframes are intentionally deferred until the user explicitly commands that next phase.
+Requirements and verification questions have been reviewed by the user and accepted for the wireframe baseline. Review the technical design completeness assessment, especially architecture, ATP data model/database schema, ORDS APIs, OIC/Fusion boundaries, risk, duplicate detection, and AI guardrails. Wireframes are intentionally deferred until the user explicitly commands that next phase.
