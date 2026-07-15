@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Local environment and secrets
+.env
+.env.*
+*.local
+
+# Customer/source documents
+*.pdf
+
+# Build and temporary outputs
+tmp/
+temp/
+dist/
+build/
+node_modules/
+
