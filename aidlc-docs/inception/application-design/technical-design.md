@@ -97,7 +97,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 
 | Table | Key Columns | Purpose |
 |---|---|---|
-| SUPPLIER_REQUEST | request_id, request_number, status, supplier_name, supplier_type, country_code, business_unit_id, requester_user, business_justification, product_service_category, expected_annual_spend, tax_registration_number, created_at, submitted_at, last_updated_at | Header record and workflow state. |
+| SUPPLIER_REQUEST | request_id, request_number, status, supplier_name, supplier_type_code, country_code, business_unit_id, requester_user, business_justification, product_service_category, expected_annual_spend, tax_registration_number, fusion_supplier_id, fusion_supplier_number, fusion_created_at, fusion_response_ref, created_at, submitted_at, last_updated_at | Header record, workflow state, and Fusion/mock Fusion success result. |
 | SUPPLIER_REQUEST_SITE | site_id, request_id, site_name, country_code, address_line1, address_line2, city, region, postal_code, intended_business_unit_id, is_primary | At least one site or site context. |
 | SUPPLIER_REQUEST_CONTACT | contact_id, request_id, contact_name, contact_email, phone_number, email_domain | Contact data and duplicate signal source. |
 | SUPPLIER_REQUEST_BANK | bank_id, request_id, bank_country_code, masked_account_display, account_last4, account_hash, bank_provided_flag | Optional bank data with masked/tokenized duplicate support. |
@@ -108,9 +108,9 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 
 | Table | Key Columns | Purpose |
 |---|---|---|
-| VALIDATION_RESULT | validation_id, request_id, field_name, rule_code, severity, message, is_blocking, created_at | Business validation results. |
-| DUPLICATE_MATCH | match_id, request_id, candidate_source, candidate_supplier_id, candidate_supplier_number, candidate_supplier_name, match_score, match_level, matched_fields_json, explanation, created_at | Duplicate candidates and reasons. |
-| RISK_ASSESSMENT | risk_id, request_id, risk_score, risk_level, scoring_version, risk_reasons_json, created_at | Risk score and explainable reasons. |
+| VALIDATION_RESULT | validation_id, request_id, run_id, is_current, field_name, rule_code, severity, message, is_blocking, created_at | Business validation results, including rerun/current tracking. |
+| DUPLICATE_MATCH | match_id, request_id, run_id, is_current, candidate_source, candidate_supplier_ref_id, candidate_request_id, candidate_supplier_number, candidate_supplier_name, match_score, match_level, matched_fields_json, explanation, created_at | Duplicate candidates and reasons for existing suppliers and staged request candidates. |
+| RISK_ASSESSMENT | risk_id, request_id, run_id, is_current, risk_score, risk_level, scoring_version, risk_reasons_json, created_at | Risk score, explainable reasons, and recalculation/current tracking. |
 | AI_SUMMARY | summary_id, request_id, prompt_version, provider_name, model_name, summary_json, source_facts_hash, created_at, created_by | AI explanation history. |
 | AI_SUMMARY_FEEDBACK | feedback_id, summary_id, request_id, helpful_flag, feedback_comment, actor_user, created_at | Optional future AI feedback. |
 
@@ -120,7 +120,8 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 |---|---|---|
 | EXISTING_SUPPLIER_REF | supplier_ref_id, fusion_supplier_id, supplier_number, supplier_name, normalized_name, country_code, tax_registration_number, email_domain, phone_normalized, address_normalized, bank_account_hash, last_sync_at | Duplicate reference data from Fusion/mock. |
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id, supplier_ref_id, fusion_site_id, site_name, country_code, address_normalized, business_unit_code | Supplier site reference data. |
-| INTEGRATION_LOG | log_id, request_id, integration_name, oic_instance_id, direction, status, payload_ref, response_ref, user_message, technical_message, retry_count, retry_eligible_flag, created_at | OIC/Fusion observability. |
+| INTEGRATION_LOG | log_id, request_id, integration_name, oic_instance_id, direction, status, error_category, payload_ref, response_ref, user_message, technical_message, retry_count, retry_eligible_flag, last_retry_at, last_retry_by, created_at | OIC/Fusion observability and current retry summary. |
+| INTEGRATION_RETRY_HISTORY | retry_id, log_id, request_id, retry_attempt, retry_actor, retry_timestamp, retry_result, retry_message | Auditable retry attempts for eligible integration failures. |
 | REF_BUSINESS_UNIT | business_unit_id, business_unit_code, business_unit_name, fusion_mapping_code, active_flag | Business unit lookup/mapping. |
 | REF_SUPPLIER_TYPE | supplier_type_id, supplier_type_code, supplier_type_name, tax_required_flag, active_flag | Supplier type lookup. |
 | REF_HIGH_RISK_COUNTRY | country_code, country_name, risk_level, active_flag, effective_from, effective_to | Configurable country risk. |
@@ -138,17 +139,20 @@ erDiagram
     SUPPLIER_REQUEST ||--o{ STATUS_HISTORY : records
     SUPPLIER_REQUEST ||--o{ VALIDATION_RESULT : produces
     SUPPLIER_REQUEST ||--o{ DUPLICATE_MATCH : produces
+    SUPPLIER_REQUEST ||--o{ DUPLICATE_MATCH : candidate_request
     SUPPLIER_REQUEST ||--o{ RISK_ASSESSMENT : produces
     SUPPLIER_REQUEST ||--o{ AI_SUMMARY : produces
     AI_SUMMARY ||--o{ AI_SUMMARY_FEEDBACK : may_receive
     SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : has
+    INTEGRATION_LOG ||--o{ INTEGRATION_RETRY_HISTORY : records
+    SUPPLIER_REQUEST ||--o{ INTEGRATION_RETRY_HISTORY : has
     REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST : classifies
     REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST_SITE : maps
     EXISTING_SUPPLIER_REF ||--o{ EXISTING_SUPPLIER_SITE_REF : has
     EXISTING_SUPPLIER_REF ||--o{ DUPLICATE_MATCH : candidate
 ```
 
-Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, and integration logs. Reference tables provide business-unit, supplier-type, high-risk-country, duplicate-rule, and risk-rule configuration. Existing supplier reference tables provide the candidate records used by duplicate detection.
+Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, integration logs, and retry history. Reference tables provide business-unit, supplier-type, high-risk-country, duplicate-rule, and risk-rule configuration. Existing supplier reference tables and staged requests provide the candidate records used by duplicate detection.
 
 ### 7.5 Database Schema Design Detail
 
@@ -156,25 +160,26 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 
 | Table | Primary Key | Foreign Keys / Relationships | Required Constraints and Indexes |
 |---|---|---|---|
-| SUPPLIER_REQUEST | request_id | business_unit_id -> REF_BUSINESS_UNIT.business_unit_id; supplier_type -> REF_SUPPLIER_TYPE.supplier_type_code | Unique request_number; index status, requester_user, country_code, submitted_at; check expected_annual_spend >= 0; status constrained to approved status list. |
+| SUPPLIER_REQUEST | request_id | business_unit_id -> REF_BUSINESS_UNIT.business_unit_id; supplier_type_code -> REF_SUPPLIER_TYPE.supplier_type_code | Unique request_number; index status, requester_user, country_code, business_unit_id, supplier_type_code, submitted_at, fusion_supplier_number; check expected_annual_spend >= 0; status constrained to approved status list. |
 | SUPPLIER_REQUEST_SITE | site_id | request_id -> SUPPLIER_REQUEST.request_id; intended_business_unit_id -> REF_BUSINESS_UNIT.business_unit_id | Index request_id; require country_code and address_line1 for submitted requests; one primary site per request by filtered/functional unique rule where supported. |
 | SUPPLIER_REQUEST_CONTACT | contact_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and email_domain; validate contact_email format in service/rule layer; normalize email_domain for matching. |
 | SUPPLIER_REQUEST_BANK | bank_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and account_hash; never store unmasked account number; account_hash nullable when bank data is not provided. |
 | SUPPLIER_REQUEST_DOCUMENT | document_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, document_type, missing_flag; metadata_json stores document metadata only for phase one. |
 | STATUS_HISTORY | history_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and action_timestamp; action_comment required for reject, correction, and duplicate decisions. |
-| VALIDATION_RESULT | validation_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, rule_code, is_blocking; active validation result set should be replaced or versioned per validation run. |
-| DUPLICATE_MATCH | match_id | request_id -> SUPPLIER_REQUEST.request_id; candidate_supplier_id may reference EXISTING_SUPPLIER_REF.supplier_ref_id for Fusion/mock candidates | Index request_id, match_level, match_score; matched_fields_json stores explainable signal details. |
-| RISK_ASSESSMENT | risk_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, risk_level, created_at; risk_reasons_json stores factor-level reasons and weights. |
+| VALIDATION_RESULT | validation_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, run_id, is_current, rule_code, is_blocking; run_id/is_current allow validation reruns after correction while preserving history. |
+| DUPLICATE_MATCH | match_id | request_id -> SUPPLIER_REQUEST.request_id; candidate_supplier_ref_id -> EXISTING_SUPPLIER_REF.supplier_ref_id where candidate is existing supplier; candidate_request_id -> SUPPLIER_REQUEST.request_id where candidate is staged request | Index request_id, run_id, is_current, candidate_source, candidate_supplier_ref_id, candidate_request_id, match_level, match_score; matched_fields_json stores explainable signal details. |
+| RISK_ASSESSMENT | risk_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, run_id, is_current, risk_level, created_at; risk_reasons_json stores factor-level reasons and weights. |
 | AI_SUMMARY | summary_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, prompt_version, created_at; source_facts_hash supports traceability to the risk/duplicate facts used. |
 | AI_SUMMARY_FEEDBACK | feedback_id | summary_id -> AI_SUMMARY.summary_id; request_id -> SUPPLIER_REQUEST.request_id | Optional/future table; index summary_id and request_id. |
 | EXISTING_SUPPLIER_REF | supplier_ref_id | None | Unique supplier_number where available; index normalized_name, country_code, tax_registration_number, email_domain, bank_account_hash. |
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id | supplier_ref_id -> EXISTING_SUPPLIER_REF.supplier_ref_id | Index supplier_ref_id, country_code, business_unit_code, address_normalized. |
-| INTEGRATION_LOG | log_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, oic_instance_id, retry_eligible_flag; payload/response values should be references, not raw sensitive payloads. |
-| REF_BUSINESS_UNIT | business_unit_id | None | Unique business_unit_code; active_flag check; fusion_mapping_code required for active values used in Fusion payloads. |
-| REF_SUPPLIER_TYPE | supplier_type_id | None | Unique supplier_type_code; active_flag check; tax_required_flag drives validation rules. |
-| REF_HIGH_RISK_COUNTRY | country_code, effective_from | None | Index active_flag and effective dates; overlapping active ranges should be prevented by rule/data load control. |
-| REF_RISK_RULE | rule_code, version | None | Index active_flag and severity; weight numeric and non-negative. |
-| REF_DUPLICATE_RULE | rule_code, version | None | Index active_flag and critical_trigger_flag; weight numeric and non-negative. |
+| INTEGRATION_LOG | log_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, error_category, oic_instance_id, retry_eligible_flag, created_at; payload/response values should be references, not raw sensitive payloads. |
+| INTEGRATION_RETRY_HISTORY | retry_id | log_id -> INTEGRATION_LOG.log_id; request_id -> SUPPLIER_REQUEST.request_id | Index log_id, request_id, retry_timestamp, retry_result; stores actor, timestamp, attempt number, result, and retry message for audit. |
+| REF_BUSINESS_UNIT | business_unit_id | None | Unique business_unit_code; index fusion_mapping_code and active_flag; fusion_mapping_code required for active values used in Fusion payloads; include created/updated audit fields. |
+| REF_SUPPLIER_TYPE | supplier_type_id | None | Unique supplier_type_code; index active_flag; tax_required_flag drives validation rules; include created/updated audit fields. |
+| REF_HIGH_RISK_COUNTRY | country_code, effective_from | None | Standalone manual reference table; index active_flag and effective dates; overlapping active ranges should be prevented by rule/data load control; include created/updated audit fields. |
+| REF_RISK_RULE | rule_code, version | None | Standalone manual scoring-rule table; index active_flag and severity; weight numeric and non-negative; include created/updated audit fields. |
+| REF_DUPLICATE_RULE | rule_code, version | None | Index active_flag and critical_trigger_flag; weight numeric and non-negative; include created/updated audit fields. |
 
 ### 7.6 Schema Implementation Notes
 
@@ -185,6 +190,10 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 - Apply soft deactivation to reference data through `active_flag`; do not delete reference rows used by historical requests.
 - Use database constraints for structural integrity and service-layer rules for conditional business validation.
 - Keep full bank account values out of ATP unless the customer explicitly approves secure encrypted storage; the prototype baseline stores masked display and hash/token values only.
+- Store Fusion/mock Fusion supplier identifiers directly on `SUPPLIER_REQUEST` so requester dashboards and status details can show the created supplier number without parsing integration logs.
+- Use `run_id` and `is_current` on validation, duplicate, and risk output tables so corrections can trigger reruns while preserving historical evidence.
+- Keep retry attempt history in `INTEGRATION_RETRY_HISTORY`; `INTEGRATION_LOG.retry_count`, `last_retry_at`, and `last_retry_by` are only summary fields.
+- Keep the DBML source artifact at `aidlc-docs/inception/application-design/db-schema.dbml`.
 
 ## 8. ORDS API Design
 

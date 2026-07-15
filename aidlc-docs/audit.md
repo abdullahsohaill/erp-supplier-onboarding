@@ -127,3 +127,11 @@ once u let me know about completeness then we can move forward with wireframes /
 **Context**: AI-DLC Inception - Wireframes/mockups first pass.
 
 ---
+
+## DBML Schema Refinement
+**Timestamp**: 2026-07-15T14:30:00Z
+**User Input**: "can you then correct the code and give me updated one that is perfect?"
+**AI Response**: "Created an updated DBML schema artifact with Fusion result fields, retry history, rerun/current tracking, clearer duplicate candidate modeling, reference-data audit fields, and indexes. Updated technical-design.md and README to reference the corrected schema."
+**Context**: AI-DLC Inception - ATP database schema refinement.
+
+---

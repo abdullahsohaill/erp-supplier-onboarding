@@ -18,6 +18,7 @@ Key documents:
 - `aidlc-docs/inception/user-stories/personas.md`
 - `aidlc-docs/inception/user-stories/stories.md`
 - `aidlc-docs/inception/application-design/technical-design.md`
+- `aidlc-docs/inception/application-design/db-schema.dbml`
 - `aidlc-docs/inception/application-design/wireframe-readiness.md`
 - `aidlc-docs/inception/wireframes/wireframe-spec.md`
 - `mockups/supplier-onboarding-wireframes.html`

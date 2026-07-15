@@ -1,0 +1,515 @@
+// ATP Data Model - Supplier Onboarding, Duplicate Detection & Risk Scoring
+// Updated implementation-ready DBML baseline
+// Source baseline: aidlc-docs/inception/application-design/technical-design.md, Section 7
+
+Table supplier_request {
+  request_id int [pk]
+  request_number varchar [unique, not null]
+  status varchar [not null]
+  supplier_name varchar
+  supplier_type_code varchar
+  country_code varchar
+  business_unit_id int
+  requester_user varchar
+  business_justification text
+  product_service_category varchar
+  expected_annual_spend decimal
+  tax_registration_number varchar
+
+  // Fusion/mock Fusion result fields
+  fusion_supplier_id varchar
+  fusion_supplier_number varchar
+  fusion_created_at timestamp
+  fusion_response_ref varchar
+
+  created_at timestamp
+  submitted_at timestamp
+  last_updated_at timestamp
+
+  indexes {
+    request_number [unique]
+    status
+    requester_user
+    country_code
+    business_unit_id
+    supplier_type_code
+    submitted_at
+    fusion_supplier_number
+  }
+
+  Note: 'Header record, workflow state, requester-visible outcome, and Fusion/mock Fusion result.'
+}
+
+Table supplier_request_site {
+  site_id int [pk]
+  request_id int [not null]
+  site_name varchar
+  country_code varchar
+  address_line1 varchar
+  address_line2 varchar
+  city varchar
+  region varchar
+  postal_code varchar
+  intended_business_unit_id int
+  is_primary boolean
+
+  indexes {
+    request_id
+    country_code
+    intended_business_unit_id
+    (request_id, is_primary)
+  }
+
+  Note: 'At least one site or intended site context. One primary site should be enforced by application/database rule where supported.'
+}
+
+Table supplier_request_contact {
+  contact_id int [pk]
+  request_id int [not null]
+  contact_name varchar
+  contact_email varchar
+  phone_number varchar
+  email_domain varchar
+
+  indexes {
+    request_id
+    email_domain
+  }
+
+  Note: 'Contact data and duplicate signal source.'
+}
+
+Table supplier_request_bank {
+  bank_id int [pk]
+  request_id int [not null]
+  bank_country_code varchar
+  masked_account_display varchar
+  account_last4 varchar
+  account_hash varchar
+  bank_provided_flag boolean
+
+  indexes {
+    request_id
+    account_hash
+    bank_country_code
+  }
+
+  Note: 'Optional bank data with masked/tokenized duplicate support. Full account number is not stored in phase one.'
+}
+
+Table supplier_request_document {
+  document_id int [pk]
+  request_id int [not null]
+  document_type varchar
+  document_status varchar
+  is_required boolean
+  metadata_json json
+  missing_flag boolean
+
+  indexes {
+    request_id
+    document_type
+    missing_flag
+  }
+
+  Note: 'Document metadata and missing-document flags only; file upload is outside phase-one baseline.'
+}
+
+Table status_history {
+  history_id int [pk]
+  request_id int [not null]
+  from_status varchar
+  to_status varchar
+  action_code varchar
+  actor_user varchar
+  action_comment text
+  action_timestamp timestamp
+
+  indexes {
+    request_id
+    action_code
+    action_timestamp
+  }
+
+  Note: 'Auditable status transitions and reviewer/requester/support comments.'
+}
+
+Table validation_result {
+  validation_id int [pk]
+  request_id int [not null]
+  run_id varchar
+  is_current boolean
+  field_name varchar
+  rule_code varchar
+  severity varchar
+  message text
+  is_blocking boolean
+  created_at timestamp
+
+  indexes {
+    request_id
+    run_id
+    is_current
+    rule_code
+    is_blocking
+  }
+
+  Note: 'Business validation results. run_id/is_current allow reruns after correction.'
+}
+
+Table duplicate_match {
+  match_id int [pk]
+  request_id int [not null]
+  run_id varchar
+  is_current boolean
+  candidate_source varchar
+
+  // Existing supplier candidate, when matched against Fusion/mock supplier master
+  candidate_supplier_ref_id int
+  candidate_supplier_number varchar
+  candidate_supplier_name varchar
+
+  // Staged request candidate, when matched against another in-flight request
+  candidate_request_id int
+
+  match_score decimal
+  match_level varchar
+  matched_fields_json json
+  explanation text
+  created_at timestamp
+
+  indexes {
+    request_id
+    run_id
+    is_current
+    candidate_source
+    candidate_supplier_ref_id
+    candidate_request_id
+    match_level
+    match_score
+  }
+
+  Note: 'Duplicate candidates and reasons. Supports both existing supplier references and staged request candidates.'
+}
+
+Table risk_assessment {
+  risk_id int [pk]
+  request_id int [not null]
+  run_id varchar
+  is_current boolean
+  risk_score decimal
+  risk_level varchar
+  scoring_version varchar
+  risk_reasons_json json
+  created_at timestamp
+
+  indexes {
+    request_id
+    run_id
+    is_current
+    risk_level
+    created_at
+  }
+
+  Note: 'Risk score and explainable reasons. run_id/is_current allow recalculation after correction.'
+}
+
+Table ai_summary {
+  summary_id int [pk]
+  request_id int [not null]
+  prompt_version varchar
+  provider_name varchar
+  model_name varchar
+  summary_json json
+  source_facts_hash varchar
+  created_at timestamp
+  created_by varchar
+
+  indexes {
+    request_id
+    prompt_version
+    source_facts_hash
+    created_at
+  }
+
+  Note: 'AI explanation history. AI is advisory only and does not store final decisions.'
+}
+
+Table ai_summary_feedback {
+  feedback_id int [pk]
+  summary_id int [not null]
+  request_id int [not null]
+  helpful_flag boolean
+  feedback_comment text
+  actor_user varchar
+  created_at timestamp
+
+  indexes {
+    summary_id
+    request_id
+    actor_user
+  }
+
+  Note: 'Optional future AI feedback.'
+}
+
+Table existing_supplier_ref {
+  supplier_ref_id int [pk]
+  fusion_supplier_id varchar
+  supplier_number varchar [unique]
+  supplier_name varchar
+  normalized_name varchar
+  country_code varchar
+  tax_registration_number varchar
+  email_domain varchar
+  phone_normalized varchar
+  address_normalized varchar
+  bank_account_hash varchar
+  last_sync_at timestamp
+
+  indexes {
+    supplier_number [unique]
+    fusion_supplier_id
+    normalized_name
+    country_code
+    tax_registration_number
+    email_domain
+    phone_normalized
+    bank_account_hash
+  }
+
+  Note: 'Duplicate reference data from Fusion/mock supplier master.'
+}
+
+Table existing_supplier_site_ref {
+  site_ref_id int [pk]
+  supplier_ref_id int [not null]
+  fusion_site_id varchar
+  site_name varchar
+  country_code varchar
+  address_normalized varchar
+  business_unit_code varchar
+
+  indexes {
+    supplier_ref_id
+    fusion_site_id
+    country_code
+    business_unit_code
+    address_normalized
+  }
+
+  Note: 'Supplier site reference data from Fusion/mock supplier master.'
+}
+
+Table integration_log {
+  log_id int [pk]
+  request_id int [not null]
+  integration_name varchar
+  oic_instance_id varchar
+  direction varchar
+  status varchar
+  error_category varchar
+  payload_ref varchar
+  response_ref varchar
+  user_message text
+  technical_message text
+  retry_count int
+  retry_eligible_flag boolean
+  last_retry_at timestamp
+  last_retry_by varchar
+  created_at timestamp
+
+  indexes {
+    request_id
+    integration_name
+    oic_instance_id
+    status
+    error_category
+    retry_eligible_flag
+    created_at
+  }
+
+  Note: 'OIC/Fusion observability. Payload and response values should be references, not raw sensitive payloads.'
+}
+
+Table integration_retry_history {
+  retry_id int [pk]
+  log_id int [not null]
+  request_id int [not null]
+  retry_attempt int
+  retry_actor varchar
+  retry_timestamp timestamp
+  retry_result varchar
+  retry_message text
+
+  indexes {
+    log_id
+    request_id
+    retry_timestamp
+    retry_result
+  }
+
+  Note: 'Auditable retry attempt history for eligible integration failures.'
+}
+
+Table ref_business_unit {
+  business_unit_id int [pk]
+  business_unit_code varchar [unique]
+  business_unit_name varchar
+  fusion_mapping_code varchar
+  active_flag boolean
+  created_at timestamp
+  created_by varchar
+  updated_at timestamp
+  updated_by varchar
+
+  indexes {
+    business_unit_code [unique]
+    fusion_mapping_code
+    active_flag
+  }
+
+  Note: 'Business unit lookup/mapping maintained by Support/Admin.'
+}
+
+Table ref_supplier_type {
+  supplier_type_id int [pk]
+  supplier_type_code varchar [unique]
+  supplier_type_name varchar
+  tax_required_flag boolean
+  active_flag boolean
+  created_at timestamp
+  created_by varchar
+  updated_at timestamp
+  updated_by varchar
+
+  indexes {
+    supplier_type_code [unique]
+    active_flag
+  }
+
+  Note: 'Supplier type lookup and tax-required configuration.'
+}
+
+Table ref_high_risk_country {
+  country_code varchar
+  effective_from date
+  country_name varchar
+  risk_level varchar
+  active_flag boolean
+  effective_to date
+  created_at timestamp
+  created_by varchar
+  updated_at timestamp
+  updated_by varchar
+
+  indexes {
+    (country_code, effective_from) [pk]
+    active_flag
+    effective_to
+  }
+
+  Note: 'Manually maintained configurable country risk reference. Standalone by design.'
+}
+
+Table ref_risk_rule {
+  rule_code varchar
+  version varchar
+  rule_name varchar
+  weight decimal
+  severity varchar
+  active_flag boolean
+  created_at timestamp
+  created_by varchar
+  updated_at timestamp
+  updated_by varchar
+
+  indexes {
+    (rule_code, version) [pk]
+    active_flag
+    severity
+  }
+
+  Note: 'Manually defined risk scoring rules/weights. Standalone by design; consumed by risk scoring engine.'
+}
+
+Table ref_duplicate_rule {
+  rule_code varchar
+  version varchar
+  rule_name varchar
+  weight decimal
+  critical_trigger_flag boolean
+  active_flag boolean
+  created_at timestamp
+  created_by varchar
+  updated_at timestamp
+  updated_by varchar
+
+  indexes {
+    (rule_code, version) [pk]
+    active_flag
+    critical_trigger_flag
+  }
+
+  Note: 'Duplicate scoring rule configuration maintained by Support/Admin.'
+}
+
+// Relationships
+
+Ref: supplier_request.business_unit_id > ref_business_unit.business_unit_id
+Ref: supplier_request.supplier_type_code > ref_supplier_type.supplier_type_code
+
+Ref: supplier_request_site.request_id > supplier_request.request_id
+Ref: supplier_request_site.intended_business_unit_id > ref_business_unit.business_unit_id
+
+Ref: supplier_request_contact.request_id > supplier_request.request_id
+Ref: supplier_request_bank.request_id > supplier_request.request_id
+Ref: supplier_request_document.request_id > supplier_request.request_id
+Ref: status_history.request_id > supplier_request.request_id
+
+Ref: validation_result.request_id > supplier_request.request_id
+Ref: duplicate_match.request_id > supplier_request.request_id
+Ref: duplicate_match.candidate_supplier_ref_id > existing_supplier_ref.supplier_ref_id
+Ref: duplicate_match.candidate_request_id > supplier_request.request_id
+Ref: risk_assessment.request_id > supplier_request.request_id
+
+Ref: ai_summary.request_id > supplier_request.request_id
+Ref: ai_summary_feedback.summary_id > ai_summary.summary_id
+Ref: ai_summary_feedback.request_id > supplier_request.request_id
+
+Ref: existing_supplier_site_ref.supplier_ref_id > existing_supplier_ref.supplier_ref_id
+
+Ref: integration_log.request_id > supplier_request.request_id
+Ref: integration_retry_history.log_id > integration_log.log_id
+Ref: integration_retry_history.request_id > supplier_request.request_id
+
+// Table groups matching technical design sections
+
+TableGroup core_tables {
+  supplier_request
+  supplier_request_site
+  supplier_request_contact
+  supplier_request_bank
+  supplier_request_document
+  status_history
+}
+
+TableGroup rule_output_tables {
+  validation_result
+  duplicate_match
+  risk_assessment
+  ai_summary
+  ai_summary_feedback
+}
+
+TableGroup integration_and_reference_tables {
+  existing_supplier_ref
+  existing_supplier_site_ref
+  integration_log
+  integration_retry_history
+  ref_business_unit
+  ref_supplier_type
+  ref_high_risk_country
+  ref_risk_rule
+  ref_duplicate_rule
+}
