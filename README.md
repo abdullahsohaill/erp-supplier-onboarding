@@ -8,7 +8,7 @@ The project defines a supplier onboarding solution using Oracle Visual Builder, 
 
 ## Current Phase
 
-The project is in AI-DLC Inception. The current artifacts are ready for requirements/design review before wireframes.
+The project is in AI-DLC Inception. Requirements, verification questions, technical design, and first-pass wireframes/mockups are ready for review.
 
 Key documents:
 
@@ -19,6 +19,14 @@ Key documents:
 - `aidlc-docs/inception/user-stories/stories.md`
 - `aidlc-docs/inception/application-design/technical-design.md`
 - `aidlc-docs/inception/application-design/wireframe-readiness.md`
+- `aidlc-docs/inception/wireframes/wireframe-spec.md`
+- `mockups/supplier-onboarding-wireframes.html`
+
+To open the static mockup locally:
+
+```bash
+open mockups/supplier-onboarding-wireframes.html
+```
 
 ## Notes
 

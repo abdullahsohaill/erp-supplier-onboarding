@@ -119,3 +119,11 @@ once u let me know about completeness then we can move forward with wireframes /
 **Context**: AI-DLC Inception - User story visual companion diagrams.
 
 ---
+
+## Wireframes and Mockups
+**Timestamp**: 2026-07-15T14:05:00Z
+**User Input**: "Using AI-DLC, create complete wireframes/mockups for the ERP supplier onboarding project based on the approved requirements, user stories, and technical design."
+**AI Response**: "Created a wireframe specification with 10 traceable screens and a clickable static HTML mockup covering Requester, Reviewer, and Support/Admin flows. Updated AI-DLC state, wireframe review notes, and README to point to the new artifacts."
+**Context**: AI-DLC Inception - Wireframes/mockups first pass.
+
+---

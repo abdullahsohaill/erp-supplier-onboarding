@@ -1,6 +1,6 @@
-# Wireframe Readiness Notes
+# Wireframe Review Notes
 
-Wireframes are intentionally not generated yet. This document captures what must be true before the wireframe phase starts.
+Wireframes/mockups have now been generated. This document captures the approved baseline and the artifacts to review before moving into construction-stage design.
 
 ## Current Readiness
 
@@ -9,23 +9,18 @@ Wireframes are intentionally not generated yet. This document captures what must
 | Personas | Ready | Requester, Reviewer, Support/Admin User. |
 | User stories | Ready for review | 14 consolidated stories with acceptance criteria and requirement mapping. |
 | Requirements | Approved for wireframe baseline | 15 FRs and 8 NFRs reviewed by user. |
-| Technical design | Ready for final review | Complete for proposal and wireframe preparation; final build details depend on customer tenancy/security validation. |
+| Technical design | Complete for wireframe baseline | Architecture, data model/schema, ORDS APIs, OIC/Fusion boundaries, duplicate/risk/AI logic covered. |
 | Answered assumptions | Approved for wireframe baseline | 34 AI-DLC questions were reviewed by user and accepted as the working baseline. |
+| Wireframes/mockups | Ready for review | Specification and clickable static mockup created. |
 
-## What We Need Before Wireframing
+## Wireframe Artifacts
 
-| Need | Why It Matters |
+| Artifact | Location | Purpose |
 |---|---|
-| Approval of three-persona model | Determines navigation, permissions, and screen variants. |
-| Approval of request statuses | Drives status chips, timeline, queues, and filters. |
-| Confirm real-time duplicate preview assumption | Current assumption: optional only, if schedule allows. |
-| Confirm attachment metadata assumption | Current assumption: metadata and missing-document flags only; no upload. |
-| Confirm AI runtime/mock assumption | Current assumption: customer-approved enterprise AI service or mock if unavailable. |
-| Confirm bank handling assumption | Current assumption: optional capture, mask display, token/hash for duplicate checks, no Fusion bank creation. |
-| Confirm dashboard scope | Current assumption: requester dashboard, reviewer dashboard, support/admin dashboard. |
-| Confirm demo scenarios | Current assumption: duplicate-risk, clean supplier creation, high-risk incomplete request, integration failure with retry. |
+| Wireframe specification | `aidlc-docs/inception/wireframes/wireframe-spec.md` | Screen goals, traceability, layout notes, states, and review checklist. |
+| Clickable mockup | `mockups/supplier-onboarding-wireframes.html` | Static HTML review artifact with role navigation and 10 screens. |
 
-## Likely Wireframe Screen Inventory
+## Wireframe Screen Inventory
 
 | Screen | Persona | Purpose |
 |---|---|---|
@@ -34,6 +29,7 @@ Wireframes are intentionally not generated yet. This document captures what must
 | Request Detail and Status Timeline | Requester | View status, reviewer comments, duplicate reference, Fusion supplier number. |
 | Reviewer Dashboard | Reviewer | Review queue, high-risk, duplicate-risk, pending, failed, recently created requests. |
 | Request Review Detail | Reviewer | See validation, duplicate matches, risk factors, AI summary, request data, history. |
+| Duplicate / Risk / AI Evidence Panel | Reviewer | Inspect duplicate candidates, risk reasons, AI advisory summary, and data minimization guardrails. |
 | Review Decision Modal | Reviewer | Approve, reject, request correction, mark duplicate with required comments/reference. |
 | Support/Admin Dashboard | Support/Admin | View integration failures, retry eligibility, OIC instance IDs, retry counts. |
 | Integration Log Detail | Support/Admin | Inspect user-friendly and technical error detail, payload/response references. |
@@ -42,7 +38,14 @@ Wireframes are intentionally not generated yet. This document captures what must
 ## Wireframe Entry Criteria
 
 - [x] Requirements reviewed.
-- [ ] Technical design reviewed.
+- [x] Technical design reviewed for wireframe baseline.
 - [x] Answered assumptions reviewed or changes listed.
-- [ ] Screen inventory approved.
-- [ ] User explicitly asks to begin wireframes.
+- [x] Screen inventory approved by user command to create complete wireframes/mockups.
+- [x] User explicitly asked to begin wireframes.
+
+## Wireframe Exit Criteria
+
+- [ ] User reviews the wireframe specification.
+- [ ] User reviews the clickable static mockup.
+- [ ] Requested screen/layout changes are captured.
+- [ ] Wireframes are approved for construction-stage design.

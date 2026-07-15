@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: INCEPTION
-- **Current Stage**: INCEPTION - Requirements and design review gate
+- **Current Stage**: INCEPTION - Wireframes/mockups review gate
 
 ## Workspace State
 - **Existing Code**: No
@@ -35,6 +35,7 @@
 - [x] Workflow Planning draft
 - [x] Application Design draft
 - [x] Units Generation draft
+- [x] Wireframes/mockups first pass
 
 ### CONSTRUCTION PHASE
 - [ ] Functional Design per unit
@@ -48,4 +49,4 @@
 - [ ] Operations placeholder
 
 ## Current Review Gate
-Requirements and verification questions have been reviewed by the user and accepted for the wireframe baseline. Review the technical design completeness assessment, especially architecture, ATP data model/database schema, ORDS APIs, OIC/Fusion boundaries, risk, duplicate detection, and AI guardrails. Wireframes are intentionally deferred until the user explicitly commands that next phase.
+Wireframe/mockup first pass is complete. Review `aidlc-docs/inception/wireframes/wireframe-spec.md` and `mockups/supplier-onboarding-wireframes.html`, then request changes or approve the wireframes before moving into construction-stage functional/NFR/infrastructure design.
