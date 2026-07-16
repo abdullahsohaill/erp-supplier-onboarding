@@ -33,7 +33,7 @@ Standardize supplier onboarding on the requested Oracle stack, reduce duplicate 
 |---|---|---|---|
 | Requester | Business user requesting a new supplier. | Submit a complete supplier request, fix missing data, track status, know which existing supplier to use if duplicate. | Create drafts, submit own requests, update correction-requested requests, view own status and reviewer comments. |
 | Reviewer | Single business reviewer for the prototype. Owns completeness, duplicate, risk, payment-warning, and supplier-review decisions. | Review requests efficiently, understand duplicate/risk reasons, keep AI advisory only, approve/reject/request correction/mark duplicate. | View review queue, duplicate matches, risk reasons, AI summary, validation results, and perform review actions. |
-| Support/Admin User | Technical support and configuration user. | Troubleshoot OIC/Fusion issues, retry eligible failures, maintain reference data. | View integration logs, inspect payload/response references, retry eligible failures, maintain reference data. |
+| Support/Admin User | Technical support and configuration user. | Troubleshoot OIC/Fusion issues, retry eligible failures, maintain Admin Data/configuration screens. | View integration logs, inspect payload/response references, retry eligible failures, maintain Admin Data controls. |
 
 ## Functional Requirements
 
@@ -48,7 +48,7 @@ The application shall provide a guided Oracle Visual Builder experience for crea
 
 Acceptance criteria:
 - Requester can save Draft, edit Draft, submit, and resubmit Correction Requested supplier requests.
-- Request captures supplier name, supplier type, country, address/site, contact person, contact email, phone, business unit, requester, business justification, product/service category, expected annual spend, tax registration where applicable, optional bank indicators, and document metadata.
+- Request captures supplier name, supplier type, country, structured address/site fields, contact person, contact email, phone, business unit, requester, business justification, product/service category, expected annual spend, tax registration where applicable, optional bank indicators, and document metadata.
 - At least one supplier site or intended site/business-unit context is captured.
 - Request receives a unique request number and is staged in ATP through ORDS.
 - Visual Builder does not call Fusion supplier creation APIs directly.
@@ -105,11 +105,14 @@ Verification: API tests and Visual Builder service connection review.
 The application shall validate supplier request data before review and before Fusion submission. Validation should distinguish business data issues from technical integration errors so users receive the right message and support teams see the right diagnostic detail.
 
 Acceptance criteria:
-- Flags missing supplier name, country, supplier type, business unit, contact email, address/site context, and tax registration where applicable.
+- Flags missing supplier name, country, supplier type, business unit, contact email, required structured address/site fields, and tax registration where applicable.
 - Flags invalid business unit mapping and malformed contact email.
+- Tax registration is conditionally required by country, supplier type, and Admin Data validation-rule configuration; it is not globally mandatory for every supplier.
+- Address validation uses structured completeness checks for building/house/office, street/area, city, province/state, country, and postal code where applicable.
+- Exact tax registration duplicate and same bank token/hash duplicate are blocking validation errors that prevent requester submission.
 - Produces field-level validation result with rule code, severity, user-friendly message, blocking flag, and corrective guidance.
 - Business validation errors are stored separately from OIC/Fusion technical errors.
-- Blocking validation errors prevent approval until corrected or explicitly reclassified by approved policy.
+- Blocking validation errors prevent requester submission or reviewer approval, depending on when the rule is evaluated, until corrected or explicitly reclassified by approved policy.
 
 Verification: validation test matrix.
 
@@ -119,11 +122,11 @@ Verification: validation test matrix.
 The application shall detect possible duplicate suppliers using exact and fuzzy matching against existing supplier reference data and staged requests. Duplicate detection is a primary project outcome and must be explainable to the Reviewer.
 
 Acceptance criteria:
-- Duplicate check runs after submission and before approval.
-- Optional early duplicate preview can be provided while entering supplier data if schedule allows.
+- Duplicate check runs automatically during submit/resubmit validation and before approval.
+- Requesters do not manually run a duplicate-preview action.
 - Duplicate check compares against existing supplier reference data in ATP and relevant staged requests.
 - Signals include normalized supplier name, tax registration, country, email domain, phone, address similarity, and bank token/hash when bank data is captured.
-- Exact tax ID and same bank token/hash are Critical duplicate/risk triggers by default.
+- Exact tax ID and same bank token/hash are Critical duplicate triggers by default and are surfaced as blocking validation errors for requester submission.
 - Reviewer sees candidate supplier, score/level, and matched fields.
 
 Verification: exact tax, fuzzy name, same bank, email/domain, and address match tests.
@@ -135,11 +138,11 @@ The application shall calculate an explainable supplier risk score and risk leve
 
 Acceptance criteria:
 - Uses Low, Medium, High, and Critical risk levels by default.
-- Risk factors include missing tax, high-risk country, bank country mismatch, incomplete address, vague justification, high spend with weak justification, duplicate tax ID, same bank token/hash, duplicate score, missing documents, and invalid business unit mapping.
+- Risk factors include missing tax where configured as warning, high-risk country, bank country mismatch, incomplete address, vague justification, high spend with weak justification, duplicate score, missing documents, invalid business unit mapping, and missing or incomplete bank details.
 - Risk score stores scoring version, timestamp, score, level, and individual reasons.
 - Reviewer can see each risk reason in business language.
 - Risk can be recalculated after request correction.
-- Thresholds/weights are seeded in ATP reference/config tables.
+- Thresholds/weights and active/inactive risk-factor settings are represented through Admin Data configuration.
 
 Verification: risk scoring test matrix and reference data inspection.
 
@@ -169,6 +172,7 @@ Acceptance criteria:
 - Reviewer can approve, reject, request correction, or mark duplicate.
 - Approve is allowed only from Under Review and only when blocking validation is resolved.
 - Reject, request correction, and mark duplicate require reviewer comment.
+- Request correction can target specific validation, risk, or evidence items such as business justification, tax registration, address, or bank detail completeness.
 - Mark Duplicate requires existing supplier reference.
 - High-risk or duplicate-risk requests cannot bypass manual review.
 - Rejected and Marked Duplicate requests cannot be submitted/retried for Fusion creation.
@@ -182,8 +186,9 @@ The application shall provide dashboards tailored to the three personas. Dashboa
 
 Acceptance criteria:
 - Requester dashboard shows own drafts, submitted, correction-needed, created, rejected, and duplicate-marked requests.
+- Requester dashboard includes an Actions column: Correction Requested rows show `Edit and Resubmit`, while all other statuses show `View`.
 - Reviewer dashboard shows pending, under-review, high-risk, duplicate-risk, recently created, failed requests, and review queue.
-- Support/Admin dashboard shows integration failures, retry eligibility, OIC instance IDs, retry counts, and reference/admin functions.
+- Support/Admin dashboard shows integration failures, retry eligibility, OIC instance IDs, retry counts, and Admin Data functions.
 - Reviewer filters include business unit, country, supplier type, requester, status, risk level, duplicate risk, expected spend, and product/service category.
 - Dashboard counts match filtered results.
 
@@ -237,7 +242,7 @@ Verification: integration failure and retry demo.
 
 ### Governance, Sensitive Data, and Demo Readiness
 
-#### FR-014: Sensitive Data and Reference Rule Controls
+#### FR-014: Sensitive Data and Admin Rule Controls
 **Priority:** Must
 
 The application shall protect sensitive supplier and bank data while allowing configured rules to support validation, duplicate detection, and risk scoring. Optional document handling is limited to metadata and missing-document indicators in phase one.
@@ -245,9 +250,10 @@ The application shall protect sensitive supplier and bank data while allowing co
 Acceptance criteria:
 - Bank information is optional, masked in UI, and represented by token/hash for duplicate checks where captured.
 - Full bank account number is not sent to AI or exposed in logs.
+- Payment setup workflow is out of scope for phase one; bank information is captured only as metadata/indicators for validation, duplicate detection, risk scoring, and review evidence.
 - Document metadata and missing-document flags are captured; full upload is excluded in phase one.
-- High-risk countries, supplier types, business units, duplicate/risk thresholds, and mappings are stored as seed/reference data.
-- Support/Admin can maintain selected reference data if included in scope.
+- Admin Data includes selected validation-rule toggles, risk-factor toggles, high-risk countries, supplier types, business units, duplicate/risk thresholds, and mappings.
+- Support/Admin can activate/deactivate selected validation rules and risk factors in the Admin Data mockup/docs; backend/database implementation is handled separately.
 
 Verification: security review and reference data inspection.
 
@@ -312,11 +318,11 @@ Verification: AI prompt/output review.
 
 | Rule ID | Rule | Severity | Related Requirements |
 |---|---|---|---|
-| BR-001 | Supplier name, country, supplier type, business unit, contact email, business justification, product/service category, and at least one site/address context are required for submission. | Blocking | FR-001, FR-005 |
+| BR-001 | Supplier name, country, supplier type, business unit, contact email, business justification, product/service category, and required structured address/site fields are required for submission. | Blocking | FR-001, FR-005 |
 | BR-002 | Tax registration is required where country/supplier-type rule requires it. | Blocking or warning by configuration | FR-005, FR-007 |
-| BR-003 | Exact tax ID match creates Critical duplicate/risk signal. | Critical | FR-006, FR-007 |
-| BR-004 | Same bank token/hash creates Critical duplicate/risk signal when bank data is captured. | Critical | FR-006, FR-007, FR-014 |
-| BR-005 | Bank country mismatch, high-risk country, vague justification, high spend with weak justification, incomplete address, missing documents, and invalid business unit mapping create risk reasons. | Warning or blocking by rule | FR-005, FR-007, FR-014 |
+| BR-003 | Exact tax ID match creates a Critical duplicate trigger and blocks requester submission. | Blocking | FR-005, FR-006, FR-007 |
+| BR-004 | Same bank token/hash creates a Critical duplicate trigger and blocks requester submission when bank data is captured. | Blocking | FR-005, FR-006, FR-007, FR-014 |
+| BR-005 | Bank country mismatch, high-risk country, vague justification, high spend with weak justification, incomplete address, missing documents, missing or incomplete bank details, and invalid business unit mapping create risk reasons. | Warning or blocking by rule | FR-005, FR-007, FR-014 |
 | BR-006 | Duplicate-risk or high-risk requests cannot be submitted to Fusion without Reviewer action. | Blocking | FR-007, FR-009, FR-011 |
 | BR-007 | AI output cannot approve, reject, mark duplicate, route escalation automatically, retry integration, or create suppliers. | Blocking | FR-008 |
 | BR-008 | Rejected and Marked Duplicate requests cannot be retried for Fusion creation. | Blocking | FR-009, FR-013 |

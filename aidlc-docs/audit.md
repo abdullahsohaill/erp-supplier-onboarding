@@ -11,6 +11,115 @@ how do i integrate this workflow here in this project to get started and then we
 
 ---
 
+## Inception Amendment Implementation
+**Timestamp**: 2026-07-16T21:15:48Z
+**User Input**: "Implement these approved non-DB fixes using AI-DLC. Update requirements, stories if needed, technical design, wireframe spec, and mockup. Do not modify DB schema or database-schema-design files. also make the commits/push to github"
+**AI Response**: "Implemented the approved non-DB fixes across requirements, user stories, technical design, wireframe specification, and HTML mockup. Added AI-DLC implementation plan and updated state/audit. Confirmed DB schema and database-schema-design artifacts were not modified. Prepared changes for commit and push."
+**Context**: AI-DLC Inception - Non-DB wireframe/review amendment implementation.
+
+---
+
+## Documentation Support Request
+**Timestamp**: 2026-07-16T21:08:55Z
+**User Input**: "clarifying questions answred:
+
+should no order, yes, edit and resubmit, otherwise only show view
+
+should the bank payment -> rename
+
+should payment setup -> not part of phase 1 out of scope
+
+mock thingy umair -> yes
+
+critical triggers -> shouldnt allow requester to submit applciation in the first place"
+**AI Response**: "Updated the non-DB confirmation note to convert the open items into confirmed decisions. Captured that non-correction requester rows show View, the bank risk factor is renamed only, payment setup is out of phase-one scope, Admin Data controls are represented in mockups/docs only, and critical duplicate triggers block requester submission. No implementation or commit was performed."
+**Context**: AI-DLC Inception - Clarifying decisions recorded for upcoming non-DB implementation.
+
+---
+
+## Documentation Support Request
+**Timestamp**: 2026-07-16T17:40:00Z
+**User Input**: "rename it and trim the for umair part, also dont commit anyth as of yet"
+**AI Response**: "Renamed the non-DB confirmation note to remove the Umair-specific naming and trimmed Umair-specific wording from the document. No commit was created."
+**Context**: AI-DLC Inception - Shareable non-DB fix confirmation note renamed and kept uncommitted.
+
+---
+
+## Documentation Support Request
+**Timestamp**: 2026-07-16T17:36:39Z
+**User Input**: "give this in a md file that i can give to umair:\"**Proposed Fixes To Confirm**
+**Requester dashboard action column**
+Remove the separate Needs Attention card.
+In My Supplier Requests, add a new right-side Actions column after Next Action.
+Show Edit and Resubmit button only for rows with status Correction Requested.
+Other statuses can show View, disabled dash, or no button. Recommended: View for normal rows, Edit and Resubmit only for correction rows.
+
+**Rename Reference Data**
+Rename Reference Data to Admin Data in mockups/specs.
+This screen is where admin/support can manage config-like things: validation rules, risk factors, high-risk countries, supplier types, duplicate rules, BU mappings.
+
+**Validation/risk on-off controls**
+Add an Admin Data > Validation Rules section with global on/off toggles.
+Add an Admin Data > Risk Factors section with on/off toggles and weight/severity display.
+Example toggles:Tax registration required rule
+Address completeness rule
+Exact tax duplicate critical block
+Same bank token/hash critical block
+High-risk country risk warning
+Vague justification risk warning
+Bank country mismatch warning
+
+Since DB is Umair’s area, we only represent this in docs/mockups and mention backend config support, not schema changes.
+
+**Duplicate preview removal**
+Remove Run Duplicate Preview button from request form.
+Remove Duplicate Preview panel.
+Remove wording that requester manually runs duplicate preview.
+Duplicate detection should happen automatically as part of validation/submission.
+On submit/resubmit, system runs validation, duplicate detection, and risk scoring.
+Reviewer sees duplicate evidence after submission.
+Requester does not need a button.
+
+**Critical duplicate triggers**
+Exact tax registration duplicate and same bank token/hash duplicate should be blocking validation errors.
+Meaning: requester cannot submit/create the request until resolved or corrected.
+These should appear in validation results, not only as risk score reasons.
+High-risk country is not a blocker. It stays as a risk warning for reviewer.
+
+**Address validation**
+Do not use regex-heavy single address validation.
+Replace single address with structured fields:Building/House/Office
+Street/Area
+City
+Province/State
+Country
+Postal Code, if applicable
+
+Validation checks required address parts are present.
+If still suspicious/incomplete, reviewer or AI can flag it manually as weak/incomplete address.
+
+**Bank/payment setup**
+Keep bank/payment fields as metadata, masked/tokenized.
+Do not expose full account number.
+For the risk factor, confirm wording with Umair:Current: Missing bank details when payment setup is required
+Possible revised: Missing or incomplete payment setup details
+
+I would not delete the whole risk factor yet until you confirm whether payment setup is in scope.
+
+**Tax registration mandatory question**
+Tax registration should not be globally mandatory for every supplier.
+It should be conditionally mandatory based on country + supplier type + admin validation rule.
+If not required by config, missing tax can be a warning/risk reason instead of a blocking validation error.
+
+**Reviewer feedback on specific fields**
+Reviewer should be able to mark specific validation/risk/evidence items for correction.
+Example: mark Business Justification as weak, Tax Registration as missing, Address as incomplete.
+Requester then sees targeted correction guidance instead of one generic comment.\""
+**AI Response**: "Created a shareable Markdown confirmation note for Umair covering the proposed non-DB fixes and open approval items. No mockup, requirements, technical design, user story, or database schema implementation changes were made."
+**Context**: AI-DLC Inception - Non-DB meeting fix confirmation note prepared for team review.
+
+---
+
 ## Workspace Detection
 **Timestamp**: 2026-07-15T11:41:29Z
 **User Input**: "Use customer requirements PDF and AI-DLC workflow to produce proposal, functional requirements, and technical design."

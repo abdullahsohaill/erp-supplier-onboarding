@@ -74,7 +74,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | Approve/reject/request correction/mark duplicate | No | Yes | No by default |
 | View integration logs | No | Limited business status only | Yes |
 | Retry integration failures | No | No | Yes |
-| Maintain reference data | No | No | Yes |
+| Maintain Admin Data controls | No | No | Yes |
 
 ## 6. Request Status Model
 
@@ -259,11 +259,10 @@ Error response:
 | GET | `/requests` | Requester, Reviewer, Support/Admin | List requests with role-aware scope and filters. |
 | GET | `/requests/{requestId}` | Requester owner, Reviewer, Support/Admin | Retrieve role-aware request detail; Requester projection excludes persisted risk assessment. |
 | PATCH | `/requests/{requestId}` | Requester owner | Update Draft or Correction Requested request. |
-| POST | `/requests/{requestId}/submit` | Requester owner | Submit for validation/review. |
+| POST | `/requests/{requestId}/submit` | Requester owner | Submit for validation/review; validation can block submission before review status is reached. |
 | POST | `/requests/{requestId}/validate` | Reviewer, Support/Admin, System | Run validation. |
 | GET | `/requests/{requestId}/validation-results` | Requester owner, Reviewer, Support/Admin | Retrieve validation findings. |
-| POST | `/requests/{requestId}/duplicate-check` | Reviewer, Support/Admin, System | Run persisted duplicate check. |
-| POST | `/duplicate-preview` | Requester | Optional early duplicate warning. |
+| POST | `/requests/{requestId}/duplicate-check` | Reviewer, Support/Admin, System | Run persisted duplicate check; submit/resubmit orchestration invokes this automatically. |
 | GET | `/requests/{requestId}/duplicate-matches` | Requester owner summary, Reviewer, Support/Admin | Retrieve duplicate matches. |
 | POST | `/requests/{requestId}/risk-score` | Reviewer, Support/Admin, System | Calculate risk. |
 | GET | `/requests/{requestId}/risk-assessment` | Reviewer, Support/Admin | Retrieve the latest persisted risk assessment without recalculating it. |
@@ -274,7 +273,7 @@ Error response:
 | POST | `/requests/{requestId}/attachment-metadata` | Requester owner | Add/update document metadata. |
 | POST | `/requests/{requestId}/approve` | Reviewer | Approve for Fusion submission. |
 | POST | `/requests/{requestId}/reject` | Reviewer | Reject with comment. |
-| POST | `/requests/{requestId}/request-correction` | Reviewer | Return to requester with comment. |
+| POST | `/requests/{requestId}/request-correction` | Reviewer | Return to requester with comment and optional targeted correction items. |
 | POST | `/requests/{requestId}/mark-duplicate` | Reviewer | Close as duplicate with existing supplier reference. |
 | POST | `/requests/{requestId}/submit-to-fusion` | System, Support/Admin | Trigger OIC submission or mark as pending submission. |
 | POST | `/requests/{requestId}/retry` | Support/Admin | Retry eligible failed integration. |
@@ -285,10 +284,12 @@ Error response:
 | GET | `/integration-logs/{logId}` | Support/Admin | View one integration log. |
 | GET | `/reference/business-units` | All authenticated | Business unit lookup. |
 | GET | `/reference/supplier-types` | All authenticated | Supplier type lookup. |
-| GET | `/reference/high-risk-countries` | Reviewer, Support/Admin | High-risk country lookup. |
-| PUT | `/reference/high-risk-countries/{countryCode}` | Support/Admin | Maintain high-risk country flag. |
-| GET | `/reference/risk-rules` | Support/Admin | View risk rule configuration. |
-| PUT | `/reference/risk-rules/{ruleCode}` | Support/Admin | Maintain risk rule configuration if included. |
+| GET | `/admin-data/high-risk-countries` | Reviewer, Support/Admin | High-risk country lookup. |
+| PUT | `/admin-data/high-risk-countries/{countryCode}` | Support/Admin | Maintain high-risk country warning configuration if included. |
+| GET | `/admin-data/validation-rules` | Support/Admin | View validation rule active/inactive configuration. |
+| PUT | `/admin-data/validation-rules/{ruleCode}` | Support/Admin | Maintain validation rule active/inactive setting if included. |
+| GET | `/admin-data/risk-factors` | Support/Admin | View risk factor weights, severity, and active/inactive configuration. |
+| PUT | `/admin-data/risk-factors/{factorCode}` | Support/Admin | Maintain risk factor active/inactive setting and weighting if included. |
 
 #### Requester Response Projection
 
@@ -311,8 +312,10 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
   },
   "site": {
     "siteName": "London Main",
-    "addressLine1": "1 King Street",
+    "buildingHouseOffice": "Office 12",
+    "streetArea": "1 King Street",
     "city": "London",
+    "provinceState": "Greater London",
     "postalCode": "SW1A 1AA",
     "countryCode": "GB"
   },
@@ -345,8 +348,10 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 | VAL-003 | Supplier type required. | Validation Failed |
 | VAL-004 | Business unit required and mapped. | Validation Failed |
 | VAL-005 | Contact email required and valid. | Validation Failed |
-| VAL-006 | Address/site context required. | Validation Failed |
+| VAL-006 | Required structured address/site fields are complete: building/house/office, street/area, city, province/state, country, and postal code where applicable. | Validation Failed |
 | VAL-007 | At least one supplier site required for phase-one baseline. | Validation Failed |
+| VAL-008 | Exact tax registration duplicate found in existing supplier reference data or relevant staged requests. | Validation Failed |
+| VAL-009 | Same bank token/hash duplicate found when bank data is captured. | Validation Failed |
 
 ### 9.2 Warning Validations
 
@@ -357,13 +362,15 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 | VAL-103 | Business justification appears vague. | Risk reason |
 | VAL-104 | Expected annual spend is high and justification is weak. | Risk reason |
 | VAL-105 | Required document metadata indicates missing tax/registration document. | Risk reason |
+| VAL-106 | High-risk country selected. | Risk reason |
+| VAL-107 | Missing or incomplete bank details. | Risk reason |
 
 ## 10. Duplicate Detection Design
 
 ### 10.1 Execution Points
 
-- Mandatory: after submission and before approval.
-- Optional: early duplicate preview while requester enters supplier data.
+- Mandatory: automatically during submit/resubmit validation and before approval.
+- No requester-triggered duplicate-check button or standalone requester warning endpoint is included in phase one.
 - Re-run: after correction or material field change.
 
 ### 10.2 Normalization
@@ -381,8 +388,8 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 
 | Signal | Weight / Effect |
 |---|---:|
-| Exact tax registration match | Critical trigger |
-| Same bank account token/hash | Critical trigger |
+| Exact tax registration match | Blocking validation trigger |
+| Same bank account token/hash | Blocking validation trigger |
 | Strong normalized name similarity | 30 |
 | Same country | 10 |
 | Same email domain | 15 |
@@ -394,8 +401,8 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 
 | Level | Criteria |
 |---|---|
-| Critical | Exact tax registration match or same bank token/hash. |
-| High | Score >= 70 without Critical trigger. |
+| Critical | Exact tax registration match or same bank token/hash; surfaced as blocking validation before requester submission completes. |
+| High | Score >= 70 without a blocking duplicate validation trigger. |
 | Medium | Score 40-69. |
 | Low | Score < 40. |
 
@@ -407,13 +414,11 @@ Thresholds should be stored in `REF_DUPLICATE_RULE` or equivalent seeded configu
 
 | Factor | Weight / Effect |
 |---|---:|
-| Exact tax ID duplicate | Critical trigger |
-| Same bank account token/hash | Critical trigger |
 | Missing tax registration where expected | +25 |
 | High-risk country | +25 |
 | Bank country differs from supplier country | +20 |
 | Incomplete address | +15 |
-| Missing bank details when payment setup is required | +15 |
+| Missing or incomplete bank details | +15 |
 | Vague business justification | +15 |
 | High expected spend with weak justification | +20 |
 | Missing required document metadata | +10 |
@@ -424,7 +429,7 @@ Thresholds should be stored in `REF_DUPLICATE_RULE` or equivalent seeded configu
 
 | Level | Criteria |
 |---|---|
-| Critical | Critical trigger exists. |
+| Critical | Reserved for configured critical risk policy; phase-one exact tax and same bank critical duplicate triggers are handled as blocking validation before requester submission completes. |
 | High | Score >= 70. |
 | Medium | Score 35-69. |
 | Low | Score < 35. |

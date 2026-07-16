@@ -17,7 +17,7 @@ These wireframes translate the approved requirements into a reviewable screen mo
 Primary goals:
 - Show how Requesters create, correct, and track supplier requests.
 - Show how the single Reviewer evaluates validation, duplicate, risk, and AI explanation evidence before making a manual decision.
-- Show how Support/Admin users inspect integration failures, retry eligible failures, and maintain reference data.
+- Show how Support/Admin users inspect integration failures, retry eligible failures, and maintain Admin Data controls.
 - Keep AI advisory only and make human decision ownership visible.
 - Keep OIC/Fusion boundaries visible without making Visual Builder appear to create suppliers directly.
 
@@ -27,7 +27,7 @@ The mockup uses a left navigation shell with role-oriented screens:
 
 - Requester: dashboard, request form, request detail.
 - Reviewer: review dashboard, request review detail, duplicate/risk/AI evidence panel, decision modal.
-- Support/Admin: integration dashboard, integration log detail, reference data maintenance.
+- Support/Admin: integration dashboard, integration log detail, Admin Data maintenance.
 
 Top-level request states used in the wireframes:
 
@@ -48,7 +48,7 @@ Draft -> Submitted -> Validation Failed / Under Review -> Correction Requested /
 | WF-007 | Review Decision Modal | Reviewer | US-007, US-008 | FR-002, FR-009 |
 | WF-008 | Support/Admin Integration Dashboard | Support/Admin User | US-010 | FR-010, FR-013 |
 | WF-009 | Integration Log Detail | Support/Admin User | US-010, US-011 | FR-011, FR-013 |
-| WF-010 | Reference Data Maintenance | Support/Admin User | US-013 | FR-014 |
+| WF-010 | Admin Data Maintenance | Support/Admin User | US-013 | FR-014 |
 
 ## Global UI Patterns
 
@@ -88,8 +88,8 @@ Purpose: Give the Requester a fast view of their own supplier requests, outstand
 
 Key content:
 - Summary counters: Drafts, Submitted, Correction Needed, Created in Fusion.
-- Request table with request number, supplier, status, last update, and next action.
-- Highlighted correction-needed request with reviewer comment.
+- Request table with request number, supplier, status, next action, and actions.
+- Actions column shows `Edit and Resubmit` only for Correction Requested rows; all other rows show `View`.
 - Quick action to create a new supplier request.
 - No internal risk score, level, reasons, or AI review evidence is shown to the Requester.
 
@@ -97,11 +97,12 @@ Primary actions:
 - Create New Request.
 - Continue Draft.
 - Open Request Detail.
-- Edit Correction Requested request.
+- Edit and Resubmit Correction Requested request.
+- View non-correction requests.
 
 States:
 - Empty: no requests yet, show Create New Request.
-- Correction needed: call out reviewer comment.
+- Correction needed: show targeted correction guidance in next action and an enabled Edit and Resubmit row action.
 - Created: show Fusion supplier number.
 - Duplicate: show existing supplier reference.
 
@@ -112,19 +113,21 @@ Purpose: Capture standardized supplier request data and stage it through ORDS in
 Sections:
 - Supplier basics: name, supplier type, country, business unit, category, expected annual spend.
 - Contact: contact person, email, phone, email domain derived for duplicate checks.
-- Site/address: site name, country, address, city, region, postal code, primary site flag.
-- Tax and bank indicators: tax registration, bank country, masked account preview/last four, bank provided flag.
+- Site/address: site name, building/house/office, street/area, city, province/state, country, postal code where applicable, primary site flag.
+- Tax and bank indicators: conditional tax registration, bank country, masked account preview/last four, bank provided flag.
 - Documents: metadata rows for required/pending documents and missing flags.
 - Justification: business justification and notes.
 
 Primary actions:
 - Save Draft.
-- Run Duplicate Preview, optional.
 - Submit Request.
 
 Validation behavior:
 - Required fields are marked.
 - Blocking validation appears inline and in a top validation summary.
+- Submit/resubmit automatically runs validation, duplicate detection, and risk scoring.
+- Exact tax registration duplicate and same bank token/hash duplicate appear as blocking validation errors and prevent requester submission.
+- High-risk country remains a risk warning for Reviewer review, not a requester submission blocker.
 - Optional bank values are masked and never displayed as full account numbers.
 
 ### WF-003: Request Detail / Status Timeline
@@ -180,6 +183,7 @@ Primary actions:
 
 Guardrails:
 - Approve is visually disabled if blocking validation remains.
+- Request Correction can target specific validation, risk, or evidence fields.
 - Mark Duplicate requires an existing supplier reference.
 - AI does not make or execute any decision.
 
@@ -205,13 +209,14 @@ Purpose: Capture Reviewer decision in a controlled, auditable way.
 
 Decision modes:
 - Approve: requires no blocking validations.
-- Request Correction: requires comment.
+- Request Correction: requires comment and can include targeted correction items.
 - Reject: requires comment.
 - Mark Duplicate: requires existing supplier reference and comment.
 
 Modal fields:
 - Decision type.
 - Reviewer comment.
+- Targeted correction items for fields/evidence needing requester changes.
 - Existing supplier reference when duplicate.
 - Confirmation summary of downstream result.
 
@@ -245,19 +250,20 @@ Primary actions:
 - Mark as business correction needed, when error category indicates mapping/data issue.
 - Copy correlation ID.
 
-### WF-010: Reference Data Maintenance
+### WF-010: Admin Data Maintenance
 
-Purpose: Let Support/Admin users maintain selected reference data that affects validation, duplicate detection, and risk scoring.
+Purpose: Let Support/Admin users maintain selected Admin Data controls that affect validation, duplicate detection, and risk scoring.
 
 Sections:
 - Business unit mappings.
 - Supplier types and tax-required flag.
 - High-risk countries.
-- Risk rule thresholds.
-- Duplicate rule weights/critical triggers.
+- Validation rule active/inactive toggles.
+- Risk factor active/inactive toggles, weights, and severity.
+- Duplicate rule weights and blocking critical triggers.
 
 Primary actions:
-- Edit reference row.
+- Edit Admin Data row.
 - Activate/deactivate row.
 - Save changes.
 
@@ -272,7 +278,7 @@ Guardrails:
 - [ ] Reviewer can see validation, duplicate, risk, and AI evidence before decisions.
 - [ ] Decision modal enforces required comments and duplicate reference.
 - [ ] Support/Admin screens show retry eligibility and technical detail without exposing sensitive payloads.
-- [ ] Reference data maintenance matches phase-one scope.
+- [ ] Admin Data maintenance matches phase-one scope.
 - [ ] Mockups do not imply Visual Builder creates suppliers directly in Fusion.
 - [ ] AI is visibly advisory only.
 

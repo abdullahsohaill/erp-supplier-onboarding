@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: INCEPTION
-- **Current Stage**: INCEPTION - Wireframes/mockups review gate
+- **Current Stage**: INCEPTION - Wireframes/mockups non-DB amendment complete
 
 ## Workspace State
 - **Existing Code**: No
@@ -36,6 +36,7 @@
 - [x] Application Design draft
 - [x] Units Generation draft
 - [x] Wireframes/mockups first pass
+- [x] Wireframes/mockups non-DB fixes amendment
 
 ### CONSTRUCTION PHASE
 - [ ] Functional Design per unit
@@ -53,4 +54,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-Wireframe/mockup first pass is complete. Review `aidlc-docs/inception/wireframes/wireframe-spec.md` and `mockups/supplier-onboarding-wireframes.html`, then request changes or approve the wireframes before moving into construction-stage functional/NFR/infrastructure design.
+Wireframe/mockup non-DB fixes amendment is complete. Review `aidlc-docs/inception/wireframes/wireframe-spec.md`, `mockups/supplier-onboarding-wireframes.html`, and `aidlc-docs/inception/plans/non-db-fixes-implementation-plan.md`, then request changes or approve the wireframes before moving into construction-stage functional/NFR/infrastructure design.

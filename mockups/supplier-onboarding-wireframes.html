@@ -432,6 +432,11 @@
       background: #fff;
     }
 
+    input[type="checkbox"] {
+      width: auto;
+      min-height: auto;
+    }
+
     textarea {
       min-height: 88px;
       resize: vertical;
@@ -540,6 +545,25 @@
       margin-top: 6px;
     }
 
+    .checkbox-list {
+      display: grid;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .checkbox-list label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
     .decision-rail {
       display: grid;
       gap: 10px;
@@ -611,6 +635,29 @@
 
     .mini-row:last-child {
       border-bottom: 0;
+    }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .toggle-row:last-child {
+      border-bottom: 0;
+    }
+
+    .toggle-row strong {
+      display: block;
+    }
+
+    .toggle-row span:first-child {
+      color: var(--muted);
+      font-size: 12px;
     }
 
     .mockup-note {
@@ -709,7 +756,7 @@
         <p class="nav-label">Support/Admin</p>
         <button class="nav-button" data-screen="support-dashboard">Integration Dashboard <span class="nav-pill">8</span></button>
         <button class="nav-button" data-screen="integration-log">Integration Log Detail <span class="nav-pill">9</span></button>
-        <button class="nav-button" data-screen="reference-data">Reference Data <span class="nav-pill">10</span></button>
+        <button class="nav-button" data-screen="admin-data">Admin Data <span class="nav-pill">10</span></button>
       </div>
     </aside>
 
@@ -776,6 +823,7 @@
                   <th>Supplier</th>
                   <th>Status</th>
                   <th>Next Action</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -784,44 +832,34 @@
                   <td>BluePeak Facilities</td>
                   <td><span class="status warning">Correction Requested</span></td>
                   <td>Edit missing tax registration</td>
+                  <td><button class="btn warn" data-screen-jump="request-form">Edit and Resubmit</button></td>
                 </tr>
                 <tr>
                   <td>REQ-2026-0138</td>
                   <td>Nexa Office Supply</td>
                   <td><span class="status review">Under Review</span></td>
                   <td>Waiting for reviewer</td>
+                  <td><button class="btn" data-screen-jump="request-detail">View</button></td>
                 </tr>
                 <tr>
                   <td>REQ-2026-0129</td>
                   <td>Orion Packaging</td>
                   <td><span class="status success">Created in Fusion</span></td>
                   <td>Supplier #SUP-104284</td>
+                  <td><button class="btn" data-screen-jump="request-detail">View</button></td>
                 </tr>
                 <tr>
                   <td>REQ-2026-0122</td>
                   <td>Al Noor Packaging</td>
                   <td><span class="status danger">Marked Duplicate</span></td>
                   <td>Use supplier #SUP-100884</td>
+                  <td><button class="btn" data-screen-jump="request-detail">View</button></td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <div class="grid">
-            <div class="panel">
-              <div class="panel-header">
-                <h2 class="panel-title">Needs Attention</h2>
-                <span class="status warning">2 items</span>
-              </div>
-              <div class="panel-body">
-                <div class="callout warn">
-                  <strong>BluePeak Facilities</strong>
-                  <p class="hint">Reviewer requested a country-specific tax registration number and clearer business justification.</p>
-                  <button class="btn warn" data-screen-jump="request-form">Edit and Resubmit</button>
-                </div>
-              </div>
-            </div>
-
             <div class="panel">
               <div class="panel-header">
                 <h2 class="panel-title">Recent Outcomes</h2>
@@ -845,14 +883,13 @@
             </div>
             <div class="topbar-actions">
               <button class="btn">Save Draft</button>
-              <button class="btn indigo">Run Duplicate Preview</button>
               <button class="btn primary">Submit Request</button>
             </div>
           </div>
           <div class="panel-body">
             <div class="callout warn" style="margin-bottom:16px;">
               <strong>Validation summary</strong>
-              <p class="hint">Tax registration is required for this supplier type and country before approval.</p>
+              <p class="hint">Submit runs validation, duplicate detection, and risk scoring automatically. Exact tax or same bank-token duplicates block submission before review.</p>
             </div>
             <div class="form-grid">
               <div class="field">
@@ -895,14 +932,30 @@
                 <label>Site Name</label>
                 <input value="Dubai Service Site">
               </div>
-              <div class="field wide">
-                <label>Address Line</label>
-                <input value="Business Bay, Tower B, Floor 12">
+              <div class="field">
+                <label>Building / Office</label>
+                <input value="Tower B, Floor 12">
+              </div>
+              <div class="field">
+                <label>Street / Area</label>
+                <input value="Business Bay">
+              </div>
+              <div class="field">
+                <label>City</label>
+                <input value="Dubai">
+              </div>
+              <div class="field">
+                <label>Province / State</label>
+                <input value="Dubai">
+              </div>
+              <div class="field">
+                <label>Postal Code</label>
+                <input value="00000">
               </div>
               <div class="field">
                 <label>Tax Registration</label>
                 <input value="">
-                <span class="hint">Required by country/supplier type rule</span>
+                <span class="hint">Required only when Admin Data rule applies</span>
               </div>
               <div class="field">
                 <label>Bank Provided</label>
@@ -931,19 +984,23 @@
               <tbody>
                 <tr><td>Tax certificate</td><td>Pending</td><td><span class="status warning">Missing</span></td></tr>
                 <tr><td>Trade license</td><td>Provided metadata</td><td><span class="status success">No</span></td></tr>
-                <tr><td>Bank letter</td><td>Pending</td><td><span class="status warning">Missing</span></td></tr>
+                <tr><td>Bank details metadata</td><td>Pending</td><td><span class="status warning">Missing</span></td></tr>
               </tbody>
             </table>
           </div>
           <div class="panel">
             <div class="panel-header">
-              <h2 class="panel-title">Duplicate Preview</h2>
-              <span class="risk medium">Optional</span>
+              <h2 class="panel-title">Automatic Submit Checks</h2>
+              <span class="badge">No preview button</span>
             </div>
             <div class="panel-body">
               <div class="callout indigo">
-                <strong>Possible match: Blue Peak Facility Services</strong>
-                <p class="hint">Name similarity 84%, same country, matching email domain pattern. Formal duplicate check runs after submission.</p>
+                <strong>Runs on Submit / Resubmit</strong>
+                <p class="hint">The system checks required fields, structured address completeness, duplicate signals, and risk factors automatically. Requesters do not run a separate duplicate check.</p>
+              </div>
+              <div class="callout danger" style="margin-top:12px;">
+                <strong>Submission blockers</strong>
+                <p class="hint">Exact tax registration duplicates and same bank token/hash duplicates prevent submission until corrected.</p>
               </div>
             </div>
           </div>
@@ -1001,7 +1058,7 @@
       <section class="screen" id="reviewer-dashboard" data-title="Reviewer Dashboard" data-meta="WF-004 - Review queue - US-004, US-005, US-006, US-009 - FR-005, FR-006, FR-007, FR-008, FR-010">
         <div class="grid cols-4">
           <div class="panel metric"><div class="metric-label">Pending Review</div><p class="metric-value">18</p><p class="metric-note">5 over 2 days old</p></div>
-          <div class="panel metric"><div class="metric-label">High Risk</div><p class="metric-value">6</p><p class="metric-note">2 critical duplicate signals</p></div>
+          <div class="panel metric"><div class="metric-label">High Risk</div><p class="metric-value">6</p><p class="metric-note">High-risk country or weak evidence</p></div>
           <div class="panel metric"><div class="metric-label">Duplicate Risk</div><p class="metric-value">9</p><p class="metric-note">Needs reviewer decision</p></div>
           <div class="panel metric"><div class="metric-label">Failed After Approval</div><p class="metric-value">3</p><p class="metric-note">Support/Admin visible</p></div>
         </div>
@@ -1013,7 +1070,7 @@
           </div>
           <div class="toolbar">
             <select class="control short"><option>Status</option><option>Under Review</option><option>Validation Failed</option></select>
-            <select class="control short"><option>Risk</option><option>Critical</option><option>High</option><option>Medium</option></select>
+            <select class="control short"><option>Risk</option><option>High</option><option>Medium</option><option>Low</option></select>
             <select class="control short"><option>Country</option><option>UAE</option><option>Pakistan</option></select>
             <select class="control short"><option>BU</option><option>Gulf Operations</option><option>Shared Services</option></select>
             <input class="control" value="Search requester or supplier">
@@ -1045,9 +1102,9 @@
                 <td>REQ-2026-0140</td>
                 <td>Al Noor Packaging</td>
                 <td>Shared Services</td>
-                <td><span class="risk critical">Critical</span></td>
-                <td>98</td>
-                <td><span class="status danger">Blocking</span></td>
+                <td><span class="risk high">High</span></td>
+                <td>88</td>
+                <td><span class="status warning">Warnings</span></td>
                 <td>6h</td>
               </tr>
               <tr>
@@ -1110,7 +1167,7 @@
             </div>
             <div class="panel-body decision-rail">
               <button class="decision-button" data-open-modal="approve">Approve <span>Ready for decision</span></button>
-              <button class="decision-button" data-open-modal="correction">Request Correction <span>Requires comment</span></button>
+              <button class="decision-button" data-open-modal="correction">Request Correction <span>Select fields + comment</span></button>
               <button class="decision-button" data-open-modal="reject">Reject <span>Requires comment</span></button>
               <button class="decision-button" data-open-modal="duplicate">Mark Duplicate <span>Requires supplier reference</span></button>
               <button class="btn indigo" data-screen-jump="evidence-panel">Open Evidence Panel</button>
@@ -1124,7 +1181,7 @@
             <div class="panel-body">
               <ul class="list">
                 <li>Tax registration missing for supplier country/type.</li>
-                <li>Bank letter metadata missing.</li>
+                <li>Bank details metadata incomplete.</li>
                 <li>Business unit mapping found.</li>
               </ul>
             </div>
@@ -1144,7 +1201,7 @@
             <div class="panel-body">
               <ul class="list">
                 <li>Missing tax registration.</li>
-                <li>Missing bank document metadata.</li>
+                <li>Missing or incomplete bank details.</li>
                 <li>Duplicate candidate above review threshold.</li>
               </ul>
             </div>
@@ -1184,7 +1241,7 @@
               <ul class="list">
                 <li>Missing tax registration adds 20 points.</li>
                 <li>Duplicate score above threshold adds 18 points.</li>
-                <li>Missing bank letter metadata adds 8 points.</li>
+                <li>Missing or incomplete bank details adds 8 points.</li>
               </ul>
             </div>
             <div class="evidence-card">
@@ -1193,7 +1250,7 @@
               <p class="hint">The request has moderate risk because mandatory tax evidence is missing and there is a similar existing supplier. Ask the requester to provide tax registration or confirm why the existing supplier cannot be used.</p>
               <ul class="list">
                 <li>Recommended action: request correction.</li>
-                <li>Do not approve until blocking validation is resolved.</li>
+                <li>Use targeted correction items when evidence is weak or incomplete.</li>
                 <li>Full bank account values were not sent to AI.</li>
               </ul>
             </div>
@@ -1210,7 +1267,7 @@
           <div class="panel-body">
             <div class="callout indigo">
               <strong>Decision guardrails</strong>
-              <p class="hint">Approve is disabled while blocking validation exists. Reject, request correction, and mark duplicate require comments. Mark duplicate also requires an existing supplier reference.</p>
+              <p class="hint">Approve is disabled while blocking validation exists. Request correction can mark specific fields or evidence items for the Requester. Mark duplicate also requires an existing supplier reference.</p>
             </div>
           </div>
         </div>
@@ -1301,7 +1358,7 @@
         </div>
       </section>
 
-      <section class="screen" id="reference-data" data-title="Reference Data Maintenance" data-meta="WF-010 - Reference controls - US-013 - FR-014">
+      <section class="screen" id="admin-data" data-title="Admin Data Maintenance" data-meta="WF-010 - Admin controls - US-013 - FR-014">
         <div class="grid cols-2">
           <div class="panel">
             <div class="panel-header">
@@ -1320,25 +1377,81 @@
 
           <div class="panel">
             <div class="panel-header">
-              <h2 class="panel-title">Risk and Duplicate Rules</h2>
+              <h2 class="panel-title">Validation Rules</h2>
+              <button class="btn primary">Save Changes</button>
+            </div>
+            <div class="panel-body">
+              <div class="toggle-row">
+                <div><strong>Tax registration required</strong><span>Conditional by country and supplier type</span></div>
+                <span class="status success">On</span>
+                <button class="btn">Edit</button>
+              </div>
+              <div class="toggle-row">
+                <div><strong>Structured address completeness</strong><span>Building, street/area, city, province/state, country</span></div>
+                <span class="status success">On</span>
+                <button class="btn">Edit</button>
+              </div>
+              <div class="toggle-row">
+                <div><strong>Exact tax duplicate block</strong><span>Blocks requester submission</span></div>
+                <span class="status success">On</span>
+                <button class="btn">Edit</button>
+              </div>
+              <div class="toggle-row">
+                <div><strong>Same bank token/hash block</strong><span>Blocks requester submission</span></div>
+                <span class="status success">On</span>
+                <button class="btn">Edit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top:16px;">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Risk Factors</h2>
+              <button class="btn primary">Save Changes</button>
+            </div>
+            <div class="panel-body">
+              <div class="toggle-row">
+                <div><strong>High-risk country</strong><span>Reviewer warning, not submit blocker</span></div>
+                <span class="status success">On</span>
+                <button class="btn">Edit</button>
+              </div>
+              <div class="toggle-row">
+                <div><strong>Vague justification</strong><span>AI/reviewer review signal</span></div>
+                <span class="status success">On</span>
+                <button class="btn">Edit</button>
+              </div>
+              <div class="toggle-row">
+                <div><strong>Bank country mismatch</strong><span>Reviewer warning</span></div>
+                <span class="status success">On</span>
+                <button class="btn">Edit</button>
+              </div>
+              <div class="toggle-row">
+                <div><strong>Missing or incomplete bank details</strong><span>Bank metadata/risk signal only</span></div>
+                <span class="status warning">Review</span>
+                <button class="btn">Edit</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Duplicate Rule Settings</h2>
               <button class="btn primary">Save Changes</button>
             </div>
             <div class="panel-body">
               <div class="field">
-                <label>Exact Tax ID Match Weight</label>
-                <input value="Critical trigger">
-              </div>
-              <div class="field" style="margin-top:12px;">
-                <label>Same Bank Token Weight</label>
-                <input value="Critical trigger">
-              </div>
-              <div class="field" style="margin-top:12px;">
                 <label>Duplicate Review Threshold</label>
                 <input value="70">
               </div>
               <div class="field" style="margin-top:12px;">
                 <label>High Risk Threshold</label>
                 <input value="75">
+              </div>
+              <div class="callout warn" style="margin-top:12px;">
+                <strong>Critical duplicate triggers</strong>
+                <p class="hint">Exact tax duplicate and same bank token/hash are validation blockers, not requester-run preview checks.</p>
               </div>
             </div>
           </div>
@@ -1388,8 +1501,17 @@
             <input value="SUP-100884">
           </div>
           <div class="field full">
+            <label>Targeted Correction Items</label>
+            <div class="checkbox-list">
+              <label><input type="checkbox" checked> Tax registration missing or not justified</label>
+              <label><input type="checkbox" checked> Business justification needs more detail</label>
+              <label><input type="checkbox"> Structured address incomplete</label>
+              <label><input type="checkbox"> Missing or incomplete bank details</label>
+            </div>
+          </div>
+          <div class="field full">
             <label>Reviewer Comment</label>
-            <textarea>Please provide tax registration or confirm why the existing supplier reference cannot be used.</textarea>
+            <textarea>Please provide tax registration or explain why it is unavailable for this supplier type/country. Also clarify why the existing supplier reference cannot be used.</textarea>
           </div>
         </div>
         <div class="callout warn" style="margin-top:14px;">
