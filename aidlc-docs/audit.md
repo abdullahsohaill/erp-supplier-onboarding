@@ -167,3 +167,19 @@ once u let me know about completeness then we can move forward with wireframes /
 **Context**: AI-DLC Inception - Application Design database schema visualization amendment completed and validated.
 
 ---
+
+## Wireframe Reviewer Actions Amendment
+**Timestamp**: 2026-07-16T06:26:22Z
+**User Input**: "Need you to make one small edit in [supplier-onboarding-wireframes.html](mockups/supplier-onboarding-wireframes.html). As of now there is no way for the reviewer to approve, reject or ask for corrections in a submitted supplier form. I think you should add it in Request Review Detail tab. Rest is perfectly fine so leave it as it is"
+**AI Response**: "Resumed the existing wireframe review gate and began a narrowly scoped amendment to make the existing Request Review Detail decision controls functional while leaving all other screens and layout unchanged."
+**Context**: AI-DLC Inception - Wireframes/mockups reviewer-action amendment.
+
+---
+
+## Wireframe Reviewer Actions Amendment Completion
+**Timestamp**: 2026-07-16T06:28:18Z
+**User Input**: "Need you to make one small edit in [supplier-onboarding-wireframes.html](mockups/supplier-onboarding-wireframes.html). As of now there is no way for the reviewer to approve, reject or ask for corrections in a submitted supplier form. I think you should add it in Request Review Detail tab. Rest is perfectly fine so leave it as it is"
+**AI Response**: "Enabled Approve in Request Review Detail and connected Approve, Request Correction, Reject, and Mark Duplicate to the existing decision modal with the matching decision preselected. Left every other mockup screen and layout unchanged. Verified the four enabled actions, modal visibility and selected values, visual layout, HTML/JavaScript execution, and clean diff whitespace in the local browser."
+**Context**: AI-DLC Inception - Wireframes/mockups reviewer-action amendment completed and validated.
+
+---

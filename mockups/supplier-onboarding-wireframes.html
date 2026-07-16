@@ -1114,7 +1114,7 @@
               <span class="badge">Reviewer only</span>
             </div>
             <div class="panel-body decision-rail">
-              <button class="decision-button" disabled>Approve <span class="hint">Blocked by tax validation</span></button>
+              <button class="decision-button" data-open-modal="approve">Approve <span>Ready for decision</span></button>
               <button class="decision-button" data-open-modal="correction">Request Correction <span>Requires comment</span></button>
               <button class="decision-button" data-open-modal="reject">Reject <span>Requires comment</span></button>
               <button class="decision-button" data-open-modal="duplicate">Mark Duplicate <span>Requires supplier reference</span></button>
@@ -1382,10 +1382,10 @@
           <div class="field">
             <label>Decision</label>
             <select id="decisionType">
-              <option>Request Correction</option>
-              <option>Reject</option>
-              <option>Mark Duplicate</option>
-              <option>Approve</option>
+              <option value="correction">Request Correction</option>
+              <option value="reject">Reject</option>
+              <option value="duplicate">Mark Duplicate</option>
+              <option value="approve">Approve</option>
             </select>
           </div>
           <div class="field">
@@ -1435,8 +1435,12 @@
     });
 
     const modal = document.getElementById('decisionModal');
+    const decisionType = document.getElementById('decisionType');
     document.querySelectorAll('[data-open-modal]').forEach(button => {
-      button.addEventListener('click', () => modal.classList.add('open'));
+      button.addEventListener('click', () => {
+        decisionType.value = button.dataset.openModal;
+        modal.classList.add('open');
+      });
     });
     document.querySelectorAll('[data-close-modal]').forEach(button => {
       button.addEventListener('click', () => modal.classList.remove('open'));
