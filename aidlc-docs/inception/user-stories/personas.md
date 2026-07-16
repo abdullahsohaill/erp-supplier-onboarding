@@ -17,7 +17,7 @@
 | Needs | Guided form, clear mandatory fields, business-friendly validation messages, status visibility, duplicate/rejection guidance. |
 | Pain Points Today | Requests are sent by email, spreadsheet, or ticket; no standard intake; unclear status; repeated follow-ups. |
 | Key Screens Later | My Requests dashboard, Supplier Request form, Request Detail/status timeline, Correction edit view. |
-| Access Boundary | Can create and view own requests only; cannot approve, reject, retry, or maintain reference data. |
+| Access Boundary | Can create and view own requests only; receives status and actionable reviewer guidance but not internal risk scores, levels, reasons, or AI review evidence; cannot approve, reject, retry, or maintain reference data. |
 
 ## Reviewer
 

@@ -88,9 +88,10 @@ Purpose: Give the Requester a fast view of their own supplier requests, outstand
 
 Key content:
 - Summary counters: Drafts, Submitted, Correction Needed, Created in Fusion.
-- Request table with request number, supplier, status, risk summary, last update, and next action.
+- Request table with request number, supplier, status, last update, and next action.
 - Highlighted correction-needed request with reviewer comment.
 - Quick action to create a new supplier request.
+- No internal risk score, level, reasons, or AI review evidence is shown to the Requester.
 
 Primary actions:
 - Create New Request.
@@ -137,6 +138,7 @@ Key content:
 - Duplicate result, if marked duplicate.
 - Fusion supplier number, if created.
 - Business-safe integration message if failed.
+- No internal risk score, level, reasons, scoring version, or AI review evidence.
 
 Primary actions:
 - Edit and Resubmit when status is Correction Requested.

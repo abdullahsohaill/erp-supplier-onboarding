@@ -65,6 +65,7 @@ Acceptance criteria:
 - Request detail shows current status, status history, timestamps, actor, and reviewer comments where applicable.
 - Requester can see rejection, correction, or duplicate guidance in business language.
 - If marked duplicate, requester sees the existing supplier reference to use instead.
+- Requester-facing request detail does not expose the internal risk score, risk level, risk reasons, or AI review evidence; it provides status and actionable reviewer guidance instead.
 - Invalid status transitions are blocked.
 
 Verification: status transition tests and request-detail walkthrough.
@@ -273,7 +274,7 @@ The design must demonstrate the requested Visual Builder, ORDS, ATP, OIC, and Fu
 Verification: architecture/design review and demo trace.
 
 #### NFR-002: Role Separation
-The application must enforce basic role separation for Requester, Reviewer, and Support/Admin User. Requesters cannot approve or retry, Reviewers do not receive sensitive technical payload access by default, and Support/Admin users cannot silently bypass review controls.
+The application must enforce basic role separation for Requester, Reviewer, and Support/Admin User. Requesters cannot approve, retry, or access persisted risk scores, levels, reasons, or AI review evidence. Reviewers do not receive sensitive technical payload access by default, and Support/Admin users cannot silently bypass review controls.
 
 Verification: role access tests.
 

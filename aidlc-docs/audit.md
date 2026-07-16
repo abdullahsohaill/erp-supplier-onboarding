@@ -183,3 +183,595 @@ once u let me know about completeness then we can move forward with wireframes /
 **Context**: AI-DLC Inception - Wireframes/mockups reviewer-action amendment completed and validated.
 
 ---
+
+## Requester Risk Visibility Amendment
+**Timestamp**: 2026-07-16T06:40:38Z
+**User Input**:
+```text
+GET	/requests/{requestId}/risk-assessment	Requester owner summary, Reviewer, Support/Admin	Retrieve risk assessment.
+
+why do we need this api and what is it used for?
+
+This API exists because calculating a risk assessment and retrieving a risk assessment are two different operations.
+
+Notice there are actually two APIs:
+
+API	Purpose
+POST /requests/{requestId}/risk-score	Run the risk engine and calculate/update the risk assessment.
+GET /requests/{requestId}/risk-assessment	Retrieve the already-calculated risk assessment.
+Why not just calculate it every time?
+
+Imagine this workflow.
+
+User submits a supplier
+Submit Request
+       │
+       ▼
+Validation
+       │
+       ▼
+Duplicate Detection
+       │
+       ▼
+Risk Scoring
+       │
+       ▼
+Save to RISK_ASSESSMENT table
+
+Now the reviewer opens the request 10 minutes later.
+
+Should the system:
+
+recalculate everything?
+rerun duplicate matching?
+rerun all risk rules?
+
+No.
+
+It simply reads what was already calculated.
+
+GET /requests/123/risk-assessment
+
+returns
+
+{
+  "riskScore": 55,
+  "riskLevel": "Medium",
+  "reasons": [
+    "Missing tax registration",
+    "Bank country mismatch"
+  ]
+}
+
+The calculation has already been done and stored in the RISK_ASSESSMENT table.
+
+Who uses this API?
+1. Reviewer screen
+
+When a reviewer opens a request, the UI needs to show something like:
+
+Risk Assessment
+
+Medium Risk
+
+Reasons
+---------
+✓ Missing tax registration
+✓ Bank country differs from supplier country
+✓ High expected spend
+
+The frontend calls
+
+GET /requests/123/risk-assessment
+2. Requester
+
+Notice the endpoint permissions:
+
+Requester owner summary
+Reviewer
+Support/Admin
+
+The requester is only allowed to see a summary, not all the internal details.
+
+So the requester may see:
+
+Status:
+Under Review
+
+Risk:
+Medium
+
+Please provide Tax Registration.
+
+while the reviewer sees the complete factor breakdown.
+
+3. AI
+
+The AI explanation service also needs the risk assessment.
+
+Instead of recalculating risk itself, it simply reads:
+
+GET risk-assessment
+
+then generates
+
+Medium risk due to missing tax registration and weak business justification.
+
+This matches the design, where AI explains the structured risk findings rather than making decisions.
+
+4. Dashboard
+
+The reviewer dashboard may show:
+
+Requests
+
+High Risk      5
+Medium Risk   18
+Low Risk      42
+
+Clicking a request opens the details, and the UI calls:
+
+GET /requests/123/risk-assessment
+Why is it a GET instead of POST?
+
+REST convention is:
+
+GET = retrieve existing data
+POST = perform an action or create/update something
+
+So:
+
+POST /risk-score
+
+means
+
+"Run the scoring engine."
+
+Whereas
+
+GET /risk-assessment
+
+means
+
+"Show me the results."
+
+An analogy
+
+Think about a university exam.
+
+Teacher grades exam
+
+That's like
+
+POST /risk-score
+
+Once graded, the result is stored.
+
+Later, a student checks their marks.
+
+That's like
+
+GET /risk-assessment
+
+The teacher doesn't re-grade the paper every time the student opens the portal—they simply retrieve the stored result.
+
+One thing I'd improve
+
+Since this API is just returning the latest stored assessment, I would consider making it even clearer by naming it:
+
+GET /requests/{requestId}/risk
+
+or
+
+GET /requests/{requestId}/risk-summary
+
+Functionally, though, GET /requests/{requestId}/risk-assessment is perfectly valid and accurately reflects that it's retrieving the persisted assessment rather than recalculating it.
+
+but the requester shoudn't be allowed to get his own risk assessment tho?
+
+I actually agree with you. Based on the discovery call, I would not expose the risk assessment endpoint to the requester.
+
+The transcript consistently describes risk as something that helps the reviewer make a decision:
+
+AI should explain the risk to the reviewer and recommend what they should verify.
+Risky suppliers require manual review.
+The requester's responsibility is to submit a request and track its status.
+
+In fact, the persona model also says:
+
+Requester: View own request status
+Reviewer: View duplicate/risk details
+Support/Admin: View duplicate/risk details
+
+Notice it doesn't explicitly say the requester should see the detailed risk assessment.
+
+What I would change
+
+Instead of:
+
+GET /requests/{requestId}/risk-assessment
+Roles:
+Requester owner summary, Reviewer, Support/Admin
+
+I would split it into two concepts.
+
+Option 1 (my preferred design)
+GET /requests/{requestId}
+
+The requester gets:
+
+{
+  "status": "Under Review",
+  "statusMessage": "Awaiting reviewer decision."
+}
+
+or, if corrections are needed:
+
+{
+  "status": "Correction Requested",
+  "message": "Please provide a tax registration certificate."
+}
+
+No risk score is exposed.
+
+The reviewer, however, calls:
+
+GET /requests/{requestId}/risk-assessment
+
+and receives:
+
+{
+  "riskScore": 82,
+  "riskLevel": "High",
+  "reasons": [
+    ...
+    ...
+  ]
+}
+Option 2
+
+Keep the same endpoint but make the response role-aware:
+
+Requester:
+
+{
+    "riskSummary":
+    "Additional information required."
+}
+
+Reviewer:
+
+{
+    "riskScore":82,
+    "riskLevel":"High",
+    "reasons":[...]
+}
+
+I don't like this approach because the same endpoint returns fundamentally different data depending on the caller, which can make the API harder to understand and document.
+
+Why hide the risk?
+
+Imagine I'm a requester.
+
+If I immediately see:
+
+Risk: HIGH
+
+I might:
+
+panic,
+argue with Procurement,
+or try to game the system by tweaking the justification until the score drops.
+
+The reviewer is the one who should interpret the score, request additional information, or approve/reject based on the organization's policies.
+
+So I would recommend changing the API catalog to:
+Endpoint	Roles
+GET /requests/{requestId}	Requester (own), Reviewer, Support/Admin
+GET /requests/{requestId}/risk-assessment	Reviewer, Support/Admin only
+GET /requests/{requestId}/duplicate-matches	Reviewer, Support/Admin only
+
+The requester should receive only the workflow status and any actionable messages (such as "Correction Requested" with reviewer comments), not the internal risk score or duplicate analysis.
+
+I think the current API catalog is slightly inconsistent with the overall design intent expressed in the discovery call and persona model.
+```
+**AI Response**: "Interpreted the attached decision as an explicit access-control correction: Requesters must not access persisted risk assessments, while Reviewers and Support/Admin users retain risk visibility and Requesters receive only status and actionable business guidance."
+**Context**: AI-DLC Inception - Requirements, application design, and wireframe requester-risk visibility amendment.
+
+---
+
+## Requester Risk Visibility Amendment Completion
+**Timestamp**: 2026-07-16T06:42:48Z
+**User Input**:
+```text
+GET	/requests/{requestId}/risk-assessment	Requester owner summary, Reviewer, Support/Admin	Retrieve risk assessment.
+
+why do we need this api and what is it used for?
+
+This API exists because calculating a risk assessment and retrieving a risk assessment are two different operations.
+
+Notice there are actually two APIs:
+
+API	Purpose
+POST /requests/{requestId}/risk-score	Run the risk engine and calculate/update the risk assessment.
+GET /requests/{requestId}/risk-assessment	Retrieve the already-calculated risk assessment.
+Why not just calculate it every time?
+
+Imagine this workflow.
+
+User submits a supplier
+Submit Request
+       │
+       ▼
+Validation
+       │
+       ▼
+Duplicate Detection
+       │
+       ▼
+Risk Scoring
+       │
+       ▼
+Save to RISK_ASSESSMENT table
+
+Now the reviewer opens the request 10 minutes later.
+
+Should the system:
+
+recalculate everything?
+rerun duplicate matching?
+rerun all risk rules?
+
+No.
+
+It simply reads what was already calculated.
+
+GET /requests/123/risk-assessment
+
+returns
+
+{
+  "riskScore": 55,
+  "riskLevel": "Medium",
+  "reasons": [
+    "Missing tax registration",
+    "Bank country mismatch"
+  ]
+}
+
+The calculation has already been done and stored in the RISK_ASSESSMENT table.
+
+Who uses this API?
+1. Reviewer screen
+
+When a reviewer opens a request, the UI needs to show something like:
+
+Risk Assessment
+
+Medium Risk
+
+Reasons
+---------
+✓ Missing tax registration
+✓ Bank country differs from supplier country
+✓ High expected spend
+
+The frontend calls
+
+GET /requests/123/risk-assessment
+2. Requester
+
+Notice the endpoint permissions:
+
+Requester owner summary
+Reviewer
+Support/Admin
+
+The requester is only allowed to see a summary, not all the internal details.
+
+So the requester may see:
+
+Status:
+Under Review
+
+Risk:
+Medium
+
+Please provide Tax Registration.
+
+while the reviewer sees the complete factor breakdown.
+
+3. AI
+
+The AI explanation service also needs the risk assessment.
+
+Instead of recalculating risk itself, it simply reads:
+
+GET risk-assessment
+
+then generates
+
+Medium risk due to missing tax registration and weak business justification.
+
+This matches the design, where AI explains the structured risk findings rather than making decisions.
+
+4. Dashboard
+
+The reviewer dashboard may show:
+
+Requests
+
+High Risk      5
+Medium Risk   18
+Low Risk      42
+
+Clicking a request opens the details, and the UI calls:
+
+GET /requests/123/risk-assessment
+Why is it a GET instead of POST?
+
+REST convention is:
+
+GET = retrieve existing data
+POST = perform an action or create/update something
+
+So:
+
+POST /risk-score
+
+means
+
+"Run the scoring engine."
+
+Whereas
+
+GET /risk-assessment
+
+means
+
+"Show me the results."
+
+An analogy
+
+Think about a university exam.
+
+Teacher grades exam
+
+That's like
+
+POST /risk-score
+
+Once graded, the result is stored.
+
+Later, a student checks their marks.
+
+That's like
+
+GET /risk-assessment
+
+The teacher doesn't re-grade the paper every time the student opens the portal—they simply retrieve the stored result.
+
+One thing I'd improve
+
+Since this API is just returning the latest stored assessment, I would consider making it even clearer by naming it:
+
+GET /requests/{requestId}/risk
+
+or
+
+GET /requests/{requestId}/risk-summary
+
+Functionally, though, GET /requests/{requestId}/risk-assessment is perfectly valid and accurately reflects that it's retrieving the persisted assessment rather than recalculating it.
+
+but the requester shoudn't be allowed to get his own risk assessment tho?
+
+I actually agree with you. Based on the discovery call, I would not expose the risk assessment endpoint to the requester.
+
+The transcript consistently describes risk as something that helps the reviewer make a decision:
+
+AI should explain the risk to the reviewer and recommend what they should verify.
+Risky suppliers require manual review.
+The requester's responsibility is to submit a request and track its status.
+
+In fact, the persona model also says:
+
+Requester: View own request status
+Reviewer: View duplicate/risk details
+Support/Admin: View duplicate/risk details
+
+Notice it doesn't explicitly say the requester should see the detailed risk assessment.
+
+What I would change
+
+Instead of:
+
+GET /requests/{requestId}/risk-assessment
+Roles:
+Requester owner summary, Reviewer, Support/Admin
+
+I would split it into two concepts.
+
+Option 1 (my preferred design)
+GET /requests/{requestId}
+
+The requester gets:
+
+{
+  "status": "Under Review",
+  "statusMessage": "Awaiting reviewer decision."
+}
+
+or, if corrections are needed:
+
+{
+  "status": "Correction Requested",
+  "message": "Please provide a tax registration certificate."
+}
+
+No risk score is exposed.
+
+The reviewer, however, calls:
+
+GET /requests/{requestId}/risk-assessment
+
+and receives:
+
+{
+  "riskScore": 82,
+  "riskLevel": "High",
+  "reasons": [
+    ...
+    ...
+  ]
+}
+Option 2
+
+Keep the same endpoint but make the response role-aware:
+
+Requester:
+
+{
+    "riskSummary":
+    "Additional information required."
+}
+
+Reviewer:
+
+{
+    "riskScore":82,
+    "riskLevel":"High",
+    "reasons":[...]
+}
+
+I don't like this approach because the same endpoint returns fundamentally different data depending on the caller, which can make the API harder to understand and document.
+
+Why hide the risk?
+
+Imagine I'm a requester.
+
+If I immediately see:
+
+Risk: HIGH
+
+I might:
+
+panic,
+argue with Procurement,
+or try to game the system by tweaking the justification until the score drops.
+
+The reviewer is the one who should interpret the score, request additional information, or approve/reject based on the organization's policies.
+
+So I would recommend changing the API catalog to:
+Endpoint	Roles
+GET /requests/{requestId}	Requester (own), Reviewer, Support/Admin
+GET /requests/{requestId}/risk-assessment	Reviewer, Support/Admin only
+GET /requests/{requestId}/duplicate-matches	Reviewer, Support/Admin only
+
+The requester should receive only the workflow status and any actionable messages (such as "Correction Requested" with reviewer comments), not the internal risk score or duplicate analysis.
+
+I think the current API catalog is slightly inconsistent with the overall design intent expressed in the discovery call and persona model.
+```
+**AI Response**: "Removed Requester authorization from GET /requests/{requestId}/risk-assessment and defined the Requester projection of GET /requests/{requestId} as status and actionable business guidance only. Synchronized FR-002, NFR-002, the Requester persona, US-003, technical access/API/security design, wireframe specification, and requester mockup. Removed the requester dashboard risk column and replaced the requester detail risk card with Next Action. Verified in the local browser that requester screens expose no risk score/reasons while reviewer dashboard and evidence views retain risk assessment and AI explanation details."
+**Context**: AI-DLC Inception - Requirements, application design, and wireframe requester-risk visibility amendment completed and validated.
+
+---

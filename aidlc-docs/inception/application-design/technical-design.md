@@ -69,7 +69,8 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | Submit own request | Yes | No | Optional support only |
 | View own request status | Yes | No | Yes |
 | View review queue | No | Yes | Yes |
-| View duplicate/risk details | Own request summary only | Yes | Yes |
+| View duplicate outcome/details | Outcome/reference for own request only | Yes | Yes |
+| View persisted risk assessment | No | Yes | Yes |
 | Approve/reject/request correction/mark duplicate | No | Yes | No by default |
 | View integration logs | No | Limited business status only | Yes |
 | Retry integration failures | No | No | Yes |
@@ -256,7 +257,7 @@ Error response:
 |---|---|---|---|
 | POST | `/requests` | Requester | Create draft request. |
 | GET | `/requests` | Requester, Reviewer, Support/Admin | List requests with role-aware scope and filters. |
-| GET | `/requests/{requestId}` | Requester owner, Reviewer, Support/Admin | Retrieve request detail. |
+| GET | `/requests/{requestId}` | Requester owner, Reviewer, Support/Admin | Retrieve role-aware request detail; Requester projection excludes persisted risk assessment. |
 | PATCH | `/requests/{requestId}` | Requester owner | Update Draft or Correction Requested request. |
 | POST | `/requests/{requestId}/submit` | Requester owner | Submit for validation/review. |
 | POST | `/requests/{requestId}/validate` | Reviewer, Support/Admin, System | Run validation. |
@@ -265,7 +266,7 @@ Error response:
 | POST | `/duplicate-preview` | Requester | Optional early duplicate warning. |
 | GET | `/requests/{requestId}/duplicate-matches` | Requester owner summary, Reviewer, Support/Admin | Retrieve duplicate matches. |
 | POST | `/requests/{requestId}/risk-score` | Reviewer, Support/Admin, System | Calculate risk. |
-| GET | `/requests/{requestId}/risk-assessment` | Requester owner summary, Reviewer, Support/Admin | Retrieve risk assessment. |
+| GET | `/requests/{requestId}/risk-assessment` | Reviewer, Support/Admin | Retrieve the latest persisted risk assessment without recalculating it. |
 | POST | `/requests/{requestId}/ai-summary` | Reviewer, Support/Admin | Generate/regenerate AI summary. |
 | GET | `/requests/{requestId}/ai-summaries` | Reviewer, Support/Admin | Retrieve AI summary history. |
 | POST | `/requests/{requestId}/ai-summaries/{summaryId}/feedback` | Reviewer | Optional AI helpful/not-helpful feedback. |
@@ -288,6 +289,12 @@ Error response:
 | PUT | `/reference/high-risk-countries/{countryCode}` | Support/Admin | Maintain high-risk country flag. |
 | GET | `/reference/risk-rules` | Support/Admin | View risk rule configuration. |
 | PUT | `/reference/risk-rules/{ruleCode}` | Support/Admin | Maintain risk rule configuration if included. |
+
+#### Requester Response Projection
+
+For a Requester owner call to `GET /requests/{requestId}`, the response may contain the current status, status timeline, business-safe reviewer comments, required next action, final existing-supplier reference when marked duplicate, business-safe integration outcome, and Fusion supplier number after successful creation.
+
+The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factors, scoring version, AI summaries, and reviewer-only evidence. Reviewer and Support/Admin clients retrieve the persisted assessment through `GET /requests/{requestId}/risk-assessment`. Server-side AI explanation orchestration may read the stored assessment through the internal risk service or ATP data access without granting Requester access to that endpoint.
 
 ### 8.5 Representative Request Payload
 
@@ -443,6 +450,8 @@ Thresholds should be stored in `REF_DUPLICATE_RULE` or equivalent seeded configu
   ]
 }
 ```
+
+Visibility: the persisted risk score, level, scoring version, and factor-level reasons are available to Reviewer and Support/Admin roles only. Requesters receive status and actionable guidance through the role-aware request-detail response.
 
 ## 12. AI Explanation Design
 
@@ -618,7 +627,7 @@ Each integration log should store:
 | Control | Design |
 |---|---|
 | Authentication | Use customer Oracle identity platform/SSO mapping to application roles. |
-| Authorization | Enforce Requester, Reviewer, Support/Admin capabilities at ORDS/service layer. |
+| Authorization | Enforce Requester, Reviewer, Support/Admin capabilities at ORDS/service layer; deny Requester access to persisted risk assessments and AI review evidence. |
 | Bank data masking | Display last four digits only where needed. |
 | Bank duplicate matching | Use token/hash, not plain account number, where possible. |
 | AI data minimization | Send curated facts only, no full bank account number. |
