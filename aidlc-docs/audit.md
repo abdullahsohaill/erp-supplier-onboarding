@@ -135,3 +135,35 @@ once u let me know about completeness then we can move forward with wireframes /
 **Context**: AI-DLC Inception - ATP database schema refinement.
 
 ---
+
+## User Story Sequence Diagram Amendment
+**Timestamp**: 2026-07-16T05:21:49Z
+**User Input**: "in the [stories.md](aidlc-docs/inception/user-stories/stories.md) there are 14 user stories. In the same @aidlc-docs/inception/user-stories/ folder I want you to create an md file which will have sequence diagrams for all these user stories"
+**AI Response**: "Resumed the existing AI-DLC project and began a focused documentation amendment to create and validate one sequence diagram plus a text alternative for each of US-001 through US-014."
+**Context**: AI-DLC Inception - User Stories documentation amendment.
+
+---
+
+## User Story Sequence Diagram Amendment Completion
+**Timestamp**: 2026-07-16T05:25:10Z
+**User Input**: "in the [stories.md](aidlc-docs/inception/user-stories/stories.md) there are 14 user stories. In the same @aidlc-docs/inception/user-stories/ folder I want you to create an md file which will have sequence diagrams for all these user stories"
+**AI Response**: "Created sequence-diagrams.md with one Mermaid sequence diagram and one text alternative for each of US-001 through US-014. Verified exact story ID/title coverage, 14 Mermaid blocks, 14 text alternatives, balanced control blocks, declared participants, Markdown fences, architectural guardrails, and clean git diff whitespace. Added a completed execution checklist and recorded the supplemental artifact in aidlc-state.md without changing the active wireframe review gate."
+**Context**: AI-DLC Inception - User Stories documentation amendment completed and validated.
+
+---
+
+## Database Schema Design Diagram Amendment
+**Timestamp**: 2026-07-16T05:26:30Z
+**User Input**: "in section 7 of [technical-design.md](aidlc-docs/inception/application-design/technical-design.md) file, there is a whole database schema. I want you to create this schema design in an .md file showing all tables and their connections. I have attached a simple image of a database schema design as well."
+**AI Response**: "Resumed the existing AI-DLC project, inspected the reference image, and began a focused application-design amendment to create a complete ATP database ERD companion from Section 7 and the implementation-ready DBML source."
+**Context**: AI-DLC Inception - Application Design database schema visualization amendment.
+
+---
+
+## Database Schema Design Diagram Amendment Completion
+**Timestamp**: 2026-07-16T05:30:23Z
+**User Input**: "in section 7 of [technical-design.md](aidlc-docs/inception/application-design/technical-design.md) file, there is a whole database schema. I want you to create this schema design in an .md file showing all tables and their connections. I have attached a simple image of a database schema design as well."
+**AI Response**: "Created database-schema-design.md with a table-box Mermaid ERD containing all 20 ATP tables, 198 columns, primary/foreign/unique key markers, and all 20 DBML foreign-key relationships. Added a 20-row physical relationship catalog, nullable/required cardinalities, text alternatives, standalone configuration usage, schema rules, and source traceability. Linked the companion from technical-design.md Section 7, completed the execution checklist, and recorded the artifact in aidlc-state.md. Validation passed for entity balance, source table coverage, relationship coverage, composite keys, sensitive bank fields, Mermaid/Markdown structure, and diff whitespace."
+**Context**: AI-DLC Inception - Application Design database schema visualization amendment completed and validated.
+
+---

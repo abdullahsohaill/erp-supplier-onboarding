@@ -48,5 +48,9 @@
 ### OPERATIONS PHASE
 - [ ] Operations placeholder
 
+## Supplemental Artifacts
+- [x] User-story sequence diagrams for US-001 through US-014 (`aidlc-docs/inception/user-stories/sequence-diagrams.md`)
+- [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
+
 ## Current Review Gate
 Wireframe/mockup first pass is complete. Review `aidlc-docs/inception/wireframes/wireframe-spec.md` and `mockups/supplier-onboarding-wireframes.html`, then request changes or approve the wireframes before moving into construction-stage functional/NFR/infrastructure design.

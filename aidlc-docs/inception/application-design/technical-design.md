@@ -194,6 +194,7 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 - Use `run_id` and `is_current` on validation, duplicate, and risk output tables so corrections can trigger reruns while preserving historical evidence.
 - Keep retry attempt history in `INTEGRATION_RETRY_HISTORY`; `INTEGRATION_LOG.retry_count`, `last_retry_at`, and `last_retry_by` are only summary fields.
 - Keep the DBML source artifact at `aidlc-docs/inception/application-design/db-schema.dbml`.
+- Use [database-schema-design.md](database-schema-design.md) as the complete table-and-relationship visual companion to this section.
 
 ## 8. ORDS API Design
 
