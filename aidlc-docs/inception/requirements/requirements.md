@@ -33,7 +33,7 @@ Standardize supplier onboarding on the requested Oracle stack, reduce duplicate 
 |---|---|---|---|
 | Requester | Business user requesting a new supplier. | Submit a complete supplier request, fix missing data, track status, know which existing supplier to use if duplicate. | Create drafts, submit own requests, update correction-requested requests, view own status and reviewer comments. |
 | Reviewer | Single business reviewer for the prototype. Owns completeness, duplicate, risk, payment-warning, and supplier-review decisions. | Review requests efficiently, understand duplicate/risk reasons, keep AI advisory only, approve/reject/request correction/mark duplicate. | View review queue, duplicate matches, risk reasons, AI summary, validation results, and perform review actions. |
-| Support/Admin User | Technical support and configuration user. | Troubleshoot OIC/Fusion issues, retry eligible failures, maintain Admin Data/configuration screens. | View integration logs, inspect payload/response references, retry eligible failures, maintain Admin Data controls. |
+| Support/Admin User | Technical support and configuration user. | Troubleshoot OIC/Fusion issues, retry eligible failures, maintain Admin Settings/configuration screens. | View integration logs, inspect payload/response references, retry eligible failures, maintain Admin Settings controls. |
 
 ## Functional Requirements
 
@@ -107,8 +107,8 @@ The application shall validate supplier request data before review and before Fu
 Acceptance criteria:
 - Flags missing supplier name, country, supplier type, business unit, contact email, required structured address/site fields, and tax registration where applicable.
 - Flags invalid business unit mapping and malformed contact email.
-- Tax registration is conditionally required by country, supplier type, and Admin Data validation-rule configuration; it is not globally mandatory for every supplier.
-- Address validation uses structured completeness checks for building/house/office, street/area, city, province/state, country, and postal code where applicable.
+- Tax registration is conditionally required by country, supplier type, and Admin Settings validation-rule configuration; it is not globally mandatory for every supplier.
+- Address validation uses structured completeness checks for Address Line 1, Address Line 2, street/area, province/state, city, and address country. Address Line 1 and Address Line 2 are limited to 20 characters each.
 - Exact tax registration duplicate and same bank token/hash duplicate are blocking validation errors that prevent requester submission.
 - Produces field-level validation result with rule code, severity, user-friendly message, blocking flag, and corrective guidance.
 - Business validation errors are stored separately from OIC/Fusion technical errors.
@@ -142,7 +142,7 @@ Acceptance criteria:
 - Risk score stores scoring version, timestamp, score, level, and individual reasons.
 - Reviewer can see each risk reason in business language.
 - Risk can be recalculated after request correction.
-- Thresholds/weights and active/inactive risk-factor settings are represented through Admin Data configuration.
+- Thresholds/weights and active/inactive risk-factor settings are represented through Admin Settings configuration.
 
 Verification: risk scoring test matrix and reference data inspection.
 
@@ -186,9 +186,9 @@ The application shall provide dashboards tailored to the three personas. Dashboa
 
 Acceptance criteria:
 - Requester dashboard shows own drafts, submitted, correction-needed, created, rejected, and duplicate-marked requests.
-- Requester dashboard includes an Actions column: Correction Requested rows show `Edit and Resubmit`, while all other statuses show `View`.
+- Requester dashboard includes an Actions column: Correction Requested rows show `Edit and Resubmit`, while all other statuses show non-clickable `None`.
 - Reviewer dashboard shows pending, under-review, high-risk, duplicate-risk, recently created, failed requests, and review queue.
-- Support/Admin dashboard shows integration failures, retry eligibility, OIC instance IDs, retry counts, and Admin Data functions.
+- Support/Admin dashboard shows integration failures, retry eligibility, OIC instance IDs, retry counts, and Admin Settings functions.
 - Reviewer filters include business unit, country, supplier type, requester, status, risk level, duplicate risk, expected spend, and product/service category.
 - Dashboard counts match filtered results.
 
@@ -252,8 +252,8 @@ Acceptance criteria:
 - Full bank account number is not sent to AI or exposed in logs.
 - Payment setup workflow is out of scope for phase one; bank information is captured only as metadata/indicators for validation, duplicate detection, risk scoring, and review evidence.
 - Document metadata and missing-document flags are captured; full upload is excluded in phase one.
-- Admin Data includes selected validation-rule toggles, risk-factor toggles, high-risk countries, supplier types, business units, duplicate/risk thresholds, and mappings.
-- Support/Admin can activate/deactivate selected validation rules and risk factors in the Admin Data mockup/docs; backend/database implementation is handled separately.
+- Admin Settings includes selected validation-rule toggles, risk-factor toggles, high-risk countries, supplier types, business units, duplicate/risk thresholds, and mappings.
+- Support/Admin can activate/deactivate selected validation rules and risk factors in the Admin Settings mockup/docs; backend/database implementation is handled separately.
 
 Verification: security review and reference data inspection.
 

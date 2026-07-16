@@ -11,6 +11,42 @@ how do i integrate this workflow here in this project to get started and then we
 
 ---
 
+## Git Publishing Request
+**Timestamp**: 2026-07-16T21:27:21Z
+**User Input**: "why dont u commit and push"
+**AI Response**: "Committed and pushed the current requester dashboard, address field, and Admin Settings terminology amendments to GitHub."
+**Context**: AI-DLC Inception - Publish current non-DB wireframe amendment changes.
+
+---
+
+## Terminology Amendment Request
+**Timestamp**: 2026-07-16T21:24:19Z
+**User Input**: "rename reference data to admin settings
+not admin data"
+**AI Response**: "Renamed the user-facing/configuration terminology from Admin Data to Admin Settings across requirements, user stories, technical design, wireframe specification, implementation notes, and mockup. Kept true existing supplier reference-data terminology unchanged."
+**Context**: AI-DLC Inception - Admin settings terminology amendment.
+
+---
+
+## Wireframe Amendment Request
+**Timestamp**: 2026-07-16T21:22:08Z
+**User Input**: "instead of this: **Site Name**
+**Building / Office**
+
+maybe have address line # 1, and address line 2 with max length of 20 characters in both? and then street and province and city and country?"
+**AI Response**: "Updated the address model in the mockup and supporting AI-DLC artifacts to replace Site Name and Building/Office with Address Line 1 and Address Line 2, each capped at 20 characters, followed by Street/Area, Province/State, City, and Address Country. Kept the change uncommitted."
+**Context**: AI-DLC Inception - Address field structure amendment.
+
+---
+
+## Wireframe Amendment Request
+**Timestamp**: 2026-07-16T21:19:41Z
+**User Input**: "when i clcik view at other rows it takes me to the first request, maybe instead of view, just say None and make it unclickable so such an error doesnt occur?"
+**AI Response**: "Changed non-correction requester dashboard actions from clickable View buttons to non-clickable None labels and aligned the requirements, user story, wireframe specification, and AI-DLC plan notes."
+**Context**: AI-DLC Inception - Requester dashboard action behavior amendment.
+
+---
+
 ## Inception Amendment Implementation
 **Timestamp**: 2026-07-16T21:15:48Z
 **User Input**: "Implement these approved non-DB fixes using AI-DLC. Update requirements, stories if needed, technical design, wireframe spec, and mockup. Do not modify DB schema or database-schema-design files. also make the commits/push to github"

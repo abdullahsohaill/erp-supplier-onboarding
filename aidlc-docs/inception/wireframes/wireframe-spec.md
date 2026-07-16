@@ -17,7 +17,7 @@ These wireframes translate the approved requirements into a reviewable screen mo
 Primary goals:
 - Show how Requesters create, correct, and track supplier requests.
 - Show how the single Reviewer evaluates validation, duplicate, risk, and AI explanation evidence before making a manual decision.
-- Show how Support/Admin users inspect integration failures, retry eligible failures, and maintain Admin Data controls.
+- Show how Support/Admin users inspect integration failures, retry eligible failures, and maintain Admin Settings controls.
 - Keep AI advisory only and make human decision ownership visible.
 - Keep OIC/Fusion boundaries visible without making Visual Builder appear to create suppliers directly.
 
@@ -27,7 +27,7 @@ The mockup uses a left navigation shell with role-oriented screens:
 
 - Requester: dashboard, request form, request detail.
 - Reviewer: review dashboard, request review detail, duplicate/risk/AI evidence panel, decision modal.
-- Support/Admin: integration dashboard, integration log detail, Admin Data maintenance.
+- Support/Admin: integration dashboard, integration log detail, Admin Settings maintenance.
 
 Top-level request states used in the wireframes:
 
@@ -48,7 +48,7 @@ Draft -> Submitted -> Validation Failed / Under Review -> Correction Requested /
 | WF-007 | Review Decision Modal | Reviewer | US-007, US-008 | FR-002, FR-009 |
 | WF-008 | Support/Admin Integration Dashboard | Support/Admin User | US-010 | FR-010, FR-013 |
 | WF-009 | Integration Log Detail | Support/Admin User | US-010, US-011 | FR-011, FR-013 |
-| WF-010 | Admin Data Maintenance | Support/Admin User | US-013 | FR-014 |
+| WF-010 | Admin Settings Maintenance | Support/Admin User | US-013 | FR-014 |
 
 ## Global UI Patterns
 
@@ -89,7 +89,7 @@ Purpose: Give the Requester a fast view of their own supplier requests, outstand
 Key content:
 - Summary counters: Drafts, Submitted, Correction Needed, Created in Fusion.
 - Request table with request number, supplier, status, next action, and actions.
-- Actions column shows `Edit and Resubmit` only for Correction Requested rows; all other rows show `View`.
+- Actions column shows `Edit and Resubmit` only for Correction Requested rows; all other rows show non-clickable `None`.
 - Quick action to create a new supplier request.
 - No internal risk score, level, reasons, or AI review evidence is shown to the Requester.
 
@@ -98,7 +98,7 @@ Primary actions:
 - Continue Draft.
 - Open Request Detail.
 - Edit and Resubmit Correction Requested request.
-- View non-correction requests.
+- No action for non-correction request rows in the requester dashboard.
 
 States:
 - Empty: no requests yet, show Create New Request.
@@ -113,7 +113,7 @@ Purpose: Capture standardized supplier request data and stage it through ORDS in
 Sections:
 - Supplier basics: name, supplier type, country, business unit, category, expected annual spend.
 - Contact: contact person, email, phone, email domain derived for duplicate checks.
-- Site/address: site name, building/house/office, street/area, city, province/state, country, postal code where applicable, primary site flag.
+- Site/address: Address Line 1, Address Line 2, street/area, province/state, city, and address country. Address Line 1 and Address Line 2 show a 20-character maximum hint.
 - Tax and bank indicators: conditional tax registration, bank country, masked account preview/last four, bank provided flag.
 - Documents: metadata rows for required/pending documents and missing flags.
 - Justification: business justification and notes.
@@ -250,9 +250,9 @@ Primary actions:
 - Mark as business correction needed, when error category indicates mapping/data issue.
 - Copy correlation ID.
 
-### WF-010: Admin Data Maintenance
+### WF-010: Admin Settings Maintenance
 
-Purpose: Let Support/Admin users maintain selected Admin Data controls that affect validation, duplicate detection, and risk scoring.
+Purpose: Let Support/Admin users maintain selected Admin Settings controls that affect validation, duplicate detection, and risk scoring.
 
 Sections:
 - Business unit mappings.
@@ -263,7 +263,7 @@ Sections:
 - Duplicate rule weights and blocking critical triggers.
 
 Primary actions:
-- Edit Admin Data row.
+- Edit Admin Settings row.
 - Activate/deactivate row.
 - Save changes.
 
@@ -278,7 +278,7 @@ Guardrails:
 - [ ] Reviewer can see validation, duplicate, risk, and AI evidence before decisions.
 - [ ] Decision modal enforces required comments and duplicate reference.
 - [ ] Support/Admin screens show retry eligibility and technical detail without exposing sensitive payloads.
-- [ ] Admin Data maintenance matches phase-one scope.
+- [ ] Admin Settings maintenance matches phase-one scope.
 - [ ] Mockups do not imply Visual Builder creates suppliers directly in Fusion.
 - [ ] AI is visibly advisory only.
 

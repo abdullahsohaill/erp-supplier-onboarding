@@ -74,7 +74,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | Approve/reject/request correction/mark duplicate | No | Yes | No by default |
 | View integration logs | No | Limited business status only | Yes |
 | Retry integration failures | No | No | Yes |
-| Maintain Admin Data controls | No | No | Yes |
+| Maintain Admin Settings controls | No | No | Yes |
 
 ## 6. Request Status Model
 
@@ -284,12 +284,12 @@ Error response:
 | GET | `/integration-logs/{logId}` | Support/Admin | View one integration log. |
 | GET | `/reference/business-units` | All authenticated | Business unit lookup. |
 | GET | `/reference/supplier-types` | All authenticated | Supplier type lookup. |
-| GET | `/admin-data/high-risk-countries` | Reviewer, Support/Admin | High-risk country lookup. |
-| PUT | `/admin-data/high-risk-countries/{countryCode}` | Support/Admin | Maintain high-risk country warning configuration if included. |
-| GET | `/admin-data/validation-rules` | Support/Admin | View validation rule active/inactive configuration. |
-| PUT | `/admin-data/validation-rules/{ruleCode}` | Support/Admin | Maintain validation rule active/inactive setting if included. |
-| GET | `/admin-data/risk-factors` | Support/Admin | View risk factor weights, severity, and active/inactive configuration. |
-| PUT | `/admin-data/risk-factors/{factorCode}` | Support/Admin | Maintain risk factor active/inactive setting and weighting if included. |
+| GET | `/admin-settings/high-risk-countries` | Reviewer, Support/Admin | High-risk country lookup. |
+| PUT | `/admin-settings/high-risk-countries/{countryCode}` | Support/Admin | Maintain high-risk country warning configuration if included. |
+| GET | `/admin-settings/validation-rules` | Support/Admin | View validation rule active/inactive configuration. |
+| PUT | `/admin-settings/validation-rules/{ruleCode}` | Support/Admin | Maintain validation rule active/inactive setting if included. |
+| GET | `/admin-settings/risk-factors` | Support/Admin | View risk factor weights, severity, and active/inactive configuration. |
+| PUT | `/admin-settings/risk-factors/{factorCode}` | Support/Admin | Maintain risk factor active/inactive setting and weighting if included. |
 
 #### Requester Response Projection
 
@@ -311,12 +311,11 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
     "phone": "+44 20 5555 0101"
   },
   "site": {
-    "siteName": "London Main",
-    "buildingHouseOffice": "Office 12",
-    "streetArea": "1 King Street",
+    "addressLine1": "Office 12",
+    "addressLine2": "Floor 4",
+    "streetArea": "King Street",
     "city": "London",
     "provinceState": "Greater London",
-    "postalCode": "SW1A 1AA",
     "countryCode": "GB"
   },
   "businessJustification": "Needed for facilities maintenance services for the London operations site.",
@@ -348,7 +347,7 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 | VAL-003 | Supplier type required. | Validation Failed |
 | VAL-004 | Business unit required and mapped. | Validation Failed |
 | VAL-005 | Contact email required and valid. | Validation Failed |
-| VAL-006 | Required structured address/site fields are complete: building/house/office, street/area, city, province/state, country, and postal code where applicable. | Validation Failed |
+| VAL-006 | Required structured address/site fields are complete: Address Line 1, Address Line 2, street/area, province/state, city, and address country; Address Line 1 and Address Line 2 are each limited to 20 characters. | Validation Failed |
 | VAL-007 | At least one supplier site required for phase-one baseline. | Validation Failed |
 | VAL-008 | Exact tax registration duplicate found in existing supplier reference data or relevant staged requests. | Validation Failed |
 | VAL-009 | Same bank token/hash duplicate found when bank data is captured. | Validation Failed |

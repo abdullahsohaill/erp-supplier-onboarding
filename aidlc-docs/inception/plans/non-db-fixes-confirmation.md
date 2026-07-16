@@ -19,11 +19,11 @@ This note captures the proposed non-database fixes from the supervisor meeting b
 - Show `Edit and Resubmit` only for rows with status `Correction Requested`.
 - Confirmed behavior:
   - `Correction Requested`: show enabled `Edit and Resubmit`.
-  - All other statuses: show `View`.
+  - All other statuses: show non-clickable `None`.
 
-### 2. Rename Reference Data To Admin Data
+### 2. Rename Reference Data To Admin Settings
 
-- Rename `Reference Data` to `Admin Data` in mockups and wireframe/spec wording.
+- Rename `Reference Data` to `Admin Settings` in mockups and wireframe/spec wording.
 - This screen is where Support/Admin manages configuration-like data, such as:
   - Validation rules.
   - Risk factors.
@@ -34,8 +34,8 @@ This note captures the proposed non-database fixes from the supervisor meeting b
 
 ### 3. Validation And Risk On/Off Controls
 
-- Add an `Admin Data > Validation Rules` section with global on/off toggles.
-- Add an `Admin Data > Risk Factors` section with on/off toggles plus weight/severity display.
+- Add an `Admin Settings > Validation Rules` section with global on/off toggles.
+- Add an `Admin Settings > Risk Factors` section with on/off toggles plus weight/severity display.
 - Example configurable toggles:
   - Tax registration required rule.
   - Address completeness rule.
@@ -73,12 +73,12 @@ This note captures the proposed non-database fixes from the supervisor meeting b
 
 - Do not use a regex-heavy single address field as the primary validation strategy.
 - Replace the single address approach with structured address fields:
-  - Building/House/Office.
+  - Address Line 1, maximum 20 characters.
+  - Address Line 2, maximum 20 characters.
   - Street/Area.
-  - City.
   - Province/State.
-  - Country.
-  - Postal Code, if applicable.
+  - City.
+  - Address Country.
 - Validation should check that the required address parts are present.
 - If the address still looks suspicious or incomplete after structured validation, the Reviewer or AI can flag it manually as weak/incomplete address.
 
@@ -115,8 +115,8 @@ This note captures the proposed non-database fixes from the supervisor meeting b
 
 ## Confirmed Decisions Summary
 
-- Requester dashboard action column should show `Edit and Resubmit` for `Correction Requested`; otherwise show `View`.
+- Requester dashboard action column should show `Edit and Resubmit` for `Correction Requested`; otherwise show non-clickable `None`.
 - Bank/payment risk factor should be renamed only.
 - Payment setup is out of scope for phase one.
-- `Admin Data` should include UI controls in the mockup/docs for now, while backend/database handling remains separate.
+- `Admin Settings` should include UI controls in the mockup/docs for now, while backend/database handling remains separate.
 - Critical duplicate triggers should block requester submission in the first place.

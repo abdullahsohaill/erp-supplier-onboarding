@@ -22,14 +22,14 @@ Implement the approved non-database fixes across the AI-DLC inception artifacts 
 
 ## Confirmed Decisions
 
-- Requester dashboard rows show `Edit and Resubmit` only for `Correction Requested`; all other rows show `View`.
+- Requester dashboard rows show `Edit and Resubmit` only for `Correction Requested`; all other rows show non-clickable `None`.
 - Duplicate checks run automatically during submit/resubmit validation, without a requester-triggered preview button.
 - Exact tax registration duplicates and same bank token/hash duplicates are blocking validation errors that prevent requester submission.
 - High-risk country remains a reviewer risk warning, not a requester submission blocker.
-- Address validation uses structured fields and completeness checks, not a regex-heavy single address field.
+- Address validation uses structured fields and completeness checks, not a regex-heavy single address field; Address Line 1 and Address Line 2 are capped at 20 characters each.
 - Bank-related risk factor is renamed to `Missing or incomplete bank details`; payment setup is out of phase-one scope.
-- `Reference Data` is renamed to `Admin Data`.
-- Admin Data mockups/docs show on/off controls for validation rules and risk factors; backend/database handling remains separate.
+- `Reference Data` is renamed to `Admin Settings`.
+- Admin Settings mockups/docs show on/off controls for validation rules and risk factors; backend/database handling remains separate.
 - Reviewer can mark specific validation, risk, or evidence items for correction.
 
 ## Execution Checklist

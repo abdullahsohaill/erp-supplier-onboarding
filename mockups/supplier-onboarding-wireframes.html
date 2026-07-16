@@ -756,7 +756,7 @@
         <p class="nav-label">Support/Admin</p>
         <button class="nav-button" data-screen="support-dashboard">Integration Dashboard <span class="nav-pill">8</span></button>
         <button class="nav-button" data-screen="integration-log">Integration Log Detail <span class="nav-pill">9</span></button>
-        <button class="nav-button" data-screen="admin-data">Admin Data <span class="nav-pill">10</span></button>
+        <button class="nav-button" data-screen="admin-settings">Admin Settings <span class="nav-pill">10</span></button>
       </div>
     </aside>
 
@@ -839,21 +839,21 @@
                   <td>Nexa Office Supply</td>
                   <td><span class="status review">Under Review</span></td>
                   <td>Waiting for reviewer</td>
-                  <td><button class="btn" data-screen-jump="request-detail">View</button></td>
+                  <td><span class="badge">None</span></td>
                 </tr>
                 <tr>
                   <td>REQ-2026-0129</td>
                   <td>Orion Packaging</td>
                   <td><span class="status success">Created in Fusion</span></td>
                   <td>Supplier #SUP-104284</td>
-                  <td><button class="btn" data-screen-jump="request-detail">View</button></td>
+                  <td><span class="badge">None</span></td>
                 </tr>
                 <tr>
                   <td>REQ-2026-0122</td>
                   <td>Al Noor Packaging</td>
                   <td><span class="status danger">Marked Duplicate</span></td>
                   <td>Use supplier #SUP-100884</td>
-                  <td><button class="btn" data-screen-jump="request-detail">View</button></td>
+                  <td><span class="badge">None</span></td>
                 </tr>
               </tbody>
             </table>
@@ -929,33 +929,35 @@
                 <input value="+971 50 100 2233">
               </div>
               <div class="field">
-                <label>Site Name</label>
-                <input value="Dubai Service Site">
+                <label>Address Line 1</label>
+                <input value="Tower B" maxlength="20">
+                <span class="hint">Max 20 characters</span>
               </div>
               <div class="field">
-                <label>Building / Office</label>
-                <input value="Tower B, Floor 12">
+                <label>Address Line 2</label>
+                <input value="Floor 12" maxlength="20">
+                <span class="hint">Max 20 characters</span>
               </div>
               <div class="field">
                 <label>Street / Area</label>
                 <input value="Business Bay">
               </div>
               <div class="field">
-                <label>City</label>
-                <input value="Dubai">
-              </div>
-              <div class="field">
                 <label>Province / State</label>
                 <input value="Dubai">
               </div>
               <div class="field">
-                <label>Postal Code</label>
-                <input value="00000">
+                <label>City</label>
+                <input value="Dubai">
+              </div>
+              <div class="field">
+                <label>Address Country</label>
+                <select><option>United Arab Emirates</option><option>Pakistan</option><option>United States</option></select>
               </div>
               <div class="field">
                 <label>Tax Registration</label>
                 <input value="">
-                <span class="hint">Required only when Admin Data rule applies</span>
+                <span class="hint">Required only when Admin Settings rule applies</span>
               </div>
               <div class="field">
                 <label>Bank Provided</label>
@@ -1358,7 +1360,7 @@
         </div>
       </section>
 
-      <section class="screen" id="admin-data" data-title="Admin Data Maintenance" data-meta="WF-010 - Admin controls - US-013 - FR-014">
+      <section class="screen" id="admin-settings" data-title="Admin Settings Maintenance" data-meta="WF-010 - Admin settings - US-013 - FR-014">
         <div class="grid cols-2">
           <div class="panel">
             <div class="panel-header">
@@ -1387,7 +1389,7 @@
                 <button class="btn">Edit</button>
               </div>
               <div class="toggle-row">
-                <div><strong>Structured address completeness</strong><span>Building, street/area, city, province/state, country</span></div>
+                <div><strong>Structured address completeness</strong><span>Address lines, street/area, province/state, city, country</span></div>
                 <span class="status success">On</span>
                 <button class="btn">Edit</button>
               </div>
