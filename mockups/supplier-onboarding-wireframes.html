@@ -564,6 +564,54 @@
       font-weight: 650;
     }
 
+    .risk-factor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .risk-factor-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .risk-factor-item input,
+    .rule-toggle input {
+      width: 18px;
+      height: 18px;
+      margin: 1px 0 0;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
+    .risk-factor-item strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .risk-factor-item span span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .rule-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 64px;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
     .decision-rail {
       display: grid;
       gap: 10px;
@@ -692,6 +740,7 @@
       .grid.cols-3,
       .grid.cols-4,
       .evidence-grid,
+      .risk-factor-grid,
       .ref-grid,
       .form-grid {
         grid-template-columns: 1fr;
@@ -749,14 +798,13 @@
         <button class="nav-button" data-screen="reviewer-dashboard">Reviewer Dashboard <span class="nav-pill">4</span></button>
         <button class="nav-button" data-screen="review-detail">Request Review Detail <span class="nav-pill">5</span></button>
         <button class="nav-button" data-screen="evidence-panel">Duplicate / Risk / AI <span class="nav-pill">6</span></button>
-        <button class="nav-button" data-screen="decision-modal-screen">Decision Modal <span class="nav-pill">7</span></button>
       </div>
 
       <div class="nav-group">
         <p class="nav-label">Support/Admin</p>
-        <button class="nav-button" data-screen="support-dashboard">Integration Dashboard <span class="nav-pill">8</span></button>
-        <button class="nav-button" data-screen="integration-log">Integration Log Detail <span class="nav-pill">9</span></button>
-        <button class="nav-button" data-screen="admin-settings">Admin Settings <span class="nav-pill">10</span></button>
+        <button class="nav-button" data-screen="support-dashboard">Integration Dashboard <span class="nav-pill">7</span></button>
+        <button class="nav-button" data-screen="integration-log">Integration Log Detail <span class="nav-pill">8</span></button>
+        <button class="nav-button" data-screen="admin-settings">Admin Settings <span class="nav-pill">9</span></button>
       </div>
     </aside>
 
@@ -1123,7 +1171,7 @@
         </div>
       </section>
 
-      <section class="screen" id="review-detail" data-title="Request Review Detail" data-meta="WF-005 - Reviewer decision workspace - US-004, US-005, US-006, US-007 - FR-005, FR-006, FR-007, FR-008, FR-009">
+      <section class="screen" id="review-detail" data-title="Request Review Detail" data-meta="WF-005 + WF-007 - Reviewer decision workspace - US-004, US-005, US-006, US-007, US-008 - FR-002, FR-005, FR-006, FR-007, FR-008, FR-009">
         <div class="grid cols-2">
           <div class="panel">
             <div class="panel-header">
@@ -1209,6 +1257,77 @@
             </div>
           </div>
         </div>
+
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Risk Factors</h2>
+              <p class="panel-subtitle">Per-request reviewer checklist for REQ-2026-0142</p>
+            </div>
+            <span class="badge">Reviewer only</span>
+          </div>
+          <div class="panel-body">
+            <p class="hint" style="margin:0 0 12px;">Tick each factor that applies to this request. Selections apply only to this request and do not change global scoring configuration.</p>
+            <div class="risk-factor-grid" aria-label="Per-request risk factors">
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="MISSING_TAX" data-risk-factor="MISSING_TAX">
+                <span><strong>Missing tax registration</strong><span>Section 11.1 baseline weight: +25</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="HIGH_RISK_COUNTRY" data-risk-factor="HIGH_RISK_COUNTRY">
+                <span><strong>High-risk country</strong><span>Section 11.1 baseline weight: +25</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="BANK_COUNTRY_MISMATCH" data-risk-factor="BANK_COUNTRY_MISMATCH">
+                <span><strong>Bank country differs from supplier country</strong><span>Section 11.1 baseline weight: +20</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="INCOMPLETE_ADDRESS" data-risk-factor="INCOMPLETE_ADDRESS">
+                <span><strong>Incomplete address</strong><span>Section 11.1 baseline weight: +15</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="INCOMPLETE_BANK_DETAILS" data-risk-factor="INCOMPLETE_BANK_DETAILS">
+                <span><strong>Missing or incomplete bank details</strong><span>Section 11.1 baseline weight: +15</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="VAGUE_JUSTIFICATION" data-risk-factor="VAGUE_JUSTIFICATION">
+                <span><strong>Vague business justification</strong><span>Section 11.1 baseline weight: +15</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="HIGH_SPEND_WEAK_JUSTIFICATION" data-risk-factor="HIGH_SPEND_WEAK_JUSTIFICATION">
+                <span><strong>High expected spend with weak justification</strong><span>Section 11.1 baseline weight: +20</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="MISSING_DOCUMENT_METADATA" data-risk-factor="MISSING_DOCUMENT_METADATA">
+                <span><strong>Missing required document metadata</strong><span>Section 11.1 baseline weight: +10</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="DUPLICATE_SCORE_HIGH" data-risk-factor="DUPLICATE_SCORE_HIGH">
+                <span><strong>Duplicate score High</strong><span>Section 11.1 baseline weight: +25</span></span>
+              </label>
+              <label class="risk-factor-item">
+                <input type="checkbox" name="request-risk-factor" value="DUPLICATE_SCORE_MEDIUM" data-risk-factor="DUPLICATE_SCORE_MEDIUM">
+                <span><strong>Duplicate score Medium</strong><span>Section 11.1 baseline weight: +15</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Decision Modal Preview</h2>
+              <p class="panel-subtitle">Final step in Request Review Detail</p>
+            </div>
+            <button class="btn primary" data-open-modal="correction">Open Decision Modal</button>
+          </div>
+          <div class="panel-body">
+            <div class="callout indigo">
+              <strong>Decision guardrails</strong>
+              <p class="hint">Approve is disabled while blocking validation exists. Request correction can mark specific fields or evidence items for the Requester. Mark duplicate also requires an existing supplier reference.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="screen" id="evidence-panel" data-title="Duplicate / Risk / AI Evidence Panel" data-meta="WF-006 - Evidence panel - US-004, US-005, US-006 - FR-006, FR-007, FR-008, FR-014">
@@ -1255,21 +1374,6 @@
                 <li>Use targeted correction items when evidence is weak or incomplete.</li>
                 <li>Full bank account values were not sent to AI.</li>
               </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" id="decision-modal-screen" data-title="Review Decision Modal" data-meta="WF-007 - Controlled reviewer decision - US-007, US-008 - FR-002, FR-009">
-        <div class="panel">
-          <div class="panel-header">
-            <h2 class="panel-title">Decision Modal Preview</h2>
-            <button class="btn primary" data-open-modal="correction">Open Modal</button>
-          </div>
-          <div class="panel-body">
-            <div class="callout indigo">
-              <strong>Decision guardrails</strong>
-              <p class="hint">Approve is disabled while blocking validation exists. Request correction can mark specific fields or evidence items for the Requester. Mark duplicate also requires an existing supplier reference.</p>
             </div>
           </div>
         </div>
@@ -1361,8 +1465,7 @@
       </section>
 
       <section class="screen" id="admin-settings" data-title="Admin Settings Maintenance" data-meta="WF-010 - Admin settings - US-013 - FR-014">
-        <div class="grid cols-2">
-          <div class="panel">
+        <div class="panel">
             <div class="panel-header">
               <h2 class="panel-title">High-Risk Countries</h2>
               <button class="btn">Add Country</button>
@@ -1375,64 +1478,53 @@
                 <tr><td>Country C</td><td><span class="risk none">Watch</span></td><td>No</td><td>Archived</td></tr>
               </tbody>
             </table>
-          </div>
-
-          <div class="panel">
-            <div class="panel-header">
-              <h2 class="panel-title">Validation Rules</h2>
-              <button class="btn primary">Save Changes</button>
-            </div>
-            <div class="panel-body">
-              <div class="toggle-row">
-                <div><strong>Tax registration required</strong><span>Conditional by country and supplier type</span></div>
-                <span class="status success">On</span>
-                <button class="btn">Edit</button>
-              </div>
-              <div class="toggle-row">
-                <div><strong>Structured address completeness</strong><span>Address lines, street/area, province/state, city, country</span></div>
-                <span class="status success">On</span>
-                <button class="btn">Edit</button>
-              </div>
-              <div class="toggle-row">
-                <div><strong>Exact tax duplicate block</strong><span>Blocks requester submission</span></div>
-                <span class="status success">On</span>
-                <button class="btn">Edit</button>
-              </div>
-              <div class="toggle-row">
-                <div><strong>Same bank token/hash block</strong><span>Blocks requester submission</span></div>
-                <span class="status success">On</span>
-                <button class="btn">Edit</button>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="grid cols-2" style="margin-top:16px;">
           <div class="panel">
             <div class="panel-header">
-              <h2 class="panel-title">Risk Factors</h2>
+              <div>
+                <h2 class="panel-title">Global Validation Rules</h2>
+                <p class="panel-subtitle">Applies to all supplier requests</p>
+              </div>
               <button class="btn primary">Save Changes</button>
             </div>
             <div class="panel-body">
               <div class="toggle-row">
-                <div><strong>High-risk country</strong><span>Reviewer warning, not submit blocker</span></div>
-                <span class="status success">On</span>
-                <button class="btn">Edit</button>
+                <div><strong>VAL-001: Supplier name required</strong><span>Missing supplier name causes Validation Failed.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-001"><span data-rule-state>On</span></label>
               </div>
               <div class="toggle-row">
-                <div><strong>Vague justification</strong><span>AI/reviewer review signal</span></div>
-                <span class="status success">On</span>
-                <button class="btn">Edit</button>
+                <div><strong>VAL-002: Country required</strong><span>Missing supplier country causes Validation Failed.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-002"><span data-rule-state>On</span></label>
               </div>
               <div class="toggle-row">
-                <div><strong>Bank country mismatch</strong><span>Reviewer warning</span></div>
-                <span class="status success">On</span>
-                <button class="btn">Edit</button>
+                <div><strong>VAL-003: Supplier type required</strong><span>Missing supplier type causes Validation Failed.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-003"><span data-rule-state>On</span></label>
               </div>
               <div class="toggle-row">
-                <div><strong>Missing or incomplete bank details</strong><span>Bank metadata/risk signal only</span></div>
-                <span class="status warning">Review</span>
-                <button class="btn">Edit</button>
+                <div><strong>VAL-004: Business unit required and mapped</strong><span>Missing or unmapped business unit causes Validation Failed.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-004"><span data-rule-state>On</span></label>
+              </div>
+              <div class="toggle-row">
+                <div><strong>VAL-005: Contact email required and valid</strong><span>Missing or malformed contact email causes Validation Failed.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-005"><span data-rule-state>On</span></label>
+              </div>
+              <div class="toggle-row">
+                <div><strong>VAL-006: Structured address/site complete</strong><span>Requires Address Lines 1 and 2, street/area, province/state, city, and country; each address line is limited to 20 characters.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-006"><span data-rule-state>On</span></label>
+              </div>
+              <div class="toggle-row">
+                <div><strong>VAL-007: At least one supplier site required</strong><span>A submitted request must include the phase-one supplier site baseline.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-007"><span data-rule-state>On</span></label>
+              </div>
+              <div class="toggle-row">
+                <div><strong>VAL-008: Exact tax registration duplicate block</strong><span>An exact tax match in supplier references or staged requests causes Validation Failed.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-008"><span data-rule-state>On</span></label>
+              </div>
+              <div class="toggle-row">
+                <div><strong>VAL-009: Same bank token/hash duplicate block</strong><span>A matching bank token/hash causes Validation Failed when bank data is captured.</span></div>
+                <label class="rule-toggle"><input type="checkbox" checked role="switch" data-validation-rule="VAL-009"><span data-rule-state>On</span></label>
               </div>
             </div>
           </div>
@@ -1563,6 +1655,14 @@
     });
     document.querySelectorAll('[data-close-modal]').forEach(button => {
       button.addEventListener('click', () => modal.classList.remove('open'));
+    });
+    document.querySelectorAll('[data-validation-rule]').forEach(rule => {
+      const state = rule.closest('.rule-toggle').querySelector('[data-rule-state]');
+      const syncRuleState = () => {
+        state.textContent = rule.checked ? 'On' : 'Off';
+      };
+      rule.addEventListener('change', syncRuleState);
+      syncRuleState();
     });
     modal.addEventListener('click', event => {
       if (event.target === modal) modal.classList.remove('open');

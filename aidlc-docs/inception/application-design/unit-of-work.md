@@ -6,7 +6,7 @@ Build supplier request capture, draft/save/submit behavior, requester status tra
 
 ## UOW-002: Validation, Duplicate Detection, and Risk Scoring
 
-Implement business validations, duplicate matching, risk scoring, AI explanation support, explainable results, and related UI display.
+Implement the governed validation-rule catalog, failed-result rule references, consolidated risk/duplicate scoring-rule configuration, duplicate matching, risk scoring, AI explanation support, explainable results, and related UI display.
 
 ## UOW-003: Review Workflow and Business Dashboards
 

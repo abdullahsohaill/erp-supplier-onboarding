@@ -6,7 +6,7 @@ This companion expands Section 7 of `technical-design.md` into a complete table-
 
 ## Scope and Conventions
 
-- The full ERD contains all 20 ATP tables and all 20 physical foreign-key relationships.
+- The full ERD contains all 19 ATP tables and all 19 physical foreign-key relationships.
 - `PK` identifies a primary-key column, `FK` identifies a foreign-key column, and `UK` identifies a unique alternate key.
 - A required relationship means the child foreign-key column is marked `not null` in DBML. An optional relationship means the foreign-key column is nullable.
 - The crow-foot end represents zero or many child records.
@@ -17,10 +17,10 @@ This companion expands Section 7 of `technical-design.md` into a complete table-
 | Domain | Tables | Count |
 |---|---|---:|
 | Core request and workflow | `SUPPLIER_REQUEST`, `SUPPLIER_REQUEST_SITE`, `SUPPLIER_REQUEST_CONTACT`, `SUPPLIER_REQUEST_BANK`, `SUPPLIER_REQUEST_DOCUMENT`, `STATUS_HISTORY` | 6 |
-| Rule and AI outputs | `VALIDATION_RESULT`, `DUPLICATE_MATCH`, `RISK_ASSESSMENT`, `AI_SUMMARY`, `AI_SUMMARY_FEEDBACK` | 5 |
+| Rule and AI outputs | `VALIDATION_RESULT`, `DUPLICATE_MATCH`, `RISK_ASSESSMENT`, `AI_SUMMARY` | 4 |
 | Integration and supplier reference | `EXISTING_SUPPLIER_REF`, `EXISTING_SUPPLIER_SITE_REF`, `INTEGRATION_LOG`, `INTEGRATION_RETRY_HISTORY` | 4 |
-| Governed reference configuration | `REF_BUSINESS_UNIT`, `REF_SUPPLIER_TYPE`, `REF_HIGH_RISK_COUNTRY`, `REF_RISK_RULE`, `REF_DUPLICATE_RULE` | 5 |
-| **Total** |  | **20** |
+| Governed reference configuration | `VALIDATION_RULES`, `REF_BUSINESS_UNIT`, `REF_SUPPLIER_TYPE`, `REF_HIGH_RISK_COUNTRY`, `REF_SCORING_RULE` | 5 |
+| **Total** |  | **19** |
 
 ## Complete Physical ER Diagram
 
@@ -99,10 +99,10 @@ erDiagram
     VALIDATION_RESULT {
         int validation_id PK
         int request_id FK
+        int validation_rule_id FK
         varchar run_id
         boolean is_current
         varchar field_name
-        varchar rule_code
         varchar severity
         text message
         boolean is_blocking
@@ -145,15 +145,6 @@ erDiagram
         varchar source_facts_hash
         timestamp created_at
         varchar created_by
-    }
-    AI_SUMMARY_FEEDBACK {
-        int feedback_id PK
-        int summary_id FK
-        int request_id FK
-        boolean helpful_flag
-        text feedback_comment
-        varchar actor_user
-        timestamp created_at
     }
     EXISTING_SUPPLIER_REF {
         int supplier_ref_id PK
@@ -240,23 +231,28 @@ erDiagram
         timestamp updated_at
         varchar updated_by
     }
-    REF_RISK_RULE {
-        varchar rule_code PK
-        varchar version PK
+    VALIDATION_RULES {
+        int validation_rule_id PK
+        varchar rule_code UK
         varchar rule_name
-        decimal weight
+        text rule_description
+        varchar field_name
         varchar severity
+        text default_message
+        boolean is_blocking
         boolean active_flag
         timestamp created_at
         varchar created_by
         timestamp updated_at
         varchar updated_by
     }
-    REF_DUPLICATE_RULE {
+    REF_SCORING_RULE {
         varchar rule_code PK
         varchar version PK
+        varchar rule_type PK
         varchar rule_name
         decimal weight
+        varchar severity
         boolean critical_trigger_flag
         boolean active_flag
         timestamp created_at
@@ -273,13 +269,12 @@ erDiagram
     SUPPLIER_REQUEST ||--o{ SUPPLIER_REQUEST_DOCUMENT : tracks
     SUPPLIER_REQUEST ||--o{ STATUS_HISTORY : records
     SUPPLIER_REQUEST ||--o{ VALIDATION_RESULT : produces
+    VALIDATION_RULES ||--o{ VALIDATION_RESULT : identifies
     SUPPLIER_REQUEST ||--o{ DUPLICATE_MATCH : produces
     EXISTING_SUPPLIER_REF o|--o{ DUPLICATE_MATCH : candidate
     SUPPLIER_REQUEST o|--o{ DUPLICATE_MATCH : candidate
     SUPPLIER_REQUEST ||--o{ RISK_ASSESSMENT : produces
     SUPPLIER_REQUEST ||--o{ AI_SUMMARY : produces
-    AI_SUMMARY ||--o{ AI_SUMMARY_FEEDBACK : receives
-    SUPPLIER_REQUEST ||--o{ AI_SUMMARY_FEEDBACK : links
     EXISTING_SUPPLIER_REF ||--o{ EXISTING_SUPPLIER_SITE_REF : has
     SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : logs
     INTEGRATION_LOG ||--o{ INTEGRATION_RETRY_HISTORY : records
@@ -288,7 +283,7 @@ erDiagram
 
 ### Text Alternative
 
-`SUPPLIER_REQUEST` is the central workflow table. It owns request sites, contacts, optional masked bank details, document metadata, status history, validation results, duplicate results, risk assessments, AI summaries, integration logs, and retry history. `REF_BUSINESS_UNIT` and `REF_SUPPLIER_TYPE` classify requests, while `REF_BUSINESS_UNIT` also maps intended request sites. `DUPLICATE_MATCH` can point either to an existing Fusion supplier reference or another staged request. `AI_SUMMARY_FEEDBACK` connects to both its AI summary and originating request. Existing supplier sites belong to existing supplier references, and integration retry rows belong to both an integration log and the originating request. `REF_HIGH_RISK_COUNTRY`, `REF_RISK_RULE`, and `REF_DUPLICATE_RULE` have no physical foreign keys by design.
+`SUPPLIER_REQUEST` is the central workflow table. It owns request sites, contacts, optional masked bank details, document metadata, status history, validation results, duplicate results, risk assessments, AI summaries, integration logs, and retry history. Every failed `VALIDATION_RESULT` references the exact `VALIDATION_RULES` definition that failed. `REF_BUSINESS_UNIT` and `REF_SUPPLIER_TYPE` classify requests, while `REF_BUSINESS_UNIT` also maps intended request sites. `DUPLICATE_MATCH` can point either to an existing Fusion supplier reference or another staged request. Existing supplier sites belong to existing supplier references, and integration retry rows belong to both an integration log and the originating request. `REF_HIGH_RISK_COUNTRY` and the consolidated `REF_SCORING_RULE` have no physical foreign keys by design.
 
 ## Physical Relationship Catalog
 
@@ -303,13 +298,12 @@ erDiagram
 | `SUPPLIER_REQUEST_DOCUMENT.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 | `STATUS_HISTORY.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 | `VALIDATION_RESULT.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
+| `VALIDATION_RESULT.validation_rule_id` | `VALIDATION_RULES.validation_rule_id` | Required | One parent per child; zero or many children per parent |
 | `DUPLICATE_MATCH.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 | `DUPLICATE_MATCH.candidate_supplier_ref_id` | `EXISTING_SUPPLIER_REF.supplier_ref_id` | Optional | Zero or one parent per child; zero or many children per parent |
 | `DUPLICATE_MATCH.candidate_request_id` | `SUPPLIER_REQUEST.request_id` | Optional | Zero or one parent per child; zero or many children per parent |
 | `RISK_ASSESSMENT.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 | `AI_SUMMARY.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
-| `AI_SUMMARY_FEEDBACK.summary_id` | `AI_SUMMARY.summary_id` | Required | One parent per child; zero or many children per parent |
-| `AI_SUMMARY_FEEDBACK.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 | `EXISTING_SUPPLIER_SITE_REF.supplier_ref_id` | `EXISTING_SUPPLIER_REF.supplier_ref_id` | Required | One parent per child; zero or many children per parent |
 | `INTEGRATION_LOG.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 | `INTEGRATION_RETRY_HISTORY.log_id` | `INTEGRATION_LOG.log_id` | Required | One parent per child; zero or many children per parent |
@@ -322,19 +316,37 @@ The following connections describe application behavior only. They are not datab
 ```mermaid
 flowchart LR
     HighRiskCountry["REF_HIGH_RISK_COUNTRY"] --> RiskService["Risk Assessment Service"]
-    RiskRule["REF_RISK_RULE"] --> RiskService
+    ScoringRule["REF_SCORING_RULE"] --> RiskService
     RiskService --> RiskAssessment["RISK_ASSESSMENT"]
-    DuplicateRule["REF_DUPLICATE_RULE"] --> DuplicateService["Duplicate Detection Service"]
+    ScoringRule --> DuplicateService["Duplicate Detection Service"]
     DuplicateService --> DuplicateMatch["DUPLICATE_MATCH"]
+    ValidationRules["VALIDATION_RULES"] --> ValidationService["Validation Service"]
+    ValidationService --> ValidationResult["VALIDATION_RESULT"]
 ```
 
-Text alternative: the risk assessment service reads high-risk-country and risk-rule configuration before writing `RISK_ASSESSMENT`. The duplicate detection service reads duplicate-rule configuration before writing `DUPLICATE_MATCH`. These are service-level dependencies rather than foreign keys.
+Text alternative: the risk assessment service reads high-risk-country configuration and `RISK` rows from `REF_SCORING_RULE` before writing `RISK_ASSESSMENT`. The duplicate detection service reads `DUPLICATE` rows from the same scoring table before writing `DUPLICATE_MATCH`. The validation service reads active `VALIDATION_RULES` entries before writing failed `VALIDATION_RESULT` rows. These arrows show service-level consumption; the validation result-to-rule relationship is also enforced by the physical foreign key in the ERD.
+
+## Required Validation-Rule Seed Catalog
+
+| Rule code | Rule name | Governed condition | Default behavior |
+|---|---|---|---|
+| `VAL-001` | Supplier name required | Supplier name is empty. | Blocking, active |
+| `VAL-002` | Country required | Supplier country is empty. | Blocking, active |
+| `VAL-003` | Supplier type required | Supplier type is empty. | Blocking, active |
+| `VAL-004` | Business unit required and mapped | Business unit is empty or has no valid mapping. | Blocking, active |
+| `VAL-005` | Contact email required and valid | Contact email is empty or malformed. | Blocking, active |
+| `VAL-006` | Structured address complete | Required address/site fields are incomplete or either address line exceeds 20 characters. | Blocking, active |
+| `VAL-007` | Supplier site required | No supplier site is present. | Blocking, active |
+| `VAL-008` | Exact tax duplicate blocked | Exact tax registration matches an existing supplier or relevant staged request. | Blocking, active |
+| `VAL-009` | Same bank token duplicate blocked | Captured bank token/hash matches another supplier or relevant staged request. | Blocking, active |
 
 ## Important Schema Rules
 
 - `SUPPLIER_REQUEST.request_number` and `EXISTING_SUPPLIER_REF.supplier_number` are unique business identifiers.
 - `REF_HIGH_RISK_COUNTRY` uses the composite primary key `country_code` plus `effective_from`.
-- `REF_RISK_RULE` and `REF_DUPLICATE_RULE` use the composite primary key `rule_code` plus `version`.
+- `VALIDATION_RULES.validation_rule_id` is the technical primary key and `rule_code` is a stable unique identifier for `VAL-001` through `VAL-009`.
+- Every `VALIDATION_RESULT` requires a `validation_rule_id`; run-specific severity, message, and blocking values preserve the result snapshot.
+- `REF_SCORING_RULE` uses the composite primary key `rule_type` plus `rule_code` plus `version`; `rule_type` is constrained to `RISK` or `DUPLICATE`.
 - Request corrections preserve historical validation, duplicate, and risk runs through `run_id` and `is_current`.
 - A duplicate match may reference an existing supplier, a staged supplier request, or neither when only explanatory evidence is retained; application rules must validate `candidate_source` consistently.
 - Bank-account data is limited to masked display, last-four, and hash/token fields. No full bank account number is modeled.
@@ -351,10 +363,9 @@ Text alternative: the risk assessment service reads high-risk-country and risk-r
 
 ## Validation Summary
 
-- Tables represented: 20 of 20.
-- Columns represented: 198 of 198.
-- Physical relationships represented: 20 of 20.
+- Tables represented: 19 of 19.
+- Columns represented: 196 of 196.
+- Physical relationships represented: 19 of 19.
 - Standalone configuration tables are present without fabricated foreign keys.
 - Mermaid entity identifiers use uppercase alphanumeric and underscore characters only.
 - A complete text alternative and explicit relationship catalog are included.
-

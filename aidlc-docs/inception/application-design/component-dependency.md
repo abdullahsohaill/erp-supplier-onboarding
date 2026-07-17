@@ -4,9 +4,9 @@
 |---|---|---|---|
 | Visual Builder UI | ORDS API Layer | REST | UI never writes directly to Fusion. |
 | ORDS API Layer | ATP | SQL/PLSQL | Main persistence and business rule execution. |
-| Validation Component | ATP | Data | Reads request and reference rules, writes validation findings. |
-| Duplicate Component | ATP | Data | Reads request and existing supplier references, writes match results. |
-| Risk Component | ATP | Data | Reads validations, duplicates, reference risk data, writes assessment. |
+| Validation Component | ATP | Data | Reads request data and active `VALIDATION_RULES`; writes `VALIDATION_RESULT` findings with required rule foreign keys. |
+| Duplicate Component | ATP | Data | Reads `DUPLICATE` rows from `REF_SCORING_RULE`, requests, and existing supplier references; writes match results. |
+| Risk Component | ATP | Data | Reads `RISK` rows from `REF_SCORING_RULE`, validations, duplicates, and country risk data; writes assessments. |
 | AI Summary Component | AI Provider | REST/SDK | Provider decision pending. Avoid sensitive data in prompts. |
 | AI Summary Component | ATP | Data | Stores generated summary and metadata. |
 | OIC Submit Component | ATP/ORDS | REST/DB Adapter | Reads approved requests and writes integration results. |

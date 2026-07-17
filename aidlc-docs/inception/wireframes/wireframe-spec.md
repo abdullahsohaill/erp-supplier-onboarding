@@ -43,9 +43,9 @@ Draft -> Submitted -> Validation Failed / Under Review -> Correction Requested /
 | WF-002 | Supplier Request Form | Requester | US-001, US-002 | FR-001, FR-003, FR-004, FR-005, FR-014 |
 | WF-003 | Request Detail / Status Timeline | Requester | US-003, US-008 | FR-002, FR-009, FR-011 |
 | WF-004 | Reviewer Dashboard | Reviewer | US-004, US-005, US-006, US-009 | FR-005, FR-006, FR-007, FR-008, FR-010 |
-| WF-005 | Request Review Detail | Reviewer | US-004, US-005, US-006, US-007 | FR-005, FR-006, FR-007, FR-008, FR-009 |
+| WF-005 | Request Review Detail | Reviewer | US-004, US-005, US-006, US-007, US-008 | FR-002, FR-005, FR-006, FR-007, FR-008, FR-009 |
 | WF-006 | Duplicate / Risk / AI Evidence Panel | Reviewer | US-004, US-005, US-006 | FR-006, FR-007, FR-008, FR-014 |
-| WF-007 | Review Decision Modal | Reviewer | US-007, US-008 | FR-002, FR-009 |
+| WF-007 | Review Decision Modal, embedded at the end of WF-005 | Reviewer | US-007, US-008 | FR-002, FR-009 |
 | WF-008 | Support/Admin Integration Dashboard | Support/Admin User | US-010 | FR-010, FR-013 |
 | WF-009 | Integration Log Detail | Support/Admin User | US-010, US-011 | FR-011, FR-013 |
 | WF-010 | Admin Settings Maintenance | Support/Admin User | US-013 | FR-014 |
@@ -171,8 +171,10 @@ Sections:
 - Validation findings.
 - Duplicate matches.
 - Risk assessment.
+- Per-request Reviewer Risk Factors checklist containing all Section 11.1 factors: missing tax registration, high-risk country, bank-country mismatch, incomplete address, missing/incomplete bank details, vague justification, high spend with weak justification, missing document metadata, High duplicate score, and Medium duplicate score.
 - AI explanation.
 - Status history.
+- Decision Modal preview as the final section, with access to the shared decision modal.
 
 Primary actions:
 - Approve.
@@ -180,6 +182,7 @@ Primary actions:
 - Reject.
 - Mark Duplicate.
 - Regenerate AI Summary.
+- Independently tick or clear each risk factor for the current request.
 
 Guardrails:
 - Approve is visually disabled if blocking validation remains.
@@ -205,7 +208,7 @@ Primary actions:
 
 ### WF-007: Review Decision Modal
 
-Purpose: Capture Reviewer decision in a controlled, auditable way.
+Purpose: Capture Reviewer decision in a controlled, auditable way. WF-007 is embedded at the end of WF-005 Request Review Detail and is not a separate navigation tab.
 
 Decision modes:
 - Approve: requires no blocking validations.
@@ -252,25 +255,25 @@ Primary actions:
 
 ### WF-010: Admin Settings Maintenance
 
-Purpose: Let Support/Admin users maintain selected Admin Settings controls that affect validation, duplicate detection, and risk scoring.
+Purpose: Let Support/Admin users maintain selected global Admin Settings controls that affect blocking validation and duplicate detection.
 
 Sections:
 - Business unit mappings.
 - Supplier types and tax-required flag.
 - High-risk countries.
-- Validation rule active/inactive toggles.
-- Risk factor active/inactive toggles, weights, and severity.
+- Global Validation Rules with independent on/off controls for VAL-001 through VAL-009 from Section 9.1 of the technical design.
 - Duplicate rule weights and blocking critical triggers.
 
 Primary actions:
 - Edit Admin Settings row.
-- Activate/deactivate row.
+- Turn each global validation rule on or off.
 - Save changes.
 
 Guardrails:
 - Changes are versioned or audit-friendly.
 - Historical requests keep their original scoring version.
 - Support/Admin maintenance does not bypass Reviewer decision controls.
+- Risk-factor marking is request-specific Reviewer work and is not configured globally from Admin Settings.
 
 ## Mockup Review Checklist
 

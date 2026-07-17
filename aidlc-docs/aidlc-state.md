@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: INCEPTION
-- **Current Stage**: INCEPTION - Wireframes/mockups non-DB amendment complete
+- **Current Stage**: INCEPTION - Schema baseline amendment complete; review required
 
 ## Workspace State
 - **Existing Code**: No
@@ -37,6 +37,9 @@
 - [x] Units Generation draft
 - [x] Wireframes/mockups first pass
 - [x] Wireframes/mockups non-DB fixes amendment
+- [x] Risk and validation cards wireframe amendment
+- [x] Decision Modal placement wireframe amendment
+- [x] Schema baseline amendment
 
 ### CONSTRUCTION PHASE
 - [ ] Functional Design per unit
@@ -54,4 +57,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-Wireframe/mockup non-DB fixes amendment is complete. Review `aidlc-docs/inception/wireframes/wireframe-spec.md`, `mockups/supplier-onboarding-wireframes.html`, and `aidlc-docs/inception/plans/non-db-fixes-implementation-plan.md`, then request changes or approve the wireframes before moving into construction-stage functional/NFR/infrastructure design.
+The requested schema baseline amendment is complete. Review `aidlc-docs/inception/requirements/requirements.md`, `aidlc-docs/inception/application-design/technical-design.md`, `aidlc-docs/inception/application-design/db-schema.dbml`, `aidlc-docs/inception/application-design/database-schema-design.md`, and `aidlc-docs/inception/plans/schema-baseline-amendment-plan.md`. Construction remains pending until the amended schema/design baseline is approved.

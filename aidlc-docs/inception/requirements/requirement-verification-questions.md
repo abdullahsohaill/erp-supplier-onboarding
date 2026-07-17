@@ -287,7 +287,7 @@ X) Other (please describe after `[Answer]:`).
 
 [Answer]: A
 
-Rationale: Customer said it would be nice but not mandatory.
+Rationale: Superseded by the approved schema amendment. Helpful/not-helpful feedback persistence and APIs are excluded from the baseline, so no AI feedback table is modeled.
 
 ## Section 6: Oracle Fusion, OIC, and APIs
 

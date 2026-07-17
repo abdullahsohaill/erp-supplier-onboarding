@@ -1,5 +1,75 @@
 # AI-DLC Audit Log
 
+## Git Publishing Request
+**Timestamp**: 2026-07-17T06:31:53Z
+**User Input**: "Push these changes to github with a detailed description and commit message of all the changes"
+**AI Response**: "Accepted the publishing request. Preparing one validated commit on main covering the reviewer/admin wireframe amendments, Decision Modal relocation, consolidated scoring-rule schema, governed validation-rule catalog and foreign key, AI feedback removal, and all aligned AI-DLC requirements/design/state/audit artifacts, followed by a push to origin/main."
+**Context**: AI-DLC Inception - Publish the complete current wireframe and schema amendment set to GitHub.
+
+---
+
+## Schema Baseline Amendment Request
+**Timestamp**: 2026-07-17T06:11:05Z
+**User Input**: "Here are the schema changes I want you to make. Make sure they are reflected across everywhere needed like in the [requirements.md](aidlc-docs/inception/requirements/requirements.md) or [technical-design.md](aidlc-docs/inception/application-design/technical-design.md) or [database-schema-design.md](aidlc-docs/inception/application-design/database-schema-design.md) or [db-schema.dbml](aidlc-docs/inception/application-design/db-schema.dbml) or any other files
+- Merge the REF_RISK_RULE and REF_DUPLICATE_RULE table into a single table. You can add an extra column to identify which row/rule is for duplicate and which is for risk.
+- Add a completely new table of VALIDATION_RULES which will basically contain all the validation rules from section 9.1 of [technical-design.md](/home/umairamir/Documents/erp-supplier-onboarding/aidlc-docs/inception/application-design/technical-design.md). Since VALIDATION_RESULT table contains the validation which failed, it will reference this new VALIDATION_RULES table's primary key to identify exactly which rule failed.
+- Remove the AI_SUMMARY_FEEDBACK table"
+**AI Response**: "Accepted the focused Inception schema-baseline amendment. Traced requirements, stories, technical design, DBML, schema narrative/ERD, API, and component dependencies. Selected REF_SCORING_RULE with a RISK/DUPLICATE discriminator, a keyed VALIDATION_RULES catalog seeded with VAL-001 through VAL-009, and a required VALIDATION_RESULT foreign key; AI summary feedback will be removed across the baseline."
+**Context**: AI-DLC Inception - Schema baseline amendment started with explicit user direction. No clarification file was required because the requested data-model behavior is specific and internally consistent.
+
+---
+
+## Schema Baseline Amendment Completion
+**Timestamp**: 2026-07-17T06:17:39Z
+**User Input**: "Here are the schema changes I want you to make. Make sure they are reflected across everywhere needed like in the [requirements.md](aidlc-docs/inception/requirements/requirements.md) or [technical-design.md](aidlc-docs/inception/application-design/technical-design.md) or [database-schema-design.md](aidlc-docs/inception/application-design/database-schema-design.md) or [db-schema.dbml](aidlc-docs/inception/application-design/db-schema.dbml) or any other files
+- Merge the REF_RISK_RULE and REF_DUPLICATE_RULE table into a single table. You can add an extra column to identify which row/rule is for duplicate and which is for risk.
+- Add a completely new table of VALIDATION_RULES which will basically contain all the validation rules from section 9.1 of [technical-design.md](/home/umairamir/Documents/erp-supplier-onboarding/aidlc-docs/inception/application-design/technical-design.md). Since VALIDATION_RESULT table contains the validation which failed, it will reference this new VALIDATION_RULES table's primary key to identify exactly which rule failed.
+- Remove the AI_SUMMARY_FEEDBACK table"
+**AI Response**: "Completed the schema-baseline amendment across requirements, stories, traceability, technical design, API catalog, DBML, complete schema ERD/narrative, component contracts/dependencies, unit scope, and proposal. Replaced separate risk and duplicate rule tables with REF_SCORING_RULE keyed by rule_type plus rule_code plus version; added VALIDATION_RULES with a generated primary key, unique stable rule code, and all VAL-001 through VAL-009 definitions; linked VALIDATION_RESULT.validation_rule_id to the exact failed rule; and removed AI_SUMMARY_FEEDBACK plus its API/scope references. Structural validation confirmed 19 tables, 196 columns, 19 physical relationships, matching DBML/ERD table and field sets, balanced DBML structure, nine Section 9.1 seed rules, and no legacy table names in active design artifacts."
+**Context**: AI-DLC Inception - Schema baseline amendment completed and awaiting review. Extension compliance: Security Baseline was not enforced because its state remains Needs confirmation; the existing sensitive-data controls were preserved. Property-Based Testing is N/A for documentation-only schema design. Resiliency Baseline is N/A because no runtime recovery or integration behavior changed.
+
+---
+
+## Decision Modal Placement Wireframe Amendment Request
+**Timestamp**: 2026-07-17T06:04:46Z
+**User Input**: "One more small fix, move the whole Decision Modal tab at the end of Request Review Detail tab."
+**AI Response**: "Accepted the focused placement amendment. The standalone Decision Modal navigation tab will be removed and its complete preview panel will be moved to the end of Request Review Detail while preserving the shared modal and existing decision controls."
+**Context**: AI-DLC Inception - Decision Modal placement wireframe amendment started with explicit user confirmation.
+
+---
+
+## Decision Modal Placement Wireframe Amendment Completion
+**Timestamp**: 2026-07-17T06:06:25Z
+**User Input**: "One more small fix, move the whole Decision Modal tab at the end of Request Review Detail tab."
+**AI Response**: "Completed the focused placement amendment. Removed the standalone Decision Modal navigation item and screen, embedded the complete Decision Modal preview as the final section of Request Review Detail, and renumbered the remaining navigation items from 1 through 9. Updated the wireframe specification, screen inventory, amendment plan, and state. Static validation confirmed consistent 9/9 screen navigation coverage, valid JavaScript, final-section placement, and no database-schema changes. Browser validation confirmed the embedded launcher opens the shared Decision Modal with Request Correction selected and no mockup JavaScript errors."
+**Context**: AI-DLC Inception - Decision Modal placement wireframe amendment completed. Extension compliance: Security Baseline not enforced because state remains Needs confirmation and no sensitive-data behavior changed. Property-Based Testing is N/A for a static HTML wireframe. Resiliency Baseline is N/A because no runtime integration or recovery behavior changed.
+
+---
+
+## Wireframe Risk and Validation Cards Amendment Request
+**Timestamp**: 2026-07-17T05:49:25Z
+**User Input**: "Here are the fixes I need you to make.
+- In the [supplier-onboarding-wireframes.html](mockups/supplier-onboarding-wireframes.html) Remove the risk factors card from the admin settings. Add a new risk factors card to request review details tab. The reviewer should have the ability to mark each risk field for each request individually. Make sure you include all the risk factors that are in the section 11.1 of [technical-design.md](aidlc-docs/inception/application-design/technical-design.md). All these risk factors should appear as check boxes which the reviewer can simply tick off.
+- In place of the risk factors card in the admin settings tab, instead add a Global Validation Rules card. The admin should be able to turn these rules on or off. Add all the validation rules from the section 9.1  of [technical-design.md](aidlc-docs/inception/application-design/technical-design.md).
+
+After you are done with this we will move to the required schema changes"
+**AI Response**: "Accepted the focused wireframe amendment. Schema and technical-design changes are deferred. Created a tracked plan to add all Section 11.1 risk factors as per-request Reviewer checkboxes and all Section 9.1 blocking validations as global Admin on/off controls."
+**Context**: AI-DLC Inception - Wireframe review amendment started with explicit user confirmation.
+
+---
+
+## Wireframe Risk and Validation Cards Amendment Completion
+**Timestamp**: 2026-07-17T05:53:13Z
+**User Input**: "Here are the fixes I need you to make.
+- In the [supplier-onboarding-wireframes.html](mockups/supplier-onboarding-wireframes.html) Remove the risk factors card from the admin settings. Add a new risk factors card to request review details tab. The reviewer should have the ability to mark each risk field for each request individually. Make sure you include all the risk factors that are in the section 11.1 of [technical-design.md](aidlc-docs/inception/application-design/technical-design.md). All these risk factors should appear as check boxes which the reviewer can simply tick off.
+- In place of the risk factors card in the admin settings tab, instead add a Global Validation Rules card. The admin should be able to turn these rules on or off. Add all the validation rules from the section 9.1  of [technical-design.md](aidlc-docs/inception/application-design/technical-design.md).
+
+After you are done with this we will move to the required schema changes"
+**AI Response**: "Completed the focused wireframe amendment. Added all ten Section 11.1 risk factors as independent per-request Reviewer checkboxes in Request Review Detail. Removed the Admin Risk Factors card and replaced it with Global Validation Rules containing independently operable VAL-001 through VAL-009 on/off switches. Updated the wireframe specification, plan, and state. Static validation confirmed exact 10/10 risk-factor and 9/9 validation-rule coverage, valid JavaScript, 10/10 screen navigation coverage, and no schema changes. Browser validation confirmed independent Reviewer selection, independent Admin switching with On/Off label synchronization, absence of the Admin Risk Factors card, and no mockup JavaScript errors."
+**Context**: AI-DLC Inception - Risk and validation cards wireframe amendment completed. Extension compliance: Security Baseline not enforced because state remains Needs confirmation; no sensitive-data exposure was added. Property-Based Testing is N/A for a static HTML wireframe. Resiliency Baseline is N/A because no runtime integration or recovery behavior changed.
+
+---
+
 ## Workflow Start
 **Timestamp**: 2026-07-15T11:41:29Z
 **User Input**: "i need to work on this integrations erp project attached as customer requirements pdf

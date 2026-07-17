@@ -1,5 +1,7 @@
 # Non-DB Fixes To Confirm
 
+> Historical scope note: database handling was deliberately deferred from this confirmation artifact and is now superseded by `schema-baseline-amendment-plan.md` for the affected rule-storage decisions.
+
 ## Purpose
 
 This note captures the proposed non-database fixes from the supervisor meeting before implementation. The goal is to confirm the expected behavior and screen/documentation changes before updating the requirements, user stories, technical design, wireframe specification, and mockup.

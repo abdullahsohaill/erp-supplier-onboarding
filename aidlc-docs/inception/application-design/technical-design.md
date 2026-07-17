@@ -109,11 +109,10 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 
 | Table | Key Columns | Purpose |
 |---|---|---|
-| VALIDATION_RESULT | validation_id, request_id, run_id, is_current, field_name, rule_code, severity, message, is_blocking, created_at | Business validation results, including rerun/current tracking. |
+| VALIDATION_RESULT | validation_id, request_id, validation_rule_id, run_id, is_current, field_name, severity, message, is_blocking, created_at | Failed business-validation results linked to their governed rule definition, including rerun/current tracking. |
 | DUPLICATE_MATCH | match_id, request_id, run_id, is_current, candidate_source, candidate_supplier_ref_id, candidate_request_id, candidate_supplier_number, candidate_supplier_name, match_score, match_level, matched_fields_json, explanation, created_at | Duplicate candidates and reasons for existing suppliers and staged request candidates. |
 | RISK_ASSESSMENT | risk_id, request_id, run_id, is_current, risk_score, risk_level, scoring_version, risk_reasons_json, created_at | Risk score, explainable reasons, and recalculation/current tracking. |
 | AI_SUMMARY | summary_id, request_id, prompt_version, provider_name, model_name, summary_json, source_facts_hash, created_at, created_by | AI explanation history. |
-| AI_SUMMARY_FEEDBACK | feedback_id, summary_id, request_id, helpful_flag, feedback_comment, actor_user, created_at | Optional future AI feedback. |
 
 ### 7.3 Integration and Reference Tables
 
@@ -123,11 +122,11 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id, supplier_ref_id, fusion_site_id, site_name, country_code, address_normalized, business_unit_code | Supplier site reference data. |
 | INTEGRATION_LOG | log_id, request_id, integration_name, oic_instance_id, direction, status, error_category, payload_ref, response_ref, user_message, technical_message, retry_count, retry_eligible_flag, last_retry_at, last_retry_by, created_at | OIC/Fusion observability and current retry summary. |
 | INTEGRATION_RETRY_HISTORY | retry_id, log_id, request_id, retry_attempt, retry_actor, retry_timestamp, retry_result, retry_message | Auditable retry attempts for eligible integration failures. |
+| VALIDATION_RULES | validation_rule_id, rule_code, rule_name, rule_description, field_name, severity, default_message, is_blocking, active_flag, created_at, created_by, updated_at, updated_by | Governed catalog for Section 9.1 blocking validations and global active/inactive settings. |
 | REF_BUSINESS_UNIT | business_unit_id, business_unit_code, business_unit_name, fusion_mapping_code, active_flag | Business unit lookup/mapping. |
 | REF_SUPPLIER_TYPE | supplier_type_id, supplier_type_code, supplier_type_name, tax_required_flag, active_flag | Supplier type lookup. |
 | REF_HIGH_RISK_COUNTRY | country_code, country_name, risk_level, active_flag, effective_from, effective_to | Configurable country risk. |
-| REF_RISK_RULE | rule_code, rule_name, weight, severity, active_flag, version | Risk scoring configuration. |
-| REF_DUPLICATE_RULE | rule_code, rule_name, weight, critical_trigger_flag, active_flag, version | Duplicate scoring configuration. |
+| REF_SCORING_RULE | rule_code, version, rule_type, rule_name, weight, severity, critical_trigger_flag, active_flag, created_at, created_by, updated_at, updated_by | Consolidated risk and duplicate scoring configuration; `rule_type` is `RISK` or `DUPLICATE`. |
 
 ### 7.4 Data Relationship Model
 
@@ -139,11 +138,11 @@ erDiagram
     SUPPLIER_REQUEST ||--o{ SUPPLIER_REQUEST_DOCUMENT : tracks
     SUPPLIER_REQUEST ||--o{ STATUS_HISTORY : records
     SUPPLIER_REQUEST ||--o{ VALIDATION_RESULT : produces
+    VALIDATION_RULES ||--o{ VALIDATION_RESULT : identifies
     SUPPLIER_REQUEST ||--o{ DUPLICATE_MATCH : produces
     SUPPLIER_REQUEST ||--o{ DUPLICATE_MATCH : candidate_request
     SUPPLIER_REQUEST ||--o{ RISK_ASSESSMENT : produces
     SUPPLIER_REQUEST ||--o{ AI_SUMMARY : produces
-    AI_SUMMARY ||--o{ AI_SUMMARY_FEEDBACK : may_receive
     SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : has
     INTEGRATION_LOG ||--o{ INTEGRATION_RETRY_HISTORY : records
     SUPPLIER_REQUEST ||--o{ INTEGRATION_RETRY_HISTORY : has
@@ -153,7 +152,7 @@ erDiagram
     EXISTING_SUPPLIER_REF ||--o{ DUPLICATE_MATCH : candidate
 ```
 
-Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, integration logs, and retry history. Reference tables provide business-unit, supplier-type, high-risk-country, duplicate-rule, and risk-rule configuration. Existing supplier reference tables and staged requests provide the candidate records used by duplicate detection.
+Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, integration logs, and retry history. Every `VALIDATION_RESULT` points to the `VALIDATION_RULES` entry that failed. Reference tables provide business-unit, supplier-type, high-risk-country, and consolidated risk/duplicate scoring configuration. Existing supplier reference tables and staged requests provide the candidate records used by duplicate detection.
 
 ### 7.5 Database Schema Design Detail
 
@@ -167,20 +166,19 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 | SUPPLIER_REQUEST_BANK | bank_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and account_hash; never store unmasked account number; account_hash nullable when bank data is not provided. |
 | SUPPLIER_REQUEST_DOCUMENT | document_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, document_type, missing_flag; metadata_json stores document metadata only for phase one. |
 | STATUS_HISTORY | history_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and action_timestamp; action_comment required for reject, correction, and duplicate decisions. |
-| VALIDATION_RESULT | validation_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, run_id, is_current, rule_code, is_blocking; run_id/is_current allow validation reruns after correction while preserving history. |
+| VALIDATION_RESULT | validation_id | request_id -> SUPPLIER_REQUEST.request_id; validation_rule_id -> VALIDATION_RULES.validation_rule_id | Require validation_rule_id; index request_id, validation_rule_id, run_id, is_current, and is_blocking; run_id/is_current allow validation reruns after correction while preserving history. |
 | DUPLICATE_MATCH | match_id | request_id -> SUPPLIER_REQUEST.request_id; candidate_supplier_ref_id -> EXISTING_SUPPLIER_REF.supplier_ref_id where candidate is existing supplier; candidate_request_id -> SUPPLIER_REQUEST.request_id where candidate is staged request | Index request_id, run_id, is_current, candidate_source, candidate_supplier_ref_id, candidate_request_id, match_level, match_score; matched_fields_json stores explainable signal details. |
 | RISK_ASSESSMENT | risk_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, run_id, is_current, risk_level, created_at; risk_reasons_json stores factor-level reasons and weights. |
 | AI_SUMMARY | summary_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, prompt_version, created_at; source_facts_hash supports traceability to the risk/duplicate facts used. |
-| AI_SUMMARY_FEEDBACK | feedback_id | summary_id -> AI_SUMMARY.summary_id; request_id -> SUPPLIER_REQUEST.request_id | Optional/future table; index summary_id and request_id. |
 | EXISTING_SUPPLIER_REF | supplier_ref_id | None | Unique supplier_number where available; index normalized_name, country_code, tax_registration_number, email_domain, bank_account_hash. |
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id | supplier_ref_id -> EXISTING_SUPPLIER_REF.supplier_ref_id | Index supplier_ref_id, country_code, business_unit_code, address_normalized. |
 | INTEGRATION_LOG | log_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, error_category, oic_instance_id, retry_eligible_flag, created_at; payload/response values should be references, not raw sensitive payloads. |
 | INTEGRATION_RETRY_HISTORY | retry_id | log_id -> INTEGRATION_LOG.log_id; request_id -> SUPPLIER_REQUEST.request_id | Index log_id, request_id, retry_timestamp, retry_result; stores actor, timestamp, attempt number, result, and retry message for audit. |
+| VALIDATION_RULES | validation_rule_id | None | Unique rule_code; seed exactly VAL-001 through VAL-009 from Section 9.1; index active_flag, severity, and is_blocking; include created/updated audit fields. |
 | REF_BUSINESS_UNIT | business_unit_id | None | Unique business_unit_code; index fusion_mapping_code and active_flag; fusion_mapping_code required for active values used in Fusion payloads; include created/updated audit fields. |
 | REF_SUPPLIER_TYPE | supplier_type_id | None | Unique supplier_type_code; index active_flag; tax_required_flag drives validation rules; include created/updated audit fields. |
 | REF_HIGH_RISK_COUNTRY | country_code, effective_from | None | Standalone manual reference table; index active_flag and effective dates; overlapping active ranges should be prevented by rule/data load control; include created/updated audit fields. |
-| REF_RISK_RULE | rule_code, version | None | Standalone manual scoring-rule table; index active_flag and severity; weight numeric and non-negative; include created/updated audit fields. |
-| REF_DUPLICATE_RULE | rule_code, version | None | Index active_flag and critical_trigger_flag; weight numeric and non-negative; include created/updated audit fields. |
+| REF_SCORING_RULE | rule_type, rule_code, version | None | Require rule_type in `RISK`, `DUPLICATE`; composite key preserves rule-code/version identity within each domain; index rule_type, active_flag, severity, and critical_trigger_flag; weight numeric and non-negative; risk rules use severity and duplicate rules use critical_trigger_flag; include created/updated audit fields. |
 
 ### 7.6 Schema Implementation Notes
 
@@ -189,6 +187,8 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 - Store JSON details in `*_json` fields only for explainability payloads that are naturally variable, such as matched duplicate fields and risk reasons.
 - Keep normalized duplicate-search fields separate from original display values.
 - Apply soft deactivation to reference data through `active_flag`; do not delete reference rows used by historical requests.
+- Treat `VALIDATION_RULES.rule_code` as a stable business identifier and retain `VALIDATION_RESULT.validation_rule_id` as the required physical reference to the exact failed rule.
+- Keep risk and duplicate rule codes unique by `rule_type`, `rule_code`, and `version` in `REF_SCORING_RULE`; use `rule_type` rather than separate tables to select the appropriate scoring engine configuration.
 - Use database constraints for structural integrity and service-layer rules for conditional business validation.
 - Keep full bank account values out of ATP unless the customer explicitly approves secure encrypted storage; the prototype baseline stores masked display and hash/token values only.
 - Store Fusion/mock Fusion supplier identifiers directly on `SUPPLIER_REQUEST` so requester dashboards and status details can show the created supplier number without parsing integration logs.
@@ -268,7 +268,6 @@ Error response:
 | GET | `/requests/{requestId}/risk-assessment` | Reviewer, Support/Admin | Retrieve the latest persisted risk assessment without recalculating it. |
 | POST | `/requests/{requestId}/ai-summary` | Reviewer, Support/Admin | Generate/regenerate AI summary. |
 | GET | `/requests/{requestId}/ai-summaries` | Reviewer, Support/Admin | Retrieve AI summary history. |
-| POST | `/requests/{requestId}/ai-summaries/{summaryId}/feedback` | Reviewer | Optional AI helpful/not-helpful feedback. |
 | GET | `/requests/{requestId}/attachments` | Requester owner, Reviewer, Support/Admin | Retrieve document metadata/missing flags. |
 | POST | `/requests/{requestId}/attachment-metadata` | Requester owner | Add/update document metadata. |
 | POST | `/requests/{requestId}/approve` | Reviewer | Approve for Fusion submission. |
@@ -287,9 +286,9 @@ Error response:
 | GET | `/admin-settings/high-risk-countries` | Reviewer, Support/Admin | High-risk country lookup. |
 | PUT | `/admin-settings/high-risk-countries/{countryCode}` | Support/Admin | Maintain high-risk country warning configuration if included. |
 | GET | `/admin-settings/validation-rules` | Support/Admin | View validation rule active/inactive configuration. |
-| PUT | `/admin-settings/validation-rules/{ruleCode}` | Support/Admin | Maintain validation rule active/inactive setting if included. |
-| GET | `/admin-settings/risk-factors` | Support/Admin | View risk factor weights, severity, and active/inactive configuration. |
-| PUT | `/admin-settings/risk-factors/{factorCode}` | Support/Admin | Maintain risk factor active/inactive setting and weighting if included. |
+| PUT | `/admin-settings/validation-rules/{ruleCode}` | Support/Admin | Maintain the `VALIDATION_RULES.active_flag` setting. |
+| GET | `/admin-settings/scoring-rules` | Support/Admin | View consolidated scoring configuration, optionally filtered by `ruleType=RISK` or `ruleType=DUPLICATE`. |
+| PUT | `/admin-settings/scoring-rules/{ruleType}/{ruleCode}/versions/{version}` | Support/Admin | Maintain an existing risk or duplicate scoring-rule version in `REF_SCORING_RULE`. |
 
 #### Requester Response Projection
 
@@ -352,11 +351,13 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 | VAL-008 | Exact tax registration duplicate found in existing supplier reference data or relevant staged requests. | Validation Failed |
 | VAL-009 | Same bank token/hash duplicate found when bank data is captured. | Validation Failed |
 
+These nine definitions are seeded in `VALIDATION_RULES`. `validation_rule_id` is the technical primary key, `rule_code` is the stable unique business identifier, and `active_flag` supplies the global Admin Settings switch. A failed evaluation writes `VALIDATION_RESULT.validation_rule_id` so the exact governed definition is traceable without duplicating the rule code in the result row.
+
 ### 9.2 Warning Validations
 
 | Rule | Description | Result |
 |---|---|---|
-| VAL-101 | Tax registration missing where expected but not configured as hard block. | Risk reason |
+| VAL-101 | Tax registration missing but not configured as hard block. | Risk reason |
 | VAL-102 | Bank country differs from supplier country. | Risk reason |
 | VAL-103 | Business justification appears vague. | Risk reason |
 | VAL-104 | Expected annual spend is high and justification is weak. | Risk reason |
@@ -405,7 +406,7 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 | Medium | Score 40-69. |
 | Low | Score < 40. |
 
-Thresholds should be stored in `REF_DUPLICATE_RULE` or equivalent seeded configuration.
+Duplicate thresholds and weights are stored in `REF_SCORING_RULE` rows where `rule_type = DUPLICATE`.
 
 ## 11. Risk Scoring Design
 
@@ -529,7 +530,7 @@ AI input should be a curated facts payload:
 - Avoid storing full sensitive prompts if they include regulated values.
 - Store source facts hash/reference for audit.
 - Allow regeneration when request data changes.
-- Optional helpful/not-helpful feedback is future enhancement unless included by decision.
+- Do not persist helpful/not-helpful feedback or expose an AI-summary feedback API in this baseline.
 
 ## 13. OIC Integration Design
 
@@ -651,7 +652,7 @@ OIC failures should not lose request state. Integration submission should be ide
 
 ### Maintainability
 
-Risk and duplicate thresholds should be seeded/configured in ATP reference tables. UI should consume lookup APIs instead of hardcoded values.
+Risk and duplicate thresholds should be seeded/configured in `REF_SCORING_RULE` and selected by `rule_type`. UI and services should consume lookup APIs instead of hardcoded values.
 
 ### Observability
 

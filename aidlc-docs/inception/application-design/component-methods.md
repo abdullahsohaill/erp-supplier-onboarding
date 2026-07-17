@@ -10,19 +10,22 @@
 
 ## Validation Component
 
+- `getActiveValidationRules() -> validationRule[]`
 - `validateRequest(requestId) -> validationResult[]`
 - `classifyValidationError(error) -> business|technical`
-- `persistValidationResults(requestId, results) -> void`
+- `persistValidationResults(requestId, resultsWithRuleIds) -> void`
 
 ## Duplicate Component
 
 - `normalizeSupplier(requestId) -> normalizedSupplier`
+- `getScoringRules(ruleType = DUPLICATE) -> scoringRule[]`
 - `findDuplicateCandidates(requestId) -> duplicateCandidate[]`
 - `scoreDuplicateCandidate(request, candidate) -> duplicateScore`
 - `persistDuplicateMatches(requestId, matches) -> void`
 
 ## Risk Component
 
+- `getScoringRules(ruleType = RISK) -> scoringRule[]`
 - `calculateRisk(requestId) -> riskAssessment`
 - `getRiskReasons(requestId) -> riskReason[]`
 - `persistRiskAssessment(requestId, assessment) -> void`

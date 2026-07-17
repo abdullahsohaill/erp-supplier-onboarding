@@ -10,15 +10,15 @@ Coordinates reviewer actions: approve, reject, request correction, and mark dupl
 
 ## Validation Service
 
-Runs mandatory and conditional validations and writes categorized findings.
+Loads active definitions from `VALIDATION_RULES`, runs mandatory and conditional validations, and writes categorized failed findings linked to the exact rule identifier.
 
 ## Duplicate Detection Service
 
-Runs exact and fuzzy duplicate checks against existing supplier references and active staged requests.
+Loads `DUPLICATE` rows from `REF_SCORING_RULE` and runs exact and fuzzy duplicate checks against existing supplier references and active staged requests.
 
 ## Risk Assessment Service
 
-Calculates explainable risk score and level from validation results, duplicate results, country risk, bank mismatch, and justification quality.
+Loads `RISK` rows from `REF_SCORING_RULE` and calculates explainable risk score and level from validation results, duplicate results, country risk, bank mismatch, and justification quality.
 
 ## AI Explanation Service
 

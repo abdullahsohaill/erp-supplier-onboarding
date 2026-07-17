@@ -76,7 +76,7 @@ Verification: status transition tests and request-detail walkthrough.
 ATP shall be used as the staging, tracking, and audit database for the prototype. Fusion remains the supplier master system of record; ATP stores the request journey, validation evidence, duplicate evidence, risk scoring, AI summaries, and integration state.
 
 Acceptance criteria:
-- ATP stores request header, site/contact, optional bank/document metadata, status history, validation results, duplicate matches, risk assessments, AI summaries, integration logs, reference data, Fusion responses, and supplier number on success.
+- ATP stores request header, site/contact, optional bank/document metadata, status history, validation results, duplicate matches, risk assessments, AI summaries, integration logs, governed validation/scoring rule configuration, Fusion responses, and supplier number on success.
 - All records are linked by request ID.
 - ATP is not treated as the supplier master system of record.
 - Records are available for audit, dashboards, retry, and demo reporting.
@@ -110,7 +110,8 @@ Acceptance criteria:
 - Tax registration is conditionally required by country, supplier type, and Admin Settings validation-rule configuration; it is not globally mandatory for every supplier.
 - Address validation uses structured completeness checks for Address Line 1, Address Line 2, street/area, province/state, city, and address country. Address Line 1 and Address Line 2 are limited to 20 characters each.
 - Exact tax registration duplicate and same bank token/hash duplicate are blocking validation errors that prevent requester submission.
-- Produces field-level validation result with rule code, severity, user-friendly message, blocking flag, and corrective guidance.
+- Every failed field-level validation result references the governed validation-rule catalog entry that failed and retains the run-specific field, severity, user-friendly message, blocking flag, and corrective guidance.
+- The validation-rule catalog contains stable `VAL-001` through `VAL-009` codes, descriptions, default failure behavior, and independently controlled active/inactive settings.
 - Business validation errors are stored separately from OIC/Fusion technical errors.
 - Blocking validation errors prevent requester submission or reviewer approval, depending on when the rule is evaluated, until corrected or explicitly reclassified by approved policy.
 
@@ -142,7 +143,7 @@ Acceptance criteria:
 - Risk score stores scoring version, timestamp, score, level, and individual reasons.
 - Reviewer can see each risk reason in business language.
 - Risk can be recalculated after request correction.
-- Thresholds/weights and active/inactive risk-factor settings are represented through Admin Settings configuration.
+- Duplicate and risk scoring rules share one governed scoring-rule catalog and are distinguished by rule type; weights, thresholds, severity, critical-trigger behavior, and active status remain configuration driven.
 
 Verification: risk scoring test matrix and reference data inspection.
 
@@ -157,7 +158,7 @@ Acceptance criteria:
 - AI receives curated facts only and does not receive full bank account numbers.
 - AI output stores generated summary, prompt version, timestamp, provider/model metadata where available, and source risk/duplicate facts reference.
 - AI summary can be regenerated after material request changes.
-- Helpful/not-helpful feedback is documented as future enhancement, not phase-one scope.
+- Helpful/not-helpful feedback persistence and its API are excluded from the approved baseline.
 
 Verification: AI/mock-AI output schema review.
 
@@ -252,8 +253,8 @@ Acceptance criteria:
 - Full bank account number is not sent to AI or exposed in logs.
 - Payment setup workflow is out of scope for phase one; bank information is captured only as metadata/indicators for validation, duplicate detection, risk scoring, and review evidence.
 - Document metadata and missing-document flags are captured; full upload is excluded in phase one.
-- Admin Settings includes selected validation-rule toggles, risk-factor toggles, high-risk countries, supplier types, business units, duplicate/risk thresholds, and mappings.
-- Support/Admin can activate/deactivate selected validation rules and risk factors in the Admin Settings mockup/docs; backend/database implementation is handled separately.
+- Admin Settings includes global validation-rule toggles, high-risk countries, supplier types, business units, duplicate/risk thresholds, and mappings; per-request risk-factor confirmation remains part of Reviewer Request Review Detail.
+- Support/Admin can activate/deactivate each `VAL-001` through `VAL-009` rule. ATP persists those rules in `VALIDATION_RULES`, while risk and duplicate scoring configuration is consolidated in `REF_SCORING_RULE` and distinguished by `rule_type`.
 
 Verification: security review and reference data inspection.
 

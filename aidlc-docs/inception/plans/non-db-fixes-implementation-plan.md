@@ -29,7 +29,7 @@ Implement the approved non-database fixes across the AI-DLC inception artifacts 
 - Address validation uses structured fields and completeness checks, not a regex-heavy single address field; Address Line 1 and Address Line 2 are capped at 20 characters each.
 - Bank-related risk factor is renamed to `Missing or incomplete bank details`; payment setup is out of phase-one scope.
 - `Reference Data` is renamed to `Admin Settings`.
-- Admin Settings mockups/docs show on/off controls for validation rules and risk factors; backend/database handling remains separate.
+- Admin Settings mockups/docs show the approved controls; backend/database handling was deferred from this non-DB plan and is now aligned by `schema-baseline-amendment-plan.md`.
 - Reviewer can mark specific validation, risk, or evidence items for correction.
 
 ## Execution Checklist

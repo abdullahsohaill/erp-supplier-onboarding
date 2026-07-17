@@ -31,7 +31,7 @@ The requirements have intentionally been consolidated into 15 functional require
 | AI explanation | AI explains risk, duplicate reasons, missing info, and recommended actions. | FR-008, technical-design.md AI design |
 | AI guardrails | AI must not approve, reject, mark duplicate, or create suppliers. | FR-008, NFR-008, BR-007 |
 | AI storage/regeneration | Store summary/timestamp/version metadata and allow regeneration after data changes. | FR-008, technical-design.md AI prompt governance |
-| AI feedback | Nice-to-have only. | FR-008, answered Q19 as future enhancement |
+| AI feedback | Excluded from the approved persistence and API baseline. | FR-008, superseded Q19 disposition |
 | Dashboard and filters | Requester, Reviewer, and Support/Admin visibility; reviewer filters by BU/country/type/requester/status/risk/duplicate risk and useful extra filters. | FR-010 |
 | Existing supplier reference sync | Existing Fusion supplier data must be available in ATP, mocked if access limited. | FR-012 |
 | Bank data masking | Display last four only where needed; avoid exposing full bank details. | FR-014, NFR-004 |
