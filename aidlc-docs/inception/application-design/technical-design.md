@@ -413,7 +413,7 @@ Thresholds should be stored in `REF_DUPLICATE_RULE` or equivalent seeded configu
 
 | Factor | Weight / Effect |
 |---|---:|
-| Missing tax registration where expected | +25 |
+| Missing tax registration | +25 |
 | High-risk country | +25 |
 | Bank country differs from supplier country | +20 |
 | Incomplete address | +15 |
