@@ -8,6 +8,20 @@
 
 ---
 
+## Wireframe Amendment Request
+**Timestamp**: 2026-07-17T11:55:46Z
+**User Input**: "remove this stuff from the reviewer dashbnaord:\"**Section 11.1 baseline weight: +25\"**
+
+**Section 11.1 baseline weight: +15**
+
+etc etc, since the reviewer only needs to be able to check boxes, he doesnt need to know how tie automatic risk scoring thresholds works so that's ez
+
+also commit and push to github"
+**AI Response**: "Removed Section 11.1 baseline-weight helper text from the reviewer risk-factor checklist in the HTML mockup, leaving only the independent reviewer checkboxes and risk-factor labels. Prepared the change for validation, commit, and push."
+**Context**: AI-DLC Inception - Reviewer risk-factor checklist display cleanup.
+
+---
+
 ## Schema Baseline Amendment Request
 **Timestamp**: 2026-07-17T06:11:05Z
 **User Input**: "Here are the schema changes I want you to make. Make sure they are reflected across everywhere needed like in the [requirements.md](aidlc-docs/inception/requirements/requirements.md) or [technical-design.md](aidlc-docs/inception/application-design/technical-design.md) or [database-schema-design.md](aidlc-docs/inception/application-design/database-schema-design.md) or [db-schema.dbml](aidlc-docs/inception/application-design/db-schema.dbml) or any other files
