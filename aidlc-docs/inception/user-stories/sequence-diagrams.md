@@ -32,20 +32,19 @@ sequenceDiagram
     VB-->>Requester: Show draft confirmation
     Requester->>VB: Submit request
     VB->>ORDS: POST request submit
-    ORDS->>ATP: Set status to Submitted
     ORDS->>Rules: Run validation duplicate check and risk score
     Rules->>ATP: Store findings and assessments
     alt Blocking validation exists
-        ATP->>ATP: Set status to Validation Failed
-        ORDS-->>VB: Return actionable validation findings
+        ATP->>ATP: Keep Draft and exclude from Reviewer queue
+        ORDS-->>VB: Return 422 and actionable validation findings
     else Request is review-ready
-        ATP->>ATP: Set status to Under Review
+        ATP->>ATP: Atomically record Submitted then Under Review
         ORDS-->>VB: Return submission confirmation
     end
     VB-->>Requester: Show current status
 ```
 
-Text alternative: The requester saves a guided draft through Visual Builder and ORDS into ATP. On submission, deterministic validation, duplicate, and risk checks run; ATP records either Validation Failed with findings or Under Review.
+Text alternative: The requester saves a guided draft through Visual Builder and ORDS into ATP. A submit attempt runs deterministic validation, duplicate, and risk checks before submission is committed. Blocking findings are stored and returned with HTTP 422 while the request stays Draft and outside the Reviewer queue. A successful attempt records the submission transition and moves the request to Under Review.
 
 ### US-002: Correct returned request
 
@@ -71,12 +70,17 @@ sequenceDiagram
         ORDS->>Rules: Re-run duplicate and risk checks
     end
     Rules->>ATP: Store current findings and supersede prior results
-    ATP->>ATP: Append resubmission status history
-    ORDS-->>VB: Return new status and findings
+    alt Blocking validation exists
+        ATP->>ATP: Keep Correction Requested and retain guidance
+        ORDS-->>VB: Return 422 and actionable findings
+    else Request is review-ready
+        ATP->>ATP: Append resubmission history and set Under Review
+        ORDS-->>VB: Return Under Review
+    end
     VB-->>Requester: Show resubmission outcome
 ```
 
-Text alternative: A requester opens a returned request, sees the reviewer comment, edits the existing record, and resubmits it. The system reruns validation and, for material changes, duplicate and risk checks, while preserving status history.
+Text alternative: A requester opens a returned request, sees targeted guidance, edits the existing record, and attempts resubmission. The system reruns validation and, for material changes, duplicate and risk checks. Blocking findings keep the request in Correction Requested; a successful attempt records the resubmission and returns it to Under Review while preserving history.
 
 ### US-003: Track request status and outcome
 
@@ -146,6 +150,9 @@ sequenceDiagram
     ATP-->>ORDS: Return explainable assessment
     ORDS-->>VB: Return business-language risk details
     VB-->>Reviewer: Show score level and reasons
+    Reviewer->>VB: Confirm applicable request risk factors
+    VB->>VB: Keep checkbox selections in decision form state
+    Note over Reviewer,VB: Selections are persisted only with the later review decision
     opt Reviewer recalculates after correction
         Reviewer->>VB: Recalculate risk
         VB->>ORDS: POST risk score
@@ -157,7 +164,7 @@ sequenceDiagram
     end
 ```
 
-Text alternative: The reviewer views the current explainable risk result. A recalculation reads current validation, duplicate, country, bank, address, justification, spend, document, and mapping facts, applies ATP-configured rules, and stores a versioned assessment.
+Text alternative: The reviewer views the current explainable risk result and selects applicable factors in the decision form without changing the automatic score. The selection is persisted only with a later review decision. A recalculation reads current validation, duplicate, country, bank, address, justification, spend, and document facts, applies ATP-configured rules, and stores a new assessment version.
 
 ### US-006: Use AI explanation safely
 
@@ -194,31 +201,32 @@ sequenceDiagram
     participant ORDS as ORDS API
     participant ATP as Oracle ATP
     Reviewer->>VB: Choose review action
-    VB->>ORDS: POST approve reject correction or mark duplicate
+    VB->>ORDS: POST action with decision envelope fields
     ORDS->>ORDS: Authorize Reviewer role and validate action payload
     ORDS->>ATP: Read status blocking findings and duplicate evidence
     alt Approve with unresolved blocking validation
         ORDS-->>VB: Reject action with conflict response
         VB-->>Reviewer: Show blocking findings
     else Approve with all controls satisfied
-        ORDS->>ATP: Set status to Approved
-        ATP->>ATP: Append decision history
+        ORDS->>ORDS: Build JSON comment and selected-factor envelope
+        ORDS->>ATP: Atomically set Approved and append status history
         ORDS-->>VB: Confirm approval
     else Reject or request correction
         ORDS->>ORDS: Require reviewer comment
-        ORDS->>ATP: Store comment and target status
-        ATP->>ATP: Append decision history
+        ORDS->>ORDS: Validate targeted items when correction requested
+        ORDS->>ORDS: Build JSON comment factors and correction envelope
+        ORDS->>ATP: Atomically set target status and append status history
         ORDS-->>VB: Confirm decision
     else Mark duplicate
         ORDS->>ORDS: Require comment and existing supplier reference
-        ORDS->>ATP: Set status to Marked Duplicate
-        ATP->>ATP: Append decision history
+        ORDS->>ORDS: Build JSON comment factors and supplier envelope
+        ORDS->>ATP: Atomically set Marked Duplicate and append status history
         ORDS-->>VB: Confirm duplicate outcome
     end
     VB-->>Reviewer: Display recorded outcome
 ```
 
-Text alternative: ORDS authorizes and validates the reviewer action. Approval is blocked by unresolved validations; rejection and correction require comments; duplicate marking requires both a comment and an existing supplier reference. ATP records every valid decision in status history.
+Text alternative: ORDS authorizes the reviewer action and validates its decision-envelope fields. Approval is blocked by unresolved validations; rejection and correction require comments; correction validates targeted items; duplicate marking requires an existing supplier reference. ORDS serializes the applicable fields into `STATUS_HISTORY.action_comment` and atomically records the status transition with actor and time.
 
 ### US-008: See decision guidance
 
@@ -230,21 +238,20 @@ sequenceDiagram
     participant ATP as Oracle ATP
     Requester->>VB: Open decided request
     VB->>ORDS: GET request detail
-    ORDS->>ATP: Read outcome comments and allowed actions
+    ORDS->>ATP: Read latest decision status history and allowed actions
+    ATP-->>ORDS: Return decision row and current status
+    ORDS->>ORDS: Parse decision envelope using Requester role scope
     alt Correction Requested
-        ATP-->>ORDS: Return reviewer comment and editable flag
-        ORDS-->>VB: Enable correction and resubmission
+        ORDS-->>VB: Return comment targeted items and edit permission
     else Rejected
-        ATP-->>ORDS: Return rejection comment and closed flag
-        ORDS-->>VB: Disable Fusion submission
+        ORDS-->>VB: Return rejection comment and closed state
     else Marked Duplicate
-        ATP-->>ORDS: Return comment and existing supplier reference
-        ORDS-->>VB: Disable Fusion submission
+        ORDS-->>VB: Return comment existing supplier and closed state
     end
     VB-->>Requester: Show guidance and permitted next action
 ```
 
-Text alternative: The requester receives guidance appropriate to the recorded decision. Correction Requested remains editable and resubmittable, while Rejected and Marked Duplicate are closed to Fusion submission; duplicate outcomes include the supplier reference to use.
+Text alternative: ORDS parses the latest status-history decision envelope into a role-safe Requester projection. Correction Requested returns the business comment and targeted items and remains editable; Reviewer-only factor codes are omitted. Rejected and Marked Duplicate remain closed to Fusion submission, and duplicate outcomes include the existing supplier reference.
 
 ### US-009: Use business dashboards
 
@@ -292,20 +299,21 @@ sequenceDiagram
     ORDS-->>VB: Return technical support view
     VB-->>Admin: Show diagnostic details and retry controls
     Admin->>VB: Retry selected failure
-    VB->>ORDS: POST request retry
-    ORDS->>ATP: Verify status eligibility and correlation state
+    VB->>ORDS: POST integration log retry
+    ORDS->>ATP: Verify request status retry eligibility and Fusion identifiers
     alt Retry is eligible
-        ORDS->>ATP: Increment retry count and log attempt
-        ORDS->>OIC: Trigger retry with request correlation ID
-        OIC-->>ORDS: Accept retry trigger
-        ORDS-->>VB: Confirm retry started
+        ORDS->>OIC: Trigger retry with request ID and prior OIC instance ID
+        OIC-->>ORDS: Return retry result and retry OIC instance ID
+        ORDS->>ATP: Atomically append retry JSON and update summary fields
+        ATP-->>ORDS: Confirm retry count equals history length
+        ORDS-->>VB: Return current retry outcome
     else Rejected Marked Duplicate or ineligible
         ORDS-->>VB: Reject retry with reason
     end
     VB-->>Admin: Display current retry outcome
 ```
 
-Text alternative: A support/admin user retrieves protected integration diagnostics and retry metadata. ORDS permits retries only after status, eligibility, and correlation checks, records the attempt, and triggers OIC; rejected, duplicate, or otherwise ineligible requests remain blocked.
+Text alternative: A support/admin user retrieves protected request-scoped integration diagnostics and retry metadata. ORDS permits retries only after request status, eligibility, stored Fusion identifier, and prior OIC-instance checks. It triggers OIC and atomically records the completed result in the embedded retry history and summary fields; rejected, duplicate, or otherwise ineligible requests remain blocked.
 
 ### US-011: Submit approved supplier to Fusion
 
@@ -362,18 +370,18 @@ sequenceDiagram
             ATP-->>ORDS: Confirm upsert
             ORDS-->>OIC: Confirm record processed
         end
-        OIC->>ORDS: Write successful sync summary
-        ORDS->>ATP: Store integration log
+        OIC->>OIC: Record successful run under OIC instance ID
+        OIC->>ORDS: Complete final reference-row timestamp update
+        ORDS->>ATP: Update last_sync_at on synchronized rows
     else Source or load fails
         Fusion-->>OIC: Return source error or timeout
-        OIC->>ORDS: Write failed sync summary
-        ORDS->>ATP: Store error and diagnostic reference
+        OIC->>OIC: Record failed run and diagnostics under OIC instance ID
     end
 ```
 
-Text alternative: A scheduled or administrative OIC flow reads suppliers and sites from Fusion or mock data, normalizes duplicate-relevant fields, upserts ATP reference rows through ORDS, and records a success or failure summary for support visibility.
+Text alternative: A scheduled or administrative OIC flow reads suppliers and sites from Fusion or mock data, normalizes duplicate-relevant fields, upserts ATP reference rows through ORDS, and updates their `last_sync_at` values. OIC-native monitoring records global run success or failure under the OIC integration instance ID; no requestless ATP integration log is created.
 
-### US-013: Maintain reference and sensitive-data controls
+### US-013: Maintain Admin Settings and sensitive-data controls
 
 ```mermaid
 sequenceDiagram
@@ -383,14 +391,14 @@ sequenceDiagram
     participant ATP as Oracle ATP
     participant Duplicate as Duplicate Detection Service
     participant AI as AI Explanation Service
-    Admin->>VB: Open reference configuration
-    VB->>ORDS: GET risk duplicate country and BU rules
+    Admin->>VB: Open Admin Settings
+    VB->>ORDS: GET validation scoring country BU and supplier-type settings
     ORDS->>ORDS: Authorize Support Admin role
-    ORDS->>ATP: Read active reference configuration
+    ORDS->>ATP: Read governed configuration tables
     ATP-->>ORDS: Return governed rule values
     ORDS-->>VB: Return configuration
-    Admin->>VB: Update an allowed reference value
-    VB->>ORDS: PUT reference rule
+    Admin->>VB: Update an allowed setting
+    VB->>ORDS: PUT Admin Setting
     ORDS->>ATP: Validate persist and audit change
     ATP-->>ORDS: Confirm versioned update
     ORDS-->>VB: Return saved configuration
@@ -401,7 +409,7 @@ sequenceDiagram
     AI-->>ORDS: Return advisory explanation
 ```
 
-Text alternative: A support/admin user maintains authorized reference rules through ORDS with audit history. Across processing, ATP exposes only masked bank display values and token/hash indicators, duplicate matching uses those indicators, logs remain redacted, and AI receives no full bank value.
+Text alternative: A support/admin user maintains authorized validation rules, scoring rules, high-risk countries, business units, and supplier types through Admin Settings and ORDS. Across processing, ATP exposes only masked bank display values and token/hash indicators, duplicate matching uses those indicators, logs remain redacted, and AI receives no full bank value.
 
 ### US-014: Run realistic demo scenarios
 
@@ -439,7 +447,7 @@ sequenceDiagram
             Fusion-->>OIC: Return configured failure
             OIC->>ORDS: Store retry-eligible failure
             Demo->>ORDS: Trigger controlled retry
-            ORDS->>OIC: Retry with correlation check
+            ORDS->>OIC: Retry after request OIC and Fusion-identifier checks
             OIC->>Fusion: Retry supplier creation
             Fusion-->>OIC: Return configured success
             OIC->>ORDS: Store successful retry result
@@ -467,7 +475,7 @@ Text alternative: The project team runs seeded scenarios for duplicate risk, hig
 | US-010 | Protected diagnostics and controlled integration retry |
 | US-011 | Approved supplier submission through OIC to Fusion or mock Fusion |
 | US-012 | Fusion or mock supplier-reference synchronization into ATP |
-| US-013 | Governed reference configuration and sensitive-data handling |
+| US-013 | Governed Admin Settings and sensitive-data handling |
 | US-014 | Representative happy-path and non-happy-path demo execution |
 
 ## Validation Notes

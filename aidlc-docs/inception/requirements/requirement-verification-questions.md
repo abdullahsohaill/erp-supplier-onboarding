@@ -114,13 +114,13 @@ A) Required after submission and before approval; optional early warning while e
 
 B) Real-time while entering data must be included in phase one.
 
-C) Only after submission; no real-time checks.
+C) Automatically during submit/resubmit validation; no real-time checks while typing.
 
 X) Other (please describe after `[Answer]:`).
 
-[Answer]: A
+[Answer]: C
 
-Rationale: The transcript says real-time is nice, but post-submission is acceptable for phase one.
+Rationale: Superseded by the approved wireframe amendment. Duplicate detection runs automatically during submit/resubmit validation, with no requester-triggered preview or phase-one real-time warning.
 
 ## Question 9
 Which duplicate signals should be included in phase one?
@@ -150,7 +150,7 @@ X) Other (please describe after `[Answer]:`).
 
 [Answer]: A
 
-Rationale: Tax ID and bank account were called out as strong/serious indicators.
+Rationale: Tax ID and bank account were called out as strong/serious indicators. Under the approved amendment, these exact matches are Critical duplicate signals that produce blocking validation results before the request can enter review.
 
 ## Question 11
 Should duplicate thresholds and weights be configurable?
@@ -163,9 +163,9 @@ C) No: hardcode thresholds for the prototype.
 
 X) Other (please describe after `[Answer]:`).
 
-[Answer]: A
+[Answer]: B
 
-Rationale: Config tables keep the prototype realistic without requiring extra admin UI scope.
+Rationale: Superseded by the approved Admin Settings amendment. Support/Admin can maintain existing duplicate/risk scoring-rule versions and thresholds through governed phase-one Admin Settings APIs and mockup controls.
 
 ## Section 4: Risk Scoring
 
@@ -193,9 +193,9 @@ C) Include all of A plus missing documents and invalid business unit mapping.
 
 X) Other (please describe after `[Answer]:`).
 
-[Answer]: C
+[Answer]: X
 
-Rationale: The transcript includes missing documents as a flag and invalid business unit mapping as a likely failure/demo scenario.
+Rationale: Include missing tax, high-risk country, bank-country mismatch, incomplete address, incomplete bank metadata only when bank data is marked provided, vague justification, high spend with weak justification, missing document metadata, and non-blocking duplicate score. Exact tax/same-bank matches and invalid business-unit mapping are blocking validations rather than Reviewer risk factors.
 
 ## Question 14
 How should high-risk country rules be maintained?

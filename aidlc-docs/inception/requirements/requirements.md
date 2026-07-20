@@ -9,7 +9,7 @@
 | Status | Consolidated review-ready baseline; verification questions answered using customer transcript assumptions |
 | Source | `Integration ERP.pdf` |
 | Personas | Requester, Reviewer, Support/Admin User |
-| Wireframes | Deferred until requirements and design are approved |
+| Wireframes | Complete first pass generated after requirements/design approval; currently awaiting review |
 
 ## Business Objective
 
@@ -19,7 +19,7 @@ Standardize supplier onboarding on the requested Oracle stack, reduce duplicate 
 
 | Category | In Scope | Out of Scope For Phase One |
 |---|---|---|
-| User experience | Visual Builder request, review, dashboard, and support/admin flows. | Wireframes until explicitly requested later; email notifications. |
+| User experience | Visual Builder request, review, dashboard, and support/admin flows, with review-ready wireframes/mockups. | Final branded UI implementation; email notifications. |
 | Supplier process | New supplier onboarding with one Reviewer persona and human decision authority. | Existing supplier updates, supplier merge, full enterprise approval workflow. |
 | Data and workflow | ATP staging, request status, validation results, duplicate results, risk scoring, AI summaries, integration logs, reference data. | Treating ATP as supplier master system of record. |
 | Duplicate/risk | Explainable duplicate detection and rule-based risk scoring. | Full enterprise MDM matching platform; external sanctions/risk service integration. |
@@ -61,7 +61,7 @@ Verification: UI walkthrough, ORDS/API trace, request payload tests.
 The application shall track each request from draft through review, Fusion submission, success, rejection, duplicate marking, correction, or integration failure. Requesters should always know the current business outcome and what action, if any, is required from them.
 
 Acceptance criteria:
-- Supports Draft, Submitted, Validation Failed, Under Review, Correction Requested, Approved, Rejected, Marked Duplicate, Submitted to Fusion, Created in Fusion, and Integration Failed.
+- Supports Draft, Submitted, Under Review, Correction Requested, Approved, Rejected, Marked Duplicate, Submitted to Fusion, Created in Fusion, and Integration Failed. `Validation Failed` is an API outcome, not a persisted request status: a failed submit keeps the request in Draft, while a failed resubmit keeps it in Correction Requested.
 - Request detail shows current status, status history, timestamps, actor, and reviewer comments where applicable.
 - Requester can see rejection, correction, or duplicate guidance in business language.
 - If marked duplicate, requester sees the existing supplier reference to use instead.
@@ -76,8 +76,8 @@ Verification: status transition tests and request-detail walkthrough.
 ATP shall be used as the staging, tracking, and audit database for the prototype. Fusion remains the supplier master system of record; ATP stores the request journey, validation evidence, duplicate evidence, risk scoring, AI summaries, and integration state.
 
 Acceptance criteria:
-- ATP stores request header, site/contact, optional bank/document metadata, status history, validation results, duplicate matches, risk assessments, AI summaries, integration logs with embedded retry histories, governed validation/scoring rule configuration, Fusion responses, and supplier number on success.
-- All records are linked by request ID.
+- ATP stores request header, site/contact, optional bank/document metadata, status history with structured decision guidance in `action_comment`, validation results, duplicate matches, risk assessments, AI summaries, request-scoped integration logs with embedded retry histories, governed validation/scoring rule configuration, Fusion responses, and supplier number on success.
+- All ATP workflow and integration-log records are linked by request ID. Global supplier-reference synchronization is monitored through the OIC integration instance/activity stream because the committed `INTEGRATION_LOG` table is request-scoped.
 - ATP is not treated as the supplier master system of record.
 - Records are available for audit, dashboards, retry, and demo reporting.
 
@@ -105,11 +105,12 @@ Verification: API tests and Visual Builder service connection review.
 The application shall validate supplier request data before review and before Fusion submission. Validation should distinguish business data issues from technical integration errors so users receive the right message and support teams see the right diagnostic detail.
 
 Acceptance criteria:
-- Flags missing supplier name, country, supplier type, business unit, contact email, required structured address/site fields, and tax registration where applicable.
+- Flags missing supplier name, country, supplier type, business unit, contact email, and required structured address/site fields; it also surfaces missing tax when tax is expected for the selected supplier type/country.
 - Flags invalid business unit mapping and malformed contact email.
-- Tax registration is conditionally required by country, supplier type, and Admin Settings validation-rule configuration; it is not globally mandatory for every supplier.
-- Address validation uses structured completeness checks for Address Line 1, Address Line 2, street/area, province/state, city, and address country. Address Line 1 and Address Line 2 are limited to 20 characters each.
+- Tax registration is not globally mandatory. The supplier-type tax flag and applicable phase-one country policy control the form requirement; under the committed nine-rule baseline, missing tax is a Reviewer risk warning unless the customer explicitly promotes it to blocking policy.
+- Address validation uses the committed site shape: Address Line 1, Address Line 2, city, region/province/state, address country, and postal code where applicable. Street/area content is captured inside the address lines. Address Line 1 and Address Line 2 are each limited to 20 characters by ORDS/application validation; the DBML retains its committed generic `varchar` type.
 - Exact tax registration duplicate and same bank token/hash duplicate are blocking validation errors that prevent requester submission.
+- A blocking submit/resubmit result stores the validation and duplicate evidence, returns actionable findings, preserves the editable Draft or Correction Requested status, and does not add the request to the Reviewer queue.
 - Every failed field-level validation result references the governed validation-rule catalog entry that failed and retains the run-specific field, severity, user-friendly message, blocking flag, and corrective guidance.
 - The validation-rule catalog contains stable `VAL-001` through `VAL-009` codes, descriptions, default failure behavior, and independently controlled active/inactive settings.
 - Business validation errors are stored separately from OIC/Fusion technical errors.
@@ -139,7 +140,7 @@ The application shall calculate an explainable supplier risk score and risk leve
 
 Acceptance criteria:
 - Uses Low, Medium, High, and Critical risk levels by default.
-- Risk factors include missing tax where configured as warning, high-risk country, bank country mismatch, incomplete address, vague justification, high spend with weak justification, duplicate score, missing documents, invalid business unit mapping, and missing or incomplete bank details.
+- Risk factors include missing tax where configured as warning, high-risk country, bank country mismatch, incomplete address, vague justification, high spend with weak justification, duplicate score, missing documents, and incomplete masked/tokenized bank metadata when bank data is marked provided. Invalid business-unit mapping remains blocking validation rather than a Reviewer risk factor.
 - Risk score stores scoring version, timestamp, score, level, and individual reasons.
 - Reviewer can see each risk reason in business language.
 - Risk can be recalculated after request correction.
@@ -174,6 +175,8 @@ Acceptance criteria:
 - Approve is allowed only from Under Review and only when blocking validation is resolved.
 - Reject, request correction, and mark duplicate require reviewer comment.
 - Request correction can target specific validation, risk, or evidence items such as business justification, tax registration, address, or bank detail completeness.
+- Targeted correction items and the selected Reviewer risk-factor codes are written with the decision as a versioned, validated JSON envelope in `STATUS_HISTORY.action_comment`. `actor_user` and `action_timestamp` provide the Reviewer and timestamp.
+- Reviewer factor selections are decision evidence only: they do not rewrite `RISK_ASSESSMENT.risk_score`, `risk_level`, or `risk_reasons_json`. The Requester projection returns only the business comment and targeted correction guidance from the latest correction action.
 - Mark Duplicate requires existing supplier reference.
 - High-risk or duplicate-risk requests cannot bypass manual review.
 - Rejected and Marked Duplicate requests cannot be submitted/retried for Fusion creation.
@@ -189,7 +192,7 @@ Acceptance criteria:
 - Requester dashboard shows own drafts, submitted, correction-needed, created, rejected, and duplicate-marked requests.
 - Requester dashboard includes an Actions column: Correction Requested rows show `Edit and Resubmit`, while all other statuses show non-clickable `None`.
 - Reviewer dashboard shows pending, under-review, high-risk, duplicate-risk, recently created, failed requests, and review queue.
-- Support/Admin dashboard shows integration failures, retry eligibility, OIC instance IDs, retry counts, and Admin Settings functions.
+- Support/Admin dashboard shows request-scoped integration failures, required request IDs, retry eligibility, OIC instance IDs, retry counts, and Admin Settings functions.
 - Reviewer filters include business unit, country, supplier type, requester, status, risk level, duplicate risk, expected spend, and product/service category.
 - Dashboard counts match filtered results.
 
@@ -222,7 +225,7 @@ Acceptance criteria:
 - Prototype uses mock supplier master data in ATP by default, with OIC sync design documented for real Fusion.
 - Reference data includes supplier number, name, country, tax registration, email domain, phone, address, site, and bank matching token where available.
 - Duplicate detection uses supplier reference data, not only new staged requests.
-- Sync/load metrics and errors are logged.
+- Sync/load metrics and errors are available in OIC monitoring using the OIC integration instance ID; successful ATP reference rows retain `last_sync_at`.
 
 Verification: reference seed/sync test and duplicate detection tests.
 
@@ -232,13 +235,13 @@ Verification: reference seed/sync test and duplicate detection tests.
 The application shall capture integration logs and support controlled retry for eligible failures. Business users should see clean business-safe messages, while Support/Admin users can inspect technical detail needed for troubleshooting.
 
 Acceptance criteria:
-- A single integration-log record includes request ID, OIC instance ID, status, timestamp, payload reference, response reference, user-friendly message, technical message, retry eligibility, retry count, latest retry actor/time, and embedded retry history.
+- Every ATP integration-log record includes required request ID, OIC instance ID where available, status, timestamp, payload reference, response reference, user-friendly message, technical message, retry eligibility, retry count, latest retry actor/time, and embedded retry history.
 - Technical error details are visible to Support/Admin; business users see business-safe messages.
 - Support/Admin can retry technical failures and corrected business failures.
 - Retry is blocked for Rejected and Marked Duplicate requests.
 - Every retry appends an immutable JSON history entry containing attempt number, actor, timestamp, result, message, and retry OIC instance ID.
 - Appending the retry JSON entry, incrementing retry count, and updating latest retry actor/time occur atomically so summary fields cannot diverge from the embedded history.
-- Retry uses request status/correlation safeguards to avoid duplicate supplier creation.
+- Retry uses request status, request ID, stored Fusion identifiers, and OIC instance safeguards to avoid duplicate supplier creation.
 
 Verification: integration failure and retry demo.
 
@@ -254,21 +257,21 @@ Acceptance criteria:
 - Full bank account number is not sent to AI or exposed in logs.
 - Payment setup workflow is out of scope for phase one; bank information is captured only as metadata/indicators for validation, duplicate detection, risk scoring, and review evidence.
 - Document metadata and missing-document flags are captured; full upload is excluded in phase one.
-- Admin Settings includes global validation-rule toggles, high-risk countries, supplier types, business units, duplicate/risk thresholds, and mappings; per-request risk-factor confirmation remains part of Reviewer Request Review Detail.
-- Support/Admin can activate/deactivate each `VAL-001` through `VAL-009` rule. ATP persists those rules in `VALIDATION_RULES`, while risk and duplicate scoring configuration is consolidated in `REF_SCORING_RULE` and distinguished by `rule_type`.
+- Admin Settings includes global validation-rule toggles, high-risk countries, supplier types, business units, and versioned duplicate/risk scoring rules; per-request risk-factor confirmation remains part of Reviewer Request Review Detail.
+- Support/Admin can activate/deactivate each `VAL-001` through `VAL-009` rule and each risk/duplicate scoring rule. ATP persists validation definitions in `VALIDATION_RULES`, while risk and duplicate configuration is consolidated in `REF_SCORING_RULE` and distinguished by `rule_type`.
 
 Verification: security review and reference data inspection.
 
 #### FR-015: Proposal and Demo Readiness
 **Priority:** Must
 
-The project shall produce a proposal-ready and demo-ready package before wireframes or build work begins. The package must include the functional baseline, technical design, assumptions, traceability, sample data, and demo scenarios needed to validate the approach with the customer.
+The project shall produce a proposal-ready, wireframe-ready, and demo-ready package before construction work begins. The package must include the functional baseline, technical design, assumptions, traceability, sample data, wireframes, and demo scenarios needed to validate the approach with the customer.
 
 Acceptance criteria:
 - Documentation includes proposal, functional requirements, technical design, data model, API list, validation rules, risk scoring, duplicate logic, AI prompt approach, assumptions, limitations, demo script, traceability, and wireframe readiness.
 - Sample data includes clean supplier, exact tax duplicate, fuzzy name duplicate, missing tax, bank country mismatch, incomplete address, same bank account, vague justification with high spend, and Fusion failure.
 - Demo includes duplicate-risk request, clean supplier creation, high-risk incomplete request, and integration failure with retry.
-- Wireframes are not generated until explicitly requested.
+- Wireframes are generated only after explicit user approval and remain review artifacts until accepted for construction.
 
 Verification: document review and demo walkthrough.
 
@@ -287,7 +290,7 @@ The application must enforce basic role separation for Requester, Reviewer, and 
 Verification: role access tests.
 
 #### NFR-003: Explainability and Auditability
-Validation, duplicate, risk, AI, and integration outcomes must be explainable and auditable. Validation errors have rule codes, duplicate candidates show matched fields, risk score shows contributing factors, AI output is timestamped/versioned, and integration logs include request/response references plus append-only retry history.
+Validation, duplicate, risk, AI, Reviewer decision evidence, targeted correction, and integration outcomes must be explainable and auditable. Validation errors have rule codes, duplicate candidates show matched fields, risk score shows contributing factors, decision evidence retains actor/time in status history, correction guidance is structured inside the decision comment envelope, AI output is timestamped/versioned, and request-scoped integration logs include request/OIC references plus append-only retry history.
 
 Verification: audit/log inspection.
 
@@ -297,7 +300,7 @@ Sensitive supplier and bank data must be protected. Bank data is masked in UI, f
 Verification: security review and masking tests.
 
 #### NFR-005: Recoverable Failure Handling
-Recoverable integration failures must not corrupt request state or create duplicate suppliers. OIC failures update status to Integration Failed; each retry atomically appends its JSON audit entry and updates summary fields; retry logic uses request status/correlation checks.
+Recoverable integration failures must not corrupt request state or create duplicate suppliers. OIC failures update status to Integration Failed; each retry atomically appends its JSON audit entry and updates summary fields; retry logic uses request status, existing Fusion identifiers, request ID, and OIC instance checks.
 
 Verification: integration failure/retry tests.
 
@@ -321,10 +324,10 @@ Verification: AI prompt/output review.
 | Rule ID | Rule | Severity | Related Requirements |
 |---|---|---|---|
 | BR-001 | Supplier name, country, supplier type, business unit, contact email, business justification, product/service category, and required structured address/site fields are required for submission. | Blocking | FR-001, FR-005 |
-| BR-002 | Tax registration is required where country/supplier-type rule requires it. | Blocking or warning by configuration | FR-005, FR-007 |
+| BR-002 | Tax registration is expected where the supplier-type/country policy applies; the committed baseline raises the `MISSING_TAX` warning unless the customer promotes it to blocking policy. | Warning by baseline policy | FR-005, FR-007 |
 | BR-003 | Exact tax ID match creates a Critical duplicate trigger and blocks requester submission. | Blocking | FR-005, FR-006, FR-007 |
 | BR-004 | Same bank token/hash creates a Critical duplicate trigger and blocks requester submission when bank data is captured. | Blocking | FR-005, FR-006, FR-007, FR-014 |
-| BR-005 | Bank country mismatch, high-risk country, vague justification, high spend with weak justification, incomplete address, missing documents, missing or incomplete bank details, and invalid business unit mapping create risk reasons. | Warning or blocking by rule | FR-005, FR-007, FR-014 |
+| BR-005 | Bank-country mismatch, high-risk country, vague justification, high spend with weak justification, incomplete address, missing documents, and incomplete bank metadata when bank data is marked provided create risk reasons. Invalid business-unit mapping is handled by blocking VAL-004. | Warning | FR-005, FR-007, FR-014 |
 | BR-006 | Duplicate-risk or high-risk requests cannot be submitted to Fusion without Reviewer action. | Blocking | FR-007, FR-009, FR-011 |
 | BR-007 | AI output cannot approve, reject, mark duplicate, route escalation automatically, retry integration, or create suppliers. | Blocking | FR-008 |
 | BR-008 | Rejected and Marked Duplicate requests cannot be retried for Fusion creation. | Blocking | FR-009, FR-013 |
