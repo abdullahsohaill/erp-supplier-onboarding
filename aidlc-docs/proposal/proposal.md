@@ -29,10 +29,10 @@ We propose a three-week prototype using the Oracle stack requested by the custom
 - Supplier request form and detail pages.
 - Request dashboard for requesters and reviewers.
 - Support/admin integration dashboard.
-- ATP schema for requests, sites, governed validation rules/results, consolidated risk/duplicate scoring configuration, AI summaries, existing suppliers, and integration logs with embedded retry histories.
+- Committed 18-table ATP schema for requests, sites, status-history decision evidence, governed validation rules/results, consolidated risk/duplicate scoring configuration, AI summaries, existing suppliers, and request-scoped integration logs with embedded retry histories.
 - ORDS APIs for UI operations.
 - Duplicate detection using exact and fuzzy matching.
-- Optional early duplicate warning while entering supplier data, if schedule allows.
+- Automatic duplicate detection during submit/resubmit validation, with no requester-triggered preview action.
 - Explainable rule-based risk scoring.
 - AI-generated summaries and recommended actions.
 - OIC supplier creation flow to Fusion or mock Fusion endpoint.

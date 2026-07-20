@@ -27,7 +27,7 @@ Implement the approved non-database fixes across the AI-DLC inception artifacts 
 - Exact tax registration duplicates and same bank token/hash duplicates are blocking validation errors that prevent requester submission.
 - High-risk country remains a reviewer risk warning, not a requester submission blocker.
 - Address validation uses structured fields and completeness checks, not a regex-heavy single address field; Address Line 1 and Address Line 2 are capped at 20 characters each.
-- Bank-related risk factor is renamed to `Missing or incomplete bank details`; payment setup is out of phase-one scope.
+- Bank-related risk factor is `Incomplete bank metadata when bank data is marked provided`; payment setup is out of phase-one scope.
 - `Reference Data` is renamed to `Admin Settings`.
 - Admin Settings mockups/docs show the approved controls; backend/database handling was deferred from this non-DB plan and is now aligned by `schema-baseline-amendment-plan.md`.
 - Reviewer can mark specific validation, risk, or evidence items for correction.

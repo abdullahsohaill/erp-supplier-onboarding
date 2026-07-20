@@ -37,9 +37,8 @@ This note captures the proposed non-database fixes from the supervisor meeting b
 ### 3. Validation And Risk On/Off Controls
 
 - Add an `Admin Settings > Validation Rules` section with global on/off toggles.
-- Add an `Admin Settings > Risk Factors` section with on/off toggles plus weight/severity display.
+- Add an `Admin Settings > Risk Scoring Rules` section with on/off toggles plus weight/severity/version display.
 - Example configurable toggles:
-  - Tax registration required rule.
   - Address completeness rule.
   - Exact tax duplicate critical block.
   - Same bank token/hash critical block.
@@ -77,10 +76,11 @@ This note captures the proposed non-database fixes from the supervisor meeting b
 - Replace the single address approach with structured address fields:
   - Address Line 1, maximum 20 characters.
   - Address Line 2, maximum 20 characters.
-  - Street/Area.
-  - Province/State.
   - City.
+  - Region/Province/State.
   - Address Country.
+  - Postal Code where applicable.
+- Street/area content is captured inside Address Line 1 or Address Line 2 because the committed `SUPPLIER_REQUEST_SITE` table has no standalone street column.
 - Validation should check that the required address parts are present.
 - If the address still looks suspicious or incomplete after structured validation, the Reviewer or AI can flag it manually as weak/incomplete address.
 
@@ -95,16 +95,13 @@ This note captures the proposed non-database fixes from the supervisor meeting b
 - Current wording to replace:
   - `Missing bank details when payment setup is required`
 - Recommended revised wording:
-  - `Missing or incomplete bank details`
+  - `Incomplete bank metadata when bank data is marked provided`
 
 ### 8. Tax Registration Mandatory Rule
 
 - Tax registration should not be globally mandatory for every supplier.
-- It should be conditionally mandatory based on:
-  - Country.
-  - Supplier type.
-  - Admin validation rule configuration.
-- If tax registration is not required by configuration, missing tax can be a warning/risk reason instead of a blocking validation error.
+- The supplier type and applicable phase-one country policy determine whether the form presents tax as expected.
+- Under the committed nine-rule validation baseline, missing tax is a warning/risk reason unless the customer later promotes it to a blocking policy.
 
 ### 9. Reviewer Feedback On Specific Fields
 

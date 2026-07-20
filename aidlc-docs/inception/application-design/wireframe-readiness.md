@@ -18,7 +18,7 @@ Wireframes/mockups have now been generated. This document captures the approved 
 | Artifact | Location | Purpose |
 |---|---|
 | Wireframe specification | `aidlc-docs/inception/wireframes/wireframe-spec.md` | Screen goals, traceability, layout notes, states, and review checklist. |
-| Clickable mockup | `mockups/supplier-onboarding-wireframes.html` | Static HTML review artifact with role navigation and 9 screens; the Review Decision Modal is embedded at the end of Request Review Detail. |
+| Clickable mockup | `mockups/supplier-onboarding-wireframes.html` | Static HTML review artifact with 9 navigable screens and 10 traced WF IDs; WF-007 Review Decision Modal is embedded at the end of Request Review Detail. |
 
 ## Wireframe Screen Inventory
 
@@ -33,7 +33,7 @@ Wireframes/mockups have now been generated. This document captures the approved 
 | Review Decision Modal | Reviewer | Embedded at the end of Request Review Detail; approve, reject, request correction, and mark duplicate with required comments/reference. |
 | Support/Admin Dashboard | Support/Admin | View integration failures, retry eligibility, OIC instance IDs, retry counts. |
 | Integration Log Detail | Support/Admin | Inspect user-friendly and technical error detail, payload/response references. |
-| Reference Data Maintenance | Support/Admin | Maintain high-risk countries, business unit mappings, supplier types, thresholds if included. |
+| Admin Settings Maintenance | Support/Admin | Maintain high-risk countries, business unit mappings, supplier types, validation controls, and scoring thresholds. |
 
 ## Wireframe Entry Criteria
 

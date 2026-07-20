@@ -1,14 +1,14 @@
 # Demo Script
 
-## Scenario 1: Duplicate-Risk Supplier
+## Scenario 1: Duplicate Controls And Reviewer Decision
 
-1. Requester creates supplier request for a supplier similar to an existing Fusion supplier.
-2. System validates mandatory fields.
-3. Duplicate check identifies candidate supplier with similar name and matching tax ID or email domain.
-4. Risk score becomes High or Critical.
-5. AI summary explains duplicate reasons and recommends verification.
-6. Reviewer marks the request duplicate and references the existing supplier.
-7. Requester sees Marked Duplicate status and existing supplier reference.
+1. Requester first attempts a request with an exact tax-registration match; automatic submit validation blocks submission and explains that the duplicate identifier must be corrected or the existing supplier used.
+2. Requester submits a separate request with no critical identifier match but strong fuzzy evidence such as similar normalized name, same country, address similarity, or matching email domain.
+3. System validates mandatory fields and persists the non-blocking duplicate candidate.
+4. Risk score becomes Medium or High from the explainable fuzzy signals.
+5. AI summary explains the duplicate reasons and recommends verification.
+6. Reviewer confirms the applicable risk factors, marks the request duplicate, and references the existing supplier.
+7. Requester sees Marked Duplicate status and the existing supplier reference.
 
 ## Scenario 2: Clean Supplier Creation
 
@@ -35,6 +35,6 @@
 2. OIC submits to Fusion/mock endpoint.
 3. Fusion/mock returns failure due to invalid business unit mapping or missing site mapping.
 4. Status changes to Integration Failed.
-5. Support/admin dashboard shows OIC instance ID, error message, timestamp, retry count, and payload reference.
+5. Support/admin dashboard shows request ID, OIC instance ID, error message, timestamp, retry count, payload reference, and embedded retry history.
 6. Support/admin user fixes mapping and retries.
 7. Retry succeeds and status changes to Created in Fusion.

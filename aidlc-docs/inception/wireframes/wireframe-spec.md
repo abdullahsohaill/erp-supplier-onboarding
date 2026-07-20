@@ -32,8 +32,10 @@ The mockup uses a left navigation shell with role-oriented screens:
 Top-level request states used in the wireframes:
 
 ```text
-Draft -> Submitted -> Validation Failed / Under Review -> Correction Requested / Approved / Rejected / Marked Duplicate -> Submitted to Fusion -> Created in Fusion / Integration Failed
+Draft -- successful submit --> Submitted --> Under Review --> Correction Requested / Approved / Rejected / Marked Duplicate --> Submitted to Fusion --> Created in Fusion / Integration Failed
 ```
+
+A blocked submit is not a lifecycle transition. The form stays in Draft, or Correction Requested during resubmission, and displays stored validation findings. It does not enter the Reviewer queue.
 
 ## Screen Inventory and Traceability
 
@@ -59,7 +61,7 @@ Draft -> Submitted -> Validation Failed / Under Review -> Correction Requested /
 ### Status Badges
 - Draft: neutral.
 - Submitted / Under Review: active.
-- Correction Requested / Validation Failed: warning.
+- Correction Requested: warning.
 - Approved / Submitted to Fusion: positive but not final.
 - Created in Fusion: success.
 - Rejected / Marked Duplicate: final negative/duplicate.
@@ -113,7 +115,7 @@ Purpose: Capture standardized supplier request data and stage it through ORDS in
 Sections:
 - Supplier basics: name, supplier type, country, business unit, category, expected annual spend.
 - Contact: contact person, email, phone, email domain derived for duplicate checks.
-- Site/address: Address Line 1, Address Line 2, street/area, province/state, city, and address country. Address Line 1 and Address Line 2 show a 20-character maximum hint.
+- Site/address: Address Line 1, Address Line 2, city, region/province/state, address country, and postal code where applicable. Street/area content is entered within either address line. Address Line 1 and Address Line 2 show a 20-character maximum hint enforced by ORDS/application validation.
 - Tax and bank indicators: conditional tax registration, bank country, masked account preview/last four, bank provided flag.
 - Documents: metadata rows for required/pending documents and missing flags.
 - Justification: business justification and notes.
@@ -171,7 +173,7 @@ Sections:
 - Validation findings.
 - Duplicate matches.
 - Risk assessment.
-- Per-request Reviewer Risk Factors checklist containing all Section 11.1 factors: missing tax registration, high-risk country, bank-country mismatch, incomplete address, missing/incomplete bank details, vague justification, high spend with weak justification, missing document metadata, High duplicate score, and Medium duplicate score.
+- Per-request Reviewer Risk Factors checklist containing all Section 11.1 factors: missing tax registration, high-risk country, bank-country mismatch, incomplete address, incomplete bank metadata when marked provided, vague justification, high spend with weak justification, missing document metadata, High duplicate score, and Medium duplicate score.
 - AI explanation.
 - Status history.
 - Decision Modal preview as the final section, with access to the shared decision modal.
@@ -182,13 +184,14 @@ Primary actions:
 - Reject.
 - Mark Duplicate.
 - Regenerate AI Summary.
-- Independently tick or clear each risk factor for the current request.
+- Tick or clear each risk factor for the current request before recording a review decision.
 
 Guardrails:
 - Approve is visually disabled if blocking validation remains.
 - Request Correction can target specific validation, risk, or evidence fields.
 - Mark Duplicate requires an existing supplier reference.
 - AI does not make or execute any decision.
+- Reviewer factor selections remain decision-form state until an action is recorded. They are then included in the status-history decision envelope and do not rewrite the automatic risk score.
 
 ### WF-006: Duplicate / Risk / AI Evidence Panel
 
@@ -197,6 +200,7 @@ Purpose: Make the review evidence readable enough for the Reviewer to act withou
 Panel content:
 - Duplicate candidates with score, level, matched fields, and existing supplier number.
 - Risk score with level, scoring version, and factor-level reasons.
+- Reviewer-facing factor reasons do not expose baseline scoring weights or threshold mechanics.
 - AI summary with risk summary, duplicate explanation, missing information, and recommended reviewer actions.
 - Data minimization note for bank values and AI input.
 
@@ -219,17 +223,23 @@ Decision modes:
 Modal fields:
 - Decision type.
 - Reviewer comment.
+- Selected Reviewer risk-factor codes carried from the review checklist.
 - Targeted correction items for fields/evidence needing requester changes.
 - Existing supplier reference when duplicate.
 - Confirmation summary of downstream result.
 
+Persistence behavior:
+- ORDS validates and serializes the comment, selected factor codes, targeted items, and existing supplier reference where applicable into `STATUS_HISTORY.action_comment` when it appends the decision transition.
+- Requester responses parse only the business comment and current correction items; Reviewer-only selected factor codes stay hidden.
+- A later decision or successful resubmission supersedes the current guidance operationally, while prior status-history rows remain auditable.
+
 ### WF-008: Support/Admin Integration Dashboard
 
-Purpose: Give Support/Admin users a focused view of integration failures, retry eligibility, and OIC/Fusion correlation details.
+Purpose: Give Support/Admin users a focused view of request-scoped integration failures, retry eligibility, and OIC/Fusion troubleshooting details.
 
 Key content:
 - Failure counters: Integration Failed, Retry Eligible, Business Mapping Issue, Technical Failure.
-- Integration log table with request, supplier, integration name, OIC instance ID, status, retry count, retry eligibility, and last error.
+- Integration log table with required request ID, supplier, integration name, OIC instance ID, status, retry count, retry eligibility, and last error.
 - Retry queue filter.
 
 Primary actions:
@@ -244,36 +254,39 @@ Purpose: Show technical evidence for one integration event without exposing sens
 Key content:
 - Request and supplier summary.
 - Integration metadata: OIC instance ID, direction, timestamps, status, retry count.
+- Required request ID and numeric integration-log ID, plus OIC instance ID where available.
 - Payload and response references.
 - User-safe message and technical message.
-- Retry history sourced from the selected integration log's embedded retry-history array.
+- Retry history sourced from the selected integration log's embedded retry-history array, showing attempt, actor, timestamp, result, message, and retry OIC instance ID. Displayed retry count equals the array entry count.
 
 Primary actions:
 - Retry, when eligible.
 - Mark as business correction needed, when error category indicates mapping/data issue.
-- Copy correlation ID.
+- Copy OIC instance ID.
 
 ### WF-010: Admin Settings Maintenance
 
-Purpose: Let Support/Admin users maintain selected global Admin Settings controls that affect blocking validation and duplicate detection.
+Purpose: Let Support/Admin users maintain the configuration represented by the committed reference, validation, and scoring tables.
 
 Sections:
 - Business unit mappings.
 - Supplier types and tax-required flag.
 - High-risk countries.
 - Global Validation Rules with independent on/off controls for VAL-001 through VAL-009 from Section 9.1 of the technical design.
-- Duplicate rule weights and blocking critical triggers.
+- Risk scoring rules with active/inactive controls, weight, severity, and version.
+- Duplicate scoring rules with active/inactive controls, weights, severity, version, and blocking critical-trigger indicator.
 
 Primary actions:
 - Edit Admin Settings row.
 - Turn each global validation rule on or off.
+- Turn each global risk or duplicate scoring rule on or off.
 - Save changes.
 
 Guardrails:
 - Changes are versioned or audit-friendly.
 - Historical requests keep their original scoring version.
 - Support/Admin maintenance does not bypass Reviewer decision controls.
-- Risk-factor marking is request-specific Reviewer work and is not configured globally from Admin Settings.
+- Per-request Reviewer factor marking is distinct from the global risk-rule configuration maintained in Admin Settings.
 
 ## Mockup Review Checklist
 

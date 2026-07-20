@@ -2,7 +2,7 @@
 
 ## Scope
 
-Update the static HTML mockup and wireframe specification without changing the database schema or technical design. Move risk-factor selection to the per-request Reviewer workspace and replace Admin risk-factor controls with global blocking-validation controls.
+Update the static HTML mockup and wireframe specification without changing the database schema. Move per-request risk-factor selection to the Reviewer workspace and keep global blocking-validation controls in Admin Settings. A later approved clarification adds a distinct Admin `Risk Scoring Rules` configuration backed by `REF_SCORING_RULE`; this is not the per-request Reviewer checklist removed here.
 
 ## Source Baseline
 
@@ -16,7 +16,7 @@ Update the static HTML mockup and wireframe specification without changing the d
 - [x] Record the complete amendment request and confirm that schema changes are deferred.
 - [x] Inspect the current Reviewer Request Review Detail and Admin Settings cards.
 - [x] Add all Section 11.1 risk factors as independent per-request Reviewer checkboxes.
-- [x] Remove the Admin Settings Risk Factors card.
+- [x] Remove the request-level Risk Factors checklist from Admin Settings.
 - [x] Add all Section 9.1 blocking validations as independent global Admin on/off controls.
 - [x] Update the wireframe specification to match the new responsibility boundaries.
 - [x] Validate exact rule coverage, HTML structure, and unchanged schema/technical-design scope.
@@ -27,7 +27,7 @@ Update the static HTML mockup and wireframe specification without changing the d
 
 - Request Review Detail contains exactly the ten risk factors listed in Section 11.1.
 - Each request-level risk factor is represented by an independently operable checkbox.
-- Admin Settings contains no Risk Factors card.
+- Admin Settings contains no request-level Risk Factors checklist; its separate global Risk Scoring Rules table may expose active state, weight, severity, and version.
 - Global Validation Rules contains exactly VAL-001 through VAL-009 from Section 9.1.
 - Each global validation rule is represented by an independently operable on/off checkbox.
-- No database schema, DBML, schema-design, or technical-design content is changed by this amendment.
+- No database schema, DBML, or schema-design content is changed by this amendment.
