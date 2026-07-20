@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: INCEPTION
-- **Current Stage**: INCEPTION - Schema baseline amendment complete; review required
+- **Current Stage**: INCEPTION - Integration log/retry schema merge complete; review required
 
 ## Workspace State
 - **Existing Code**: No
@@ -40,6 +40,7 @@
 - [x] Risk and validation cards wireframe amendment
 - [x] Decision Modal placement wireframe amendment
 - [x] Schema baseline amendment
+- [x] Integration log/retry schema merge amendment
 
 ### CONSTRUCTION PHASE
 - [ ] Functional Design per unit
@@ -57,4 +58,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-The requested schema baseline amendment is complete. Review `aidlc-docs/inception/requirements/requirements.md`, `aidlc-docs/inception/application-design/technical-design.md`, `aidlc-docs/inception/application-design/db-schema.dbml`, `aidlc-docs/inception/application-design/database-schema-design.md`, and `aidlc-docs/inception/plans/schema-baseline-amendment-plan.md`. Construction remains pending until the amended schema/design baseline is approved.
+The requested integration-log/retry schema merge is complete. Review `aidlc-docs/inception/requirements/requirements.md`, `aidlc-docs/inception/application-design/technical-design.md`, `aidlc-docs/inception/application-design/db-schema.dbml`, `aidlc-docs/inception/application-design/database-schema-design.md`, and `aidlc-docs/inception/plans/integration-log-retry-merge-amendment-plan.md`. Construction remains pending until the amended schema/design baseline is approved.

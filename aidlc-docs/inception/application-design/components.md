@@ -10,5 +10,5 @@
 | Duplicate Component | Matching engine | Load `DUPLICATE` scoring rules, normalize input, compare with reference suppliers, score candidates, and persist explanations. |
 | Risk Component | Risk scoring | Load `RISK` scoring rules from the shared catalog, apply configurable weights, and assign risk level. |
 | AI Summary Component | AI explanation | Generate and store summaries without making decisions. |
-| OIC Submit Component | Fusion creation | Transform and submit approved requests to Fusion/mock endpoint. |
+| OIC Submit Component | Fusion creation | Transform and submit approved requests, retry eligible failures, and atomically append retry audit entries to the integration log. |
 | OIC Sync Component | Reference data sync | Load existing suppliers from Fusion/mock data into ATP. |

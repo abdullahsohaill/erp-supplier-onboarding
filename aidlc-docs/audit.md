@@ -1,5 +1,21 @@
 # AI-DLC Audit Log
 
+## Integration Log and Retry History Merge Request
+**Timestamp**: 2026-07-20T16:37:40Z
+**User Input**: "Make another small change in the databae schema and accordingly everywhere required. I want you to merge INTEGRATION_LOG and INTEGRATION_RETRY_HISTORY table. You can use a new json column if needed for this. Do tell me how you merged them"
+**AI Response**: "Accepted the focused schema-baseline amendment. The standalone INTEGRATION_RETRY_HISTORY table will be removed and its audit entries embedded in INTEGRATION_LOG.retry_history_json as an append-only array. Existing retry_count, retry_eligible_flag, last_retry_at, and last_retry_by columns will remain for searchable dashboard summaries, and the JSON append plus summary updates will be atomic."
+**Context**: AI-DLC Inception - Integration log/retry persistence merge started with explicit user direction. No clarification file was required because the requested merge and acceptable JSON approach are specific and internally consistent.
+
+---
+
+## Integration Log and Retry History Merge Completion
+**Timestamp**: 2026-07-20T16:40:40Z
+**User Input**: "Make another small change in the databae schema and accordingly everywhere required. I want you to merge INTEGRATION_LOG and INTEGRATION_RETRY_HISTORY table. You can use a new json column if needed for this. Do tell me how you merged them"
+**AI Response**: "Completed the schema merge across requirements, stories, traceability, technical design, APIs, DBML, complete schema ERD/narrative, component methods/dependencies, service and unit scope, wireframe specification, proposal, plans, state, and audit. Removed INTEGRATION_RETRY_HISTORY and its two foreign keys. Added required INTEGRATION_LOG.retry_history_json containing append-only attempt objects with attemptNumber, actorUser, attemptedAt, result, message, and oicInstanceId while retaining retry_count, retry_eligible_flag, last_retry_at, and last_retry_by for indexed dashboard summaries. Defined atomic JSON append and summary-field updates, redaction requirements, and retry-count/array-length consistency. Structural validation confirmed 18 tables, 189 columns, 17 physical relationships, matching DBML/ERD sets, valid six-field JSON, and no legacy retry table names in active design artifacts."
+**Context**: AI-DLC Inception - Integration log/retry persistence merge completed and awaiting review. Extension compliance: Security Baseline and Resiliency Baseline were not enforced because their state remains Needs confirmation; existing redaction, idempotency, atomicity, and recoverability controls were preserved. Property-Based Testing is N/A for documentation-only schema design.
+
+---
+
 ## Git Publishing Request
 **Timestamp**: 2026-07-17T06:31:53Z
 **User Input**: "Push these changes to github with a detailed description and commit message of all the changes"

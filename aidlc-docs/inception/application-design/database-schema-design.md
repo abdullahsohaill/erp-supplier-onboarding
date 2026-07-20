@@ -6,7 +6,7 @@ This companion expands Section 7 of `technical-design.md` into a complete table-
 
 ## Scope and Conventions
 
-- The full ERD contains all 19 ATP tables and all 19 physical foreign-key relationships.
+- The full ERD contains all 18 ATP tables and all 17 physical foreign-key relationships.
 - `PK` identifies a primary-key column, `FK` identifies a foreign-key column, and `UK` identifies a unique alternate key.
 - A required relationship means the child foreign-key column is marked `not null` in DBML. An optional relationship means the foreign-key column is nullable.
 - The crow-foot end represents zero or many child records.
@@ -18,9 +18,9 @@ This companion expands Section 7 of `technical-design.md` into a complete table-
 |---|---|---:|
 | Core request and workflow | `SUPPLIER_REQUEST`, `SUPPLIER_REQUEST_SITE`, `SUPPLIER_REQUEST_CONTACT`, `SUPPLIER_REQUEST_BANK`, `SUPPLIER_REQUEST_DOCUMENT`, `STATUS_HISTORY` | 6 |
 | Rule and AI outputs | `VALIDATION_RESULT`, `DUPLICATE_MATCH`, `RISK_ASSESSMENT`, `AI_SUMMARY` | 4 |
-| Integration and supplier reference | `EXISTING_SUPPLIER_REF`, `EXISTING_SUPPLIER_SITE_REF`, `INTEGRATION_LOG`, `INTEGRATION_RETRY_HISTORY` | 4 |
+| Integration and supplier reference | `EXISTING_SUPPLIER_REF`, `EXISTING_SUPPLIER_SITE_REF`, `INTEGRATION_LOG` | 3 |
 | Governed reference configuration | `VALIDATION_RULES`, `REF_BUSINESS_UNIT`, `REF_SUPPLIER_TYPE`, `REF_HIGH_RISK_COUNTRY`, `REF_SCORING_RULE` | 5 |
-| **Total** |  | **19** |
+| **Total** |  | **18** |
 
 ## Complete Physical ER Diagram
 
@@ -185,17 +185,8 @@ erDiagram
         boolean retry_eligible_flag
         timestamp last_retry_at
         varchar last_retry_by
+        json retry_history_json
         timestamp created_at
-    }
-    INTEGRATION_RETRY_HISTORY {
-        int retry_id PK
-        int log_id FK
-        int request_id FK
-        int retry_attempt
-        varchar retry_actor
-        timestamp retry_timestamp
-        varchar retry_result
-        text retry_message
     }
     REF_BUSINESS_UNIT {
         int business_unit_id PK
@@ -277,13 +268,11 @@ erDiagram
     SUPPLIER_REQUEST ||--o{ AI_SUMMARY : produces
     EXISTING_SUPPLIER_REF ||--o{ EXISTING_SUPPLIER_SITE_REF : has
     SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : logs
-    INTEGRATION_LOG ||--o{ INTEGRATION_RETRY_HISTORY : records
-    SUPPLIER_REQUEST ||--o{ INTEGRATION_RETRY_HISTORY : links
 ```
 
 ### Text Alternative
 
-`SUPPLIER_REQUEST` is the central workflow table. It owns request sites, contacts, optional masked bank details, document metadata, status history, validation results, duplicate results, risk assessments, AI summaries, integration logs, and retry history. Every failed `VALIDATION_RESULT` references the exact `VALIDATION_RULES` definition that failed. `REF_BUSINESS_UNIT` and `REF_SUPPLIER_TYPE` classify requests, while `REF_BUSINESS_UNIT` also maps intended request sites. `DUPLICATE_MATCH` can point either to an existing Fusion supplier reference or another staged request. Existing supplier sites belong to existing supplier references, and integration retry rows belong to both an integration log and the originating request. `REF_HIGH_RISK_COUNTRY` and the consolidated `REF_SCORING_RULE` have no physical foreign keys by design.
+`SUPPLIER_REQUEST` is the central workflow table. It owns request sites, contacts, optional masked bank details, document metadata, status history, validation results, duplicate results, risk assessments, AI summaries, and integration logs. Every failed `VALIDATION_RESULT` references the exact `VALIDATION_RULES` definition that failed. `REF_BUSINESS_UNIT` and `REF_SUPPLIER_TYPE` classify requests, while `REF_BUSINESS_UNIT` also maps intended request sites. `DUPLICATE_MATCH` can point either to an existing Fusion supplier reference or another staged request. Each `INTEGRATION_LOG` belongs to its originating request and embeds retry attempts in `retry_history_json`, eliminating a separate retry-history relationship. Existing supplier sites belong to existing supplier references. `REF_HIGH_RISK_COUNTRY` and the consolidated `REF_SCORING_RULE` have no physical foreign keys by design.
 
 ## Physical Relationship Catalog
 
@@ -306,8 +295,6 @@ erDiagram
 | `AI_SUMMARY.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 | `EXISTING_SUPPLIER_SITE_REF.supplier_ref_id` | `EXISTING_SUPPLIER_REF.supplier_ref_id` | Required | One parent per child; zero or many children per parent |
 | `INTEGRATION_LOG.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
-| `INTEGRATION_RETRY_HISTORY.log_id` | `INTEGRATION_LOG.log_id` | Required | One parent per child; zero or many children per parent |
-| `INTEGRATION_RETRY_HISTORY.request_id` | `SUPPLIER_REQUEST.request_id` | Required | One parent per child; zero or many children per parent |
 
 ## Logical Configuration Usage
 
@@ -350,7 +337,8 @@ Text alternative: the risk assessment service reads high-risk-country configurat
 - Request corrections preserve historical validation, duplicate, and risk runs through `run_id` and `is_current`.
 - A duplicate match may reference an existing supplier, a staged supplier request, or neither when only explanatory evidence is retained; application rules must validate `candidate_source` consistently.
 - Bank-account data is limited to masked display, last-four, and hash/token fields. No full bank account number is modeled.
-- Integration retry attempts are immutable audit rows in `INTEGRATION_RETRY_HISTORY`; summary retry fields remain on `INTEGRATION_LOG`.
+- `INTEGRATION_LOG.retry_history_json` is a required append-only array. Every entry contains attempt number, actor, timestamp, result, message, and retry OIC instance ID.
+- A retry transaction atomically appends one JSON entry, increments `retry_count`, and updates `last_retry_at`, `last_retry_by`, and the current integration outcome; `retry_count` must equal the JSON array length.
 - Reference data is deactivated through `active_flag` rather than deleted when historical records depend on it.
 
 ## Source Traceability
@@ -363,9 +351,9 @@ Text alternative: the risk assessment service reads high-risk-country configurat
 
 ## Validation Summary
 
-- Tables represented: 19 of 19.
-- Columns represented: 196 of 196.
-- Physical relationships represented: 19 of 19.
+- Tables represented: 18 of 18.
+- Columns represented: 189 of 189.
+- Physical relationships represented: 17 of 17.
 - Standalone configuration tables are present without fabricated foreign keys.
 - Mermaid entity identifiers use uppercase alphanumeric and underscore characters only.
 - A complete text alternative and explicit relationship catalog are included.

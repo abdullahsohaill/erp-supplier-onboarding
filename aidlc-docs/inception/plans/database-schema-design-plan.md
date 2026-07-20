@@ -16,8 +16,8 @@ Create a Markdown companion to Section 7 of `technical-design.md` that presents 
 
 ## Validation Criteria
 
-- All 19 current DBML tables appear exactly once in the full ER diagram after the approved schema-baseline amendment.
-- All 19 current DBML foreign-key references appear as relationships.
+- All 18 current DBML tables appear exactly once in the full ER diagram after the approved schema-baseline amendments.
+- All 17 current DBML foreign-key references appear as relationships.
 - Every diagram field exists in the DBML source and preserves its data type and key role.
 - Standalone configuration tables are shown without false physical foreign keys.
 - The diagram includes a text alternative and an explicit relationship catalog.

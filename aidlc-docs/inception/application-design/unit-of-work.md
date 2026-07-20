@@ -14,7 +14,7 @@ Implement review decisions, reviewer queue, requester dashboard, reviewer dashbo
 
 ## UOW-004: Fusion/OIC Integration and Support
 
-Implement support/admin dashboard, submit-to-Fusion or mock integration, existing supplier sync, integration logs, retry, and Fusion response handling.
+Implement support/admin dashboard, submit-to-Fusion or mock integration, existing supplier sync, consolidated integration-log/retry persistence, controlled retry, and Fusion response handling.
 
 ## UOW-005: Governance, Reference Data, Demo, and Proposal Hardening
 

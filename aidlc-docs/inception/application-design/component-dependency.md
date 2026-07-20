@@ -9,10 +9,10 @@
 | Risk Component | ATP | Data | Reads `RISK` rows from `REF_SCORING_RULE`, validations, duplicates, and country risk data; writes assessments. |
 | AI Summary Component | AI Provider | REST/SDK | Provider decision pending. Avoid sensitive data in prompts. |
 | AI Summary Component | ATP | Data | Stores generated summary and metadata. |
-| OIC Submit Component | ATP/ORDS | REST/DB Adapter | Reads approved requests and writes integration results. |
+| OIC Submit Component | ATP/ORDS | REST/DB Adapter | Reads approved requests and writes integration outcomes plus atomic retry-history JSON and summary updates. |
 | OIC Submit Component | Fusion ERP | REST | Creates supplier/site or calls mock endpoint. |
 | OIC Sync Component | Fusion ERP | REST | Reads suppliers/sites for duplicate reference data. |
-| Support/Admin UI | Integration Logs | REST | Exposes troubleshooting and retry controls. |
+| Support/Admin UI | Integration Logs | REST | Exposes troubleshooting, embedded retry history, and retry controls. |
 
 ## Data Flow Summary
 

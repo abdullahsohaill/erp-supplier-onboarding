@@ -76,7 +76,7 @@ Verification: status transition tests and request-detail walkthrough.
 ATP shall be used as the staging, tracking, and audit database for the prototype. Fusion remains the supplier master system of record; ATP stores the request journey, validation evidence, duplicate evidence, risk scoring, AI summaries, and integration state.
 
 Acceptance criteria:
-- ATP stores request header, site/contact, optional bank/document metadata, status history, validation results, duplicate matches, risk assessments, AI summaries, integration logs, governed validation/scoring rule configuration, Fusion responses, and supplier number on success.
+- ATP stores request header, site/contact, optional bank/document metadata, status history, validation results, duplicate matches, risk assessments, AI summaries, integration logs with embedded retry histories, governed validation/scoring rule configuration, Fusion responses, and supplier number on success.
 - All records are linked by request ID.
 - ATP is not treated as the supplier master system of record.
 - Records are available for audit, dashboards, retry, and demo reporting.
@@ -232,11 +232,12 @@ Verification: reference seed/sync test and duplicate detection tests.
 The application shall capture integration logs and support controlled retry for eligible failures. Business users should see clean business-safe messages, while Support/Admin users can inspect technical detail needed for troubleshooting.
 
 Acceptance criteria:
-- Logs include request ID, OIC instance ID, status, timestamp, payload reference, response reference, user-friendly message, technical message, retry eligibility, and retry count.
+- A single integration-log record includes request ID, OIC instance ID, status, timestamp, payload reference, response reference, user-friendly message, technical message, retry eligibility, retry count, latest retry actor/time, and embedded retry history.
 - Technical error details are visible to Support/Admin; business users see business-safe messages.
 - Support/Admin can retry technical failures and corrected business failures.
 - Retry is blocked for Rejected and Marked Duplicate requests.
-- Retry attempts store actor, timestamp, and increment retry count.
+- Every retry appends an immutable JSON history entry containing attempt number, actor, timestamp, result, message, and retry OIC instance ID.
+- Appending the retry JSON entry, incrementing retry count, and updating latest retry actor/time occur atomically so summary fields cannot diverge from the embedded history.
 - Retry uses request status/correlation safeguards to avoid duplicate supplier creation.
 
 Verification: integration failure and retry demo.
@@ -286,7 +287,7 @@ The application must enforce basic role separation for Requester, Reviewer, and 
 Verification: role access tests.
 
 #### NFR-003: Explainability and Auditability
-Validation, duplicate, risk, AI, and integration outcomes must be explainable and auditable. Validation errors have rule codes, duplicate candidates show matched fields, risk score shows contributing factors, AI output is timestamped/versioned, and integration logs include request/response references.
+Validation, duplicate, risk, AI, and integration outcomes must be explainable and auditable. Validation errors have rule codes, duplicate candidates show matched fields, risk score shows contributing factors, AI output is timestamped/versioned, and integration logs include request/response references plus append-only retry history.
 
 Verification: audit/log inspection.
 
@@ -296,7 +297,7 @@ Sensitive supplier and bank data must be protected. Bank data is masked in UI, f
 Verification: security review and masking tests.
 
 #### NFR-005: Recoverable Failure Handling
-Recoverable integration failures must not corrupt request state or create duplicate suppliers. OIC failures update status to Integration Failed, retries increment retry count and log attempts, and retry logic uses request status/correlation checks.
+Recoverable integration failures must not corrupt request state or create duplicate suppliers. OIC failures update status to Integration Failed; each retry atomically appends its JSON audit entry and updates summary fields; retry logic uses request status/correlation checks.
 
 Verification: integration failure/retry tests.
 

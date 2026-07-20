@@ -34,4 +34,4 @@ Uses OIC to synchronize supplier reference records from Fusion or load mock data
 
 ## Integration Observability Service
 
-Stores OIC instance IDs, payload references, response references, errors, timestamps, and retry counts.
+Stores OIC instance IDs, payload/response references, errors, timestamps, retry summaries, and the append-only retry-history JSON within each integration log.

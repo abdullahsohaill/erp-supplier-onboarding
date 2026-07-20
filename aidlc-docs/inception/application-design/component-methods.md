@@ -40,6 +40,8 @@
 
 - `buildFusionSupplierPayload(requestId) -> fusionPayload`
 - `submitSupplier(payload) -> fusionResponse`
+- `retrySupplier(requestId, actorUser) -> integrationResult`
+- `recordRetryAttempt(logId, retryEntry) -> integrationLog`
 - `handleFusionSuccess(requestId, response) -> void`
 - `handleFusionFailure(requestId, error) -> void`
 

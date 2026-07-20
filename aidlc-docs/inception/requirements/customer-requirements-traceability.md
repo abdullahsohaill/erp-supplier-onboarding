@@ -37,8 +37,8 @@ The requirements have intentionally been consolidated into 15 functional require
 | Bank data masking | Display last four only where needed; avoid exposing full bank details. | FR-014, NFR-004 |
 | Bank account Fusion creation | Not required for phase one. | FR-011, FR-014, answered Q22 |
 | Attachments/documents | Metadata and missing-document flags are enough; full upload optional/future. | FR-014 |
-| Integration logs | OIC instance ID, request ID, error, timestamp, retry count, payload/response references. | FR-013 |
-| Retry | Support/Admin can retry technical or corrected business failures; not duplicate/rejected. | FR-013, US-010 |
+| Integration logs | OIC instance ID, request ID, error, timestamp, retry summary, embedded retry history, and payload/response references. | FR-013 |
+| Retry | Support/Admin can retry technical or corrected business failures; not duplicate/rejected; every attempt is appended to the originating integration log. | FR-013, US-010 |
 | Sample data | Include clean, exact tax duplicate, fuzzy name duplicate, missing tax, bank mismatch, incomplete address, same bank account, vague justification/high spend, Fusion failure. | FR-015, US-014 |
 | Demo scenarios | Duplicate risk, AI explanation, clean creation, and integration failure/retry. | FR-015, demo-script.md |
 | Documentation deliverables | Proposal, functional requirements, technical design, integration flow, data model, API list, validation/risk/AI logic, limitations. | FR-015, technical-design.md, proposal.md |

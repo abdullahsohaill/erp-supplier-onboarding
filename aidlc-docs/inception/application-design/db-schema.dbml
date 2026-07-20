@@ -299,6 +299,7 @@ Table integration_log {
   retry_eligible_flag boolean
   last_retry_at timestamp
   last_retry_by varchar
+  retry_history_json json [not null]
   created_at timestamp
 
   indexes {
@@ -311,27 +312,7 @@ Table integration_log {
     created_at
   }
 
-  Note: 'OIC/Fusion observability. Payload and response values should be references, not raw sensitive payloads.'
-}
-
-Table integration_retry_history {
-  retry_id int [pk]
-  log_id int [not null]
-  request_id int [not null]
-  retry_attempt int
-  retry_actor varchar
-  retry_timestamp timestamp
-  retry_result varchar
-  retry_message text
-
-  indexes {
-    log_id
-    request_id
-    retry_timestamp
-    retry_result
-  }
-
-  Note: 'Auditable retry attempt history for eligible integration failures.'
+  Note: 'OIC/Fusion observability with append-only retry_history_json initialized to an empty array. Retry JSON append and summary-field updates are atomic. Payload and response values should be references, not raw sensitive payloads.'
 }
 
 Table ref_business_unit {
@@ -469,8 +450,6 @@ Ref: ai_summary.request_id > supplier_request.request_id
 Ref: existing_supplier_site_ref.supplier_ref_id > existing_supplier_ref.supplier_ref_id
 
 Ref: integration_log.request_id > supplier_request.request_id
-Ref: integration_retry_history.log_id > integration_log.log_id
-Ref: integration_retry_history.request_id > supplier_request.request_id
 
 // Table groups matching technical design sections
 
@@ -494,7 +473,6 @@ TableGroup integration_and_reference_tables {
   existing_supplier_ref
   existing_supplier_site_ref
   integration_log
-  integration_retry_history
   ref_business_unit
   ref_supplier_type
   ref_high_risk_country

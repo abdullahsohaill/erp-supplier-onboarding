@@ -246,7 +246,7 @@ Key content:
 - Integration metadata: OIC instance ID, direction, timestamps, status, retry count.
 - Payload and response references.
 - User-safe message and technical message.
-- Retry history.
+- Retry history sourced from the selected integration log's embedded retry-history array.
 
 Primary actions:
 - Retry, when eligible.

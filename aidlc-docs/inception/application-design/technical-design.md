@@ -120,8 +120,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 |---|---|---|
 | EXISTING_SUPPLIER_REF | supplier_ref_id, fusion_supplier_id, supplier_number, supplier_name, normalized_name, country_code, tax_registration_number, email_domain, phone_normalized, address_normalized, bank_account_hash, last_sync_at | Duplicate reference data from Fusion/mock. |
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id, supplier_ref_id, fusion_site_id, site_name, country_code, address_normalized, business_unit_code | Supplier site reference data. |
-| INTEGRATION_LOG | log_id, request_id, integration_name, oic_instance_id, direction, status, error_category, payload_ref, response_ref, user_message, technical_message, retry_count, retry_eligible_flag, last_retry_at, last_retry_by, created_at | OIC/Fusion observability and current retry summary. |
-| INTEGRATION_RETRY_HISTORY | retry_id, log_id, request_id, retry_attempt, retry_actor, retry_timestamp, retry_result, retry_message | Auditable retry attempts for eligible integration failures. |
+| INTEGRATION_LOG | log_id, request_id, integration_name, oic_instance_id, direction, status, error_category, payload_ref, response_ref, user_message, technical_message, retry_count, retry_eligible_flag, last_retry_at, last_retry_by, retry_history_json, created_at | OIC/Fusion observability, searchable retry summary, and embedded append-only retry audit history. |
 | VALIDATION_RULES | validation_rule_id, rule_code, rule_name, rule_description, field_name, severity, default_message, is_blocking, active_flag, created_at, created_by, updated_at, updated_by | Governed catalog for Section 9.1 blocking validations and global active/inactive settings. |
 | REF_BUSINESS_UNIT | business_unit_id, business_unit_code, business_unit_name, fusion_mapping_code, active_flag | Business unit lookup/mapping. |
 | REF_SUPPLIER_TYPE | supplier_type_id, supplier_type_code, supplier_type_name, tax_required_flag, active_flag | Supplier type lookup. |
@@ -144,15 +143,13 @@ erDiagram
     SUPPLIER_REQUEST ||--o{ RISK_ASSESSMENT : produces
     SUPPLIER_REQUEST ||--o{ AI_SUMMARY : produces
     SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : has
-    INTEGRATION_LOG ||--o{ INTEGRATION_RETRY_HISTORY : records
-    SUPPLIER_REQUEST ||--o{ INTEGRATION_RETRY_HISTORY : has
     REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST : classifies
     REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST_SITE : maps
     EXISTING_SUPPLIER_REF ||--o{ EXISTING_SUPPLIER_SITE_REF : has
     EXISTING_SUPPLIER_REF ||--o{ DUPLICATE_MATCH : candidate
 ```
 
-Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, integration logs, and retry history. Every `VALIDATION_RESULT` points to the `VALIDATION_RULES` entry that failed. Reference tables provide business-unit, supplier-type, high-risk-country, and consolidated risk/duplicate scoring configuration. Existing supplier reference tables and staged requests provide the candidate records used by duplicate detection.
+Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, and integration logs. Each integration log embeds its append-only retry audit history in `retry_history_json`. Every `VALIDATION_RESULT` points to the `VALIDATION_RULES` entry that failed. Reference tables provide business-unit, supplier-type, high-risk-country, and consolidated risk/duplicate scoring configuration. Existing supplier reference tables and staged requests provide the candidate records used by duplicate detection.
 
 ### 7.5 Database Schema Design Detail
 
@@ -172,8 +169,7 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 | AI_SUMMARY | summary_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, prompt_version, created_at; source_facts_hash supports traceability to the risk/duplicate facts used. |
 | EXISTING_SUPPLIER_REF | supplier_ref_id | None | Unique supplier_number where available; index normalized_name, country_code, tax_registration_number, email_domain, bank_account_hash. |
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id | supplier_ref_id -> EXISTING_SUPPLIER_REF.supplier_ref_id | Index supplier_ref_id, country_code, business_unit_code, address_normalized. |
-| INTEGRATION_LOG | log_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, error_category, oic_instance_id, retry_eligible_flag, created_at; payload/response values should be references, not raw sensitive payloads. |
-| INTEGRATION_RETRY_HISTORY | retry_id | log_id -> INTEGRATION_LOG.log_id; request_id -> SUPPLIER_REQUEST.request_id | Index log_id, request_id, retry_timestamp, retry_result; stores actor, timestamp, attempt number, result, and retry message for audit. |
+| INTEGRATION_LOG | log_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, error_category, oic_instance_id, retry_eligible_flag, and created_at; require `retry_history_json` as an array initialized to `[]`; payload/response values should be references, not raw sensitive payloads. |
 | VALIDATION_RULES | validation_rule_id | None | Unique rule_code; seed exactly VAL-001 through VAL-009 from Section 9.1; index active_flag, severity, and is_blocking; include created/updated audit fields. |
 | REF_BUSINESS_UNIT | business_unit_id | None | Unique business_unit_code; index fusion_mapping_code and active_flag; fusion_mapping_code required for active values used in Fusion payloads; include created/updated audit fields. |
 | REF_SUPPLIER_TYPE | supplier_type_id | None | Unique supplier_type_code; index active_flag; tax_required_flag drives validation rules; include created/updated audit fields. |
@@ -184,7 +180,7 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 
 - Use generated numeric identities or UUIDs for technical primary keys, depending on customer ATP standards.
 - Use UTC timestamps for audit fields and display localized values in Visual Builder.
-- Store JSON details in `*_json` fields only for explainability payloads that are naturally variable, such as matched duplicate fields and risk reasons.
+- Store JSON details in `*_json` fields only for naturally variable structures such as matched duplicate fields, risk reasons, and the retry-attempt audit array.
 - Keep normalized duplicate-search fields separate from original display values.
 - Apply soft deactivation to reference data through `active_flag`; do not delete reference rows used by historical requests.
 - Treat `VALIDATION_RULES.rule_code` as a stable business identifier and retain `VALIDATION_RESULT.validation_rule_id` as the required physical reference to the exact failed rule.
@@ -193,9 +189,28 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 - Keep full bank account values out of ATP unless the customer explicitly approves secure encrypted storage; the prototype baseline stores masked display and hash/token values only.
 - Store Fusion/mock Fusion supplier identifiers directly on `SUPPLIER_REQUEST` so requester dashboards and status details can show the created supplier number without parsing integration logs.
 - Use `run_id` and `is_current` on validation, duplicate, and risk output tables so corrections can trigger reruns while preserving historical evidence.
-- Keep retry attempt history in `INTEGRATION_RETRY_HISTORY`; `INTEGRATION_LOG.retry_count`, `last_retry_at`, and `last_retry_by` are only summary fields.
+- Keep retry attempts in the append-only `INTEGRATION_LOG.retry_history_json` array. Append the history entry and update `retry_count`, `last_retry_at`, and `last_retry_by` atomically; `retry_count` must equal the array length.
 - Keep the DBML source artifact at `aidlc-docs/inception/application-design/db-schema.dbml`.
 - Use [database-schema-design.md](database-schema-design.md) as the complete table-and-relationship visual companion to this section.
+
+### 7.7 Embedded Retry History Contract
+
+`INTEGRATION_LOG.retry_history_json` is initialized to an empty array and stores entries in attempt order:
+
+```json
+[
+  {
+    "attemptNumber": 1,
+    "actorUser": "support.admin@example.com",
+    "attemptedAt": "2026-07-20T16:30:00Z",
+    "result": "FAILED",
+    "message": "Fusion endpoint timeout.",
+    "oicInstanceId": "OIC-RETRY-0001"
+  }
+]
+```
+
+Each object requires all six fields. Existing entries are never updated or removed. The `message` value follows the same redaction policy as other integration diagnostics and must not contain raw sensitive payload data. A retry transaction appends one object, increments `retry_count`, sets `last_retry_at` and `last_retry_by`, and updates the current integration outcome. The summary fields support filtering without querying JSON, while the array supplies the full support/audit timeline.
 
 ## 8. ORDS API Design
 
@@ -275,12 +290,12 @@ Error response:
 | POST | `/requests/{requestId}/request-correction` | Reviewer | Return to requester with comment and optional targeted correction items. |
 | POST | `/requests/{requestId}/mark-duplicate` | Reviewer | Close as duplicate with existing supplier reference. |
 | POST | `/requests/{requestId}/submit-to-fusion` | System, Support/Admin | Trigger OIC submission or mark as pending submission. |
-| POST | `/requests/{requestId}/retry` | Support/Admin | Retry eligible failed integration. |
+| POST | `/requests/{requestId}/retry` | Support/Admin | Retry an eligible failed integration and atomically append its audit entry to the originating integration log. |
 | GET | `/dashboard/requester-summary` | Requester | Requester dashboard counts. |
 | GET | `/dashboard/reviewer-summary` | Reviewer | Reviewer queue counts. |
 | GET | `/dashboard/support-summary` | Support/Admin | Integration/support counts. |
 | GET | `/integration-logs` | Support/Admin | Search integration logs. |
-| GET | `/integration-logs/{logId}` | Support/Admin | View one integration log. |
+| GET | `/integration-logs/{logId}` | Support/Admin | View one integration log, including its embedded retry history. |
 | GET | `/reference/business-units` | All authenticated | Business unit lookup. |
 | GET | `/reference/supplier-types` | All authenticated | Supplier type lookup. |
 | GET | `/admin-settings/high-risk-countries` | Reviewer, Support/Admin | High-risk country lookup. |
@@ -573,6 +588,8 @@ Rules:
 - Retry allowed for technical timeout, temporary Fusion outage, corrected mapping failure, or other retry-eligible error.
 - Retry not allowed for Rejected or Marked Duplicate requests.
 - Retry must not create a second supplier if Fusion already created one. Use status checks and, where available, idempotency/correlation keys.
+- Each attempt appends an immutable object to `INTEGRATION_LOG.retry_history_json`; the object includes attempt number, actor, timestamp, result, message, and the retry OIC instance ID.
+- JSON append, retry-count increment, latest-retry summary updates, and the current integration outcome must commit or roll back together.
 
 ## 14. Fusion REST API Candidate Mapping
 
@@ -625,6 +642,8 @@ Each integration log should store:
 - Technical message.
 - Retry eligibility.
 - Retry count.
+- Last retry actor and timestamp.
+- Append-only retry history JSON using the Section 7.7 contract.
 - Timestamp.
 
 ## 16. Security Design
