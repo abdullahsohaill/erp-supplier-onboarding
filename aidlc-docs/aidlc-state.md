@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: INCEPTION
-- **Current Stage**: INCEPTION - Integration log/retry schema merge complete; review required
+- **Current Stage**: INCEPTION - Oracle ATP/ORDS construction workflow plan awaiting explicit approval
 
 ## Workspace State
 - **Existing Code**: No
@@ -23,9 +23,9 @@
 ## Extension Configuration
 | Extension | Enabled | Decision Status |
 |---|---:|---|
-| Security Baseline | Recommended yes | Needs confirmation |
-| Property-Based Testing | Recommended partial | Needs confirmation |
-| Resiliency Baseline | Recommended yes for design guidance | Needs confirmation |
+| Security Baseline | Yes | Approved in requirement verification Q28; enforced at design level |
+| Property-Based Testing | Partial | Approved in Q30 for deterministic transforms, scoring, serialization, and invariants |
+| Resiliency Baseline | Yes, design guidance | Approved in Q29; production SLA/RTO/RPO/topology/process decisions remain customer gates |
 
 ## Stage Progress
 ### INCEPTION PHASE
@@ -41,6 +41,9 @@
 - [x] Decision Modal placement wireframe amendment
 - [x] Schema baseline amendment
 - [x] Integration log/retry schema merge amendment
+- [x] Cross-artifact consistency amendment
+- [x] Schema ground-truth reconciliation amendment
+- [x] Oracle ATP/ORDS construction workflow plan drafted
 
 ### CONSTRUCTION PHASE
 - [ ] Functional Design per unit
@@ -58,4 +61,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-The requested integration-log/retry schema merge is complete. Review `aidlc-docs/inception/requirements/requirements.md`, `aidlc-docs/inception/application-design/technical-design.md`, `aidlc-docs/inception/application-design/db-schema.dbml`, `aidlc-docs/inception/application-design/database-schema-design.md`, and `aidlc-docs/inception/plans/integration-log-retry-merge-amendment-plan.md`. Construction remains pending until the amended schema/design baseline is approved.
+The finalized `database-schema-design.md` remains the authoritative 18-table, 189-column, 17-relationship contract, with `db-schema.dbml` as its synchronized machine-readable equivalent. The construction workflow is defined in `aidlc-docs/construction/plans/oracle-atp-ords-construction-plan.md` and awaits explicit approval. It selects the pinned official Oracle Autonomous AI Database Free 26ai ARM64 image in ATP mode with bundled ORDS, preserves the schema contract, implements all 42 approved endpoint contracts, seeds every application table, tests all mapped use cases and security boundaries, and produces migration plus consolidated reports. No runtime, migration, endpoint, seed, or test implementation has started.

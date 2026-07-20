@@ -8,7 +8,7 @@ The project defines a supplier onboarding solution using Oracle Visual Builder, 
 
 ## Current Phase
 
-The project is in AI-DLC Inception. Requirements, verification questions, technical design, and first-pass wireframes/mockups are ready for review.
+The project is in AI-DLC Inception. Requirements, verification questions, technical design, the committed 18-table ATP schema, and first-pass wireframes/mockups form one consolidated review baseline before construction-stage design.
 
 Key documents:
 
@@ -18,7 +18,8 @@ Key documents:
 - `aidlc-docs/inception/user-stories/personas.md`
 - `aidlc-docs/inception/user-stories/stories.md`
 - `aidlc-docs/inception/application-design/technical-design.md`
-- `aidlc-docs/inception/application-design/db-schema.dbml`
+- `aidlc-docs/inception/application-design/database-schema-design.md` (authoritative ATP schema design)
+- `aidlc-docs/inception/application-design/db-schema.dbml` (machine-readable physical equivalent)
 - `aidlc-docs/inception/application-design/wireframe-readiness.md`
 - `aidlc-docs/inception/wireframes/wireframe-spec.md`
 - `mockups/supplier-onboarding-wireframes.html`

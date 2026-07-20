@@ -1,5 +1,29 @@
 # AI-DLC Audit Log
 
+## Schema Ground-Truth Reconciliation Request
+**Timestamp**: 2026-07-20T17:51:52Z
+**User Input**: "did you use the latest db schema as frame of reference to crrect all the issues? make sure all gaps are correctly closed and corrected. also again conduct a whole review of everything so we can then move forward with some mock data stuff using oracle db and ords endpoints and stuff, but that comes nuext. first we must correct all gaps there are, and make sure every file every content is aligned, and db schema current one is ground truth etc"
+**AI Response**: "Started a schema-first AI-DLC Inception reconciliation. Verified local HEAD and origin/main both point to commit 1918f29 and found that the prior local consistency pass had introduced uncommitted DBML additions beyond the committed partner schema. Declared the committed origin/main DBML as the authoritative ATP ground truth and created a full cross-artifact review plan that prohibits unsupported tables, columns, keys, relationships, or persistence claims."
+**Context**: AI-DLC Inception - comprehensive schema ground-truth reconciliation started. The current dirty working tree consists of the prior uncommitted consistency amendment; only those AI-generated schema deviations will be removed, while all dependent artifacts will be realigned to the committed schema.
+
+---
+
+## Cross-Artifact Consistency Amendment Request
+**Timestamp**: 2026-07-20T17:14:10Z
+**User Input**: "okay then please correct the gaps that you have observed based on the updated mockups / db schema. feel free to clarify anything if ure unsure"
+**AI Response**: "Accepted the focused AI-DLC Inception consistency amendment. The amendment will reconcile completed-wireframe status, structured-address persistence, integration correlation for request and non-request runs, reviewer risk-factor selections, targeted correction items, retry-history samples, demo behavior, verification answers, extension state, and all dependent requirements/design/schema/wireframe artifacts."
+**Context**: AI-DLC Inception - cross-artifact consistency amendment started from clean and synchronized commit 1918f29. Conservative implementation choices are documented in the amendment plan; no clarification file is required because the observed gaps have direct, traceable resolutions in the approved mockup and schema baseline.
+
+---
+
+## Cross-Artifact Consistency Amendment Completion
+**Timestamp**: 2026-07-20T17:31:05Z
+**User Input**: "okay then please correct the gaps that you have observed based on the updated mockups / db schema. feel free to clarify anything if ure unsure"
+**AI Response**: "Completed the focused AI-DLC Inception consistency amendment across requirements, verification answers, traceability, stories, sequence diagrams, application design, DBML, complete ERD, wireframe specification, HTML mockup, proposal/demo, plans, README, and AI-DLC state. Aligned completed-wireframe status; the six-part structured address; request-scoped and global integration correlation; versioned Reviewer risk-factor evidence; structured correction items; atomic embedded retry history; reviewer filters; hidden scoring weights; and blocker/demo behavior. Corrected the remaining lifecycle contradiction so blocking submit/resubmit findings preserve Draft or Correction Requested, return HTTP 422, and never enter the Reviewer queue. Validation passed for Markdown fences and JSON samples; 20 DBML/ERD tables, 211 columns, and 21 matching physical relationships; all 15 FRs across 14 stories and 14 sequence diagrams; HTML JavaScript, nine screens, nine Admin validation toggles, ten Reviewer risk selections, the six-field retry contract, reviewer filters, hidden weights, and automatic duplicate checks. Direct visual browser inspection was unavailable because the browser runtime blocked the local file URL; source-level HTML/JavaScript checks completed successfully."
+**Context**: AI-DLC Inception - cross-artifact consistency amendment completed and ready for consolidated baseline review. Extension compliance: Security Baseline is compliant for applicable design controls, including deny-by-default role enforcement, encryption, logging/redaction, input validation, browser headers, throttling, MFA for administrators, secret handling, audit, and fail-closed behavior; runtime hardening, network topology, and software-supply-chain enforcement are N/A until implementation/deployment exists. Resiliency Baseline is compliant for applicable prototype design controls, including workload classification, correlation/observability, bounded retry, idempotency, timeout/degraded-AI behavior, atomic retry persistence, and production recovery gates; production SLA, RTO/RPO, topology, deployment, runbook, and DR decisions remain N/A pending customer choices. Partial Property-Based Testing is compliant at design level for deterministic normalization, scoring, serialization, and retry invariants; framework execution is N/A until the construction language and test stack are selected. No blocking extension findings remain.
+
+---
+
 ## Integration Log and Retry History Merge Request
 **Timestamp**: 2026-07-20T16:37:40Z
 **User Input**: "Make another small change in the databae schema and accordingly everywhere required. I want you to merge INTEGRATION_LOG and INTEGRATION_RETRY_HISTORY table. You can use a new json column if needed for this. Do tell me how you merged them"
@@ -1018,5 +1042,47 @@ I think the current API catalog is slightly inconsistent with the overall design
 ```
 **AI Response**: "Removed Requester authorization from GET /requests/{requestId}/risk-assessment and defined the Requester projection of GET /requests/{requestId} as status and actionable business guidance only. Synchronized FR-002, NFR-002, the Requester persona, US-003, technical access/API/security design, wireframe specification, and requester mockup. Removed the requester dashboard risk column and replaced the requester detail risk card with Next Action. Verified in the local browser that requester screens expose no risk score/reasons while reviewer dashboard and evidence views retain risk assessment and AI explanation details."
 **Context**: AI-DLC Inception - Requirements, application design, and wireframe requester-risk visibility amendment completed and validated.
+
+---
+
+## Schema Ground-Truth Reconciliation Completion
+**Timestamp**: 2026-07-20T18:21:50Z
+**User Input**: "did you use the latest db schema as frame of reference to crrect all the issues? make sure all gaps are correctly closed and corrected. also again conduct a whole review of everything so we can then move forward with some mock data stuff using oracle db and ords endpoints and stuff, but that comes nuext. first we must correct all gaps there are, and make sure every file every content is aligned, and db schema current one is ground truth etc"
+**AI Response**: "Completed a schema-first reconciliation using the committed origin/main db-schema.dbml as the authoritative ATP physical model. Restored db-schema.dbml and database-schema-design.md exactly to origin/main, then aligned requirements, verification answers, traceability, business rules, personas, stories, sequence diagrams, units, components, methods, services, technical design, ORDS/OIC contracts, proposal/demo, wireframe specification, HTML mockup, plans, README, and AI-DLC state. Removed unsupported active claims for dedicated Reviewer/correction tables, persisted correlation IDs, nullable/requestless integration logs, and nonexistent address columns. Mapped Reviewer selections and targeted guidance to a versioned JSON decision envelope in STATUS_HISTORY.action_comment; kept global supplier sync in OIC monitoring; made every ATP integration log request-scoped; aligned address and bank fields to committed columns; added complete Admin Settings controls for validation, risk/duplicate scoring rules, high-risk countries, business units, and supplier types; and completed missing ORDS callback, sync, Admin read/write, and log-specific retry contracts. Validation confirmed the unchanged 18-table, 189-column, 17-relationship DBML/ERD; 15 FRs covered by 14 mapped stories and 14 sequence diagrams; 42 unique ORDS endpoints; valid JSON and all 20 rendered Mermaid diagrams; valid HTML5 and JavaScript; 9 navigable screens; 9 validation, 12 risk-configuration, 5 duplicate-configuration, and 10 Reviewer-factor controls; role-aware modal behavior; conditional bank controls; and zero page-level horizontal overflow across all screens at desktop and mobile viewports. No mock data, DDL, ORDS implementation, commit, or push was performed."
+**Context**: AI-DLC Inception - Schema ground-truth reconciliation completed. The active review gate is the consolidated requirements/design/schema/wireframe baseline; Oracle ATP mock/seed data and ORDS implementation planning are explicitly next and require separate approval. The earlier cross-artifact amendment remains in the audit as historical context and its schema-changing plan is marked superseded. Extension compliance: Security Baseline is compliant for applicable design controls (role isolation, data minimization, masking, redaction, transient trace IDs, safe errors, secret handling, and audit design); deployment/runtime enforcement is N/A until implementation. Resiliency Baseline is compliant for request-scoped observability, OIC-native global monitoring, idempotency safeguards, bounded/eligible retry, atomic retry persistence, and no database transaction across remote calls; production SLA/RTO/RPO/topology/runbook decisions remain N/A pending customer choices. Partial Property-Based Testing is represented for normalization, scoring, serialization, decision-envelope projection, and retry invariants; framework execution is N/A until the construction language/test stack is selected. No applicable enabled-extension blocking findings remain.
+
+---
+
+## Schema Source-of-Truth Clarification
+**Timestamp**: 2026-07-20T18:27:35Z
+**User Input**: "the db schema updated was in this file btw: database-schema-design.md
+
+idk if it's the same or not"
+**AI Response**: "Verified that database-schema-design.md and db-schema.dbml represent the same physical model: 18 tables, 189 columns, and 17 relationships, with no missing or extra tables and no column-inventory differences. Updated active documentation to designate database-schema-design.md as the authoritative reviewed ATP schema design and db-schema.dbml as its synchronized machine-readable physical equivalent. No table, column, key, index, relationship, or business behavior was changed."
+**Context**: AI-DLC Inception - Schema artifact precedence corrected after user clarification; structural reconciliation remains valid.
+
+---
+
+## Oracle ATP and ORDS Construction Planning Request
+**Timestamp**: 2026-07-20T18:33:25Z
+**User Input**: "okay now that Database schema has been finalised, I want you to create this ATP database and set up oracle DB locally. Configure the ORDS endpoints, set up mock data and run migrations on it and seed sample/dummy data in each table. Also tell me if you require any steps to be completed from my side manually. Write and test it all with test cases against all the use cases and at the end also create a consolidated detailed report. I also want a summary of all the migrations you did."
+**AI Response**: "Created a comprehensive AI-DLC construction workflow plan for a local Oracle ATP-compatible database, bundled ORDS, exact-schema migrations, all approved endpoints, governed mock and seed data, complete use-case/security/property testing, and final implementation/migration reports. Selected the pinned official Oracle Autonomous AI Database Free 26ai ARM64 image in ATP mode. Verified the host has sufficient RAM and the required client tooling, while noting that Docker Desktop is installed but its daemon is stopped. Updated the execution plan and AI-DLC state to the mandatory plan approval gate. No runtime, migration, endpoint, seed, or test implementation was started before approval."
+**Context**: AI-DLC Inception - Construction workflow planning complete and awaiting explicit user approval. Security Baseline, Resiliency Baseline, and the approved partial Property-Based Testing extension are included as blocking implementation constraints.
+
+---
+
+## Oracle ATP and ORDS Construction Plan Approval Prompt
+**Timestamp**: 2026-07-20T18:33:25Z
+**AI Prompt**: "Please review aidlc-docs/construction/plans/oracle-atp-ords-construction-plan.md. You may request changes or approve and continue to UOW-001 Functional Design."
+**Status**: Awaiting user response
+**Context**: Workflow plan proposes all five existing units, mandatory per-unit review gates, a pinned official Oracle ATP-capable local runtime, exact schema preservation, 42 ORDS endpoints, representative data in all tables, and comprehensive test/report outputs.
+
+---
+
+## Repository Commit and Push Request
+**Timestamp**: 2026-07-20T18:42:54Z
+**User Input**: "ok pls push stuff in commits while i review the plan"
+**AI Response**: "Prepared the current schema reconciliation, requirements/design alignment, wireframe updates, and pending construction plan as a logical series of commits for push to the configured origin/main repository. The construction plan remains awaiting approval and no implementation stage is advanced."
+**Context**: Repository maintenance during the AI-DLC construction-plan review gate. Existing configured Git identity is used unchanged.
 
 ---

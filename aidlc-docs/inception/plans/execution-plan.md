@@ -6,7 +6,7 @@
 - **Primary Change**: New supplier onboarding and integration application.
 - **User-facing Changes**: Yes. The three prototype personas are requester, reviewer, and support/admin user.
 - **Structural Changes**: Yes. New ATP data model, ORDS API layer, OIC integrations, and Fusion API mapping.
-- **Data Model Changes**: Yes. New staging and tracking schema in ATP.
+- **Data Model Changes**: No further model changes. Construction realizes the finalized 18-table schema as Oracle DDL without adding application tables.
 - **API Changes**: Yes. New ORDS APIs and OIC integration APIs.
 - **NFR Impact**: High. Security, auditability, data masking, explainability, observability, retry, and resiliency matter.
 - **Risk Level**: High for production, Medium for prototype.
@@ -27,8 +27,8 @@
 | NFR Requirements | Execute per unit | Security, masking, observability, AI safety, resiliency. |
 | NFR Design | Execute per unit | Needed for production-realistic prototype. |
 | Infrastructure Design | Execute per unit | Oracle stack and integration environment decisions. |
-| Code Generation | Later | Only after proposal/design approval. |
-| Build and Test | Later | Only after code generation planning. |
+| Code Generation | Execute per unit | Generate local ATP/ORDS runtime, migrations, PL/SQL, ORDS definitions, mock integrations, seed data, tests, and reports after each approved unit plan. |
+| Build and Test | Execute | Run migrations, seed all tables, execute full test gates, and produce consolidated evidence. |
 
 ## Workflow Visualization
 
@@ -37,18 +37,18 @@ flowchart TD
     Start(["Customer ERP Requirements"])
     WD["Workspace Detection<br/><b>DONE</b>"]
     RE["Reverse Engineering<br/><b>SKIP</b>"]
-    RA["Requirements Analysis<br/><b>DRAFT</b>"]
-    US["User Stories<br/><b>DRAFT</b>"]
-    WP["Workflow Planning<br/><b>DRAFT</b>"]
-    AD["Application Design<br/><b>DRAFT</b>"]
-    UG["Units Generation<br/><b>DRAFT</b>"]
+    RA["Requirements Analysis<br/><b>DONE</b>"]
+    US["User Stories<br/><b>DONE</b>"]
+    WP["Workflow Planning<br/><b>DONE</b>"]
+    AD["Application Design<br/><b>DONE</b>"]
+    UG["Units Generation<br/><b>DONE</b>"]
     FD["Functional Design<br/><b>NEXT</b>"]
     NFRA["NFR Requirements<br/><b>NEXT</b>"]
     NFRD["NFR Design<br/><b>NEXT</b>"]
     ID["Infrastructure Design<br/><b>NEXT</b>"]
-    CG["Code Generation<br/><b>LATER</b>"]
-    BT["Build and Test<br/><b>LATER</b>"]
-    End(["Proposal Ready"])
+    CG["Code Generation<br/><b>EXECUTE</b>"]
+    BT["Build and Test<br/><b>EXECUTE</b>"]
+    End(["Local ATP and ORDS Verified"])
 
     Start --> WD
     WD --> RE
@@ -71,4 +71,4 @@ Text alternative: requirements move from workspace detection to requirements, st
 
 ## Next Recommended Action
 
-Review the answered assumptions in `aidlc-docs/inception/requirements/requirement-verification-questions.md`, finalize any changes to the proposal pack, then proceed to wireframes when explicitly requested. Construction-stage functional/NFR/infrastructure design should start only after the proposal/design baseline is accepted.
+Review and approve `aidlc-docs/construction/plans/oracle-atp-ords-construction-plan.md`. After approval, begin UOW-001 Functional Design, followed by the required per-unit NFR, infrastructure, code-generation, and review gates. The plan uses Oracle Autonomous AI Database Free 26ai in ATP mode with bundled ORDS, preserves the finalized schema, implements all approved ORDS contracts, seeds every table, and ends with comprehensive test and migration reports.
