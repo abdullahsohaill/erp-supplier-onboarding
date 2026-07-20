@@ -11,7 +11,7 @@ Merge `INTEGRATION_RETRY_HISTORY` into `INTEGRATION_LOG` while preserving retry 
 - Store `attemptNumber`, `actorUser`, `attemptedAt`, `result`, `message`, and `oicInstanceId` in every retry-history entry.
 - Retain `retry_count`, `retry_eligible_flag`, `last_retry_at`, and `last_retry_by` as searchable summary columns.
 - Append the JSON entry and update all retry summary columns atomically in one transaction.
-- Preserve the current retry API and support/admin experience; only the persistence shape changes.
+- Preserve controlled-retry behavior and the Support/Admin experience; the consolidated baseline addresses a specific log through `POST /integration-logs/{logId}/retry`.
 
 ## Execution Checklist
 

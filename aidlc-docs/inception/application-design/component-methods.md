@@ -4,7 +4,7 @@
 
 - `createRequest(payload) -> requestId`
 - `updateRequest(requestId, payload) -> request`
-- `submitRequest(requestId) -> status`
+- `submitRequest(requestId) -> {status, submitted, findings}`; a blocked attempt preserves Draft or Correction Requested
 - `getRequest(requestId) -> requestDetail`
 - `listRequests(filters) -> requestSummary[]`
 
@@ -30,6 +30,13 @@
 - `getRiskReasons(requestId) -> riskReason[]`
 - `persistRiskAssessment(requestId, assessment) -> void`
 
+## Review Workflow Component
+
+- `buildDecisionEnvelope(comment, selectedRiskFactorCodes, correctionItems, existingSupplierNumber) -> actionCommentJson`
+- `recordDecision(requestId, actionCode, targetStatus, actionCommentJson, actorUser) -> statusHistory`
+- `parseDecisionEnvelope(statusHistory, roleScope) -> decisionGuidance`; Requester scope omits Reviewer-only factor selections
+- `getCurrentCorrectionGuidance(requestId, roleScope) -> correctionGuidance`
+
 ## AI Summary Component
 
 - `buildRiskPrompt(requestId) -> prompt`
@@ -40,7 +47,7 @@
 
 - `buildFusionSupplierPayload(requestId) -> fusionPayload`
 - `submitSupplier(payload) -> fusionResponse`
-- `retrySupplier(requestId, actorUser) -> integrationResult`
+- `retrySupplier(logId, actorUser) -> integrationResult`; resolves and verifies the required request from the originating log
 - `recordRetryAttempt(logId, retryEntry) -> integrationLog`
 - `handleFusionSuccess(requestId, response) -> void`
 - `handleFusionFailure(requestId, error) -> void`
@@ -50,4 +57,4 @@
 - `fetchFusionSuppliers(criteria) -> fusionSupplier[]`
 - `transformSupplierReference(fusionSupplier) -> supplierRef`
 - `upsertSupplierReference(supplierRef) -> void`
-- `logSyncResult(result) -> void`
+- `recordSyncOutcomeInOicMonitoring(oicInstanceId, result) -> void`

@@ -6,19 +6,19 @@ Build supplier request capture, draft/save/submit behavior, requester status tra
 
 ## UOW-002: Validation, Duplicate Detection, and Risk Scoring
 
-Implement the governed validation-rule catalog, failed-result rule references, consolidated risk/duplicate scoring-rule configuration, duplicate matching, risk scoring, AI explanation support, explainable results, and related UI display.
+Implement the governed validation-rule catalog, failed-result rule references, consolidated risk/duplicate scoring-rule configuration, duplicate matching, risk scoring, Reviewer factor selection as decision-time UI state, AI explanation support, explainable results, and related UI display.
 
 ## UOW-003: Review Workflow and Business Dashboards
 
-Implement review decisions, reviewer queue, requester dashboard, reviewer dashboard, status guidance, and filters.
+Implement review decisions, status-history decision envelopes containing selected factor codes and targeted correction items, reviewer queue, requester dashboard, reviewer dashboard, status guidance, and filters.
 
 ## UOW-004: Fusion/OIC Integration and Support
 
-Implement support/admin dashboard, submit-to-Fusion or mock integration, existing supplier sync, consolidated integration-log/retry persistence, controlled retry, and Fusion response handling.
+Implement support/admin dashboard, submit-to-Fusion or mock integration, OIC-monitored supplier-reference sync, request-scoped integration-log/retry persistence, controlled retry, and Fusion response handling.
 
-## UOW-005: Governance, Reference Data, Demo, and Proposal Hardening
+## UOW-005: Governance, Admin Settings, Demo, and Proposal Hardening
 
-Create reference-data support, sample scenarios, demo script, test cases, known limitations, and final customer-facing proposal package.
+Create Admin Settings and reference-table support, sample scenarios, demo script, test cases, known limitations, and final customer-facing proposal package.
 
 ## Code Organization Strategy
 

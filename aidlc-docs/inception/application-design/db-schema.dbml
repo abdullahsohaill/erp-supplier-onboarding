@@ -1,6 +1,6 @@
 // ATP Data Model - Supplier Onboarding, Duplicate Detection & Risk Scoring
 // Updated implementation-ready DBML baseline
-// Source baseline: aidlc-docs/inception/application-design/technical-design.md, Section 7
+// Machine-readable equivalent of database-schema-design.md
 
 Table supplier_request {
   request_id int [pk]

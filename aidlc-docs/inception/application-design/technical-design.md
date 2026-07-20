@@ -4,8 +4,8 @@
 
 - **Project**: Supplier Onboarding, Duplicate Detection, and Risk Scoring
 - **Phase**: AI-DLC Inception / Application Design
-- **Status**: Complete for proposal review and wireframe preparation; final implementation design depends on customer tenancy, security, and Fusion API validation
-- **Wireframes**: Explicitly deferred until requirements/design review is complete
+- **Status**: Complete consolidated baseline for proposal, schema, and first-pass wireframe review; final implementation design depends on customer tenancy, security, and Fusion API validation
+- **Wireframes**: First-pass specification and clickable mockup are complete and awaiting approval before construction-stage design
 
 ## 1. Executive Technical Summary
 
@@ -43,7 +43,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | Duplicate Detection Engine | Exact/fuzzy matching against supplier reference and staged requests. | Deterministic, explainable, persisted. |
 | Risk Scoring Engine | Rule-based risk scoring and risk reason generation. | Deterministic, versioned, configurable. |
 | AI Explanation Service | Plain-language risk and duplicate summary. | Does not make decisions. Provider pending. |
-| Review Workflow Service | Controls reviewer actions and status transitions. | Prevents review bypass. |
+| Review Workflow Service | Controls reviewer actions, status transitions, selected risk-factor evidence, and targeted correction guidance. | Stores a validated decision envelope in `STATUS_HISTORY.action_comment` and prevents review bypass. |
 | OIC Supplier Submit Flow | Creates supplier in Fusion or mock endpoint. | Captures Fusion response and errors. |
 | OIC Supplier Reference Sync Flow | Loads existing suppliers into ATP. | Real Fusion sync or mock seed data. |
 | Integration Observability | Logs OIC instance, payload/response references, errors, retries. | Support/admin visible. |
@@ -81,8 +81,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | Status | Entry Trigger | Allowed Next Statuses | Notes |
 |---|---|---|---|
 | Draft | Request created/saved | Submitted | Not visible in review queue. |
-| Submitted | Requester submits | Validation Failed, Under Review | Validation and scoring run. |
-| Validation Failed | Blocking validation error | Correction Requested, Under Review after correction | Business error, not technical failure. |
+| Submitted | A submit/resubmit attempt passes all blocking validation | Under Review | Recorded as an auditable transition immediately before Under Review; failed attempts never enter Submitted. |
 | Under Review | Validation complete or warnings only | Approved, Rejected, Correction Requested, Marked Duplicate | Reviewer decision required. |
 | Correction Requested | Reviewer requests correction | Submitted | Requester edits and resubmits. |
 | Approved | Reviewer approves | Submitted to Fusion | Eligible for OIC submission. |
@@ -92,6 +91,8 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | Created in Fusion | Fusion/mock success | Final | Store supplier number. |
 | Integration Failed | OIC/Fusion error | Submitted to Fusion after retry, Correction Requested if business mapping issue | Retry only if eligible. |
 
+`Validation Failed` is an API/business outcome, not a persisted request status. A failed initial submit remains Draft; a failed resubmit remains Correction Requested. Findings are persisted in `VALIDATION_RESULT` and related duplicate/risk output tables, returned with HTTP 422, and kept out of the Reviewer queue.
+
 ## 7. ATP Data Model
 
 ### 7.1 Core Tables
@@ -99,7 +100,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 | Table | Key Columns | Purpose |
 |---|---|---|
 | SUPPLIER_REQUEST | request_id, request_number, status, supplier_name, supplier_type_code, country_code, business_unit_id, requester_user, business_justification, product_service_category, expected_annual_spend, tax_registration_number, fusion_supplier_id, fusion_supplier_number, fusion_created_at, fusion_response_ref, created_at, submitted_at, last_updated_at | Header record, workflow state, and Fusion/mock Fusion success result. |
-| SUPPLIER_REQUEST_SITE | site_id, request_id, site_name, country_code, address_line1, address_line2, city, region, postal_code, intended_business_unit_id, is_primary | At least one site or site context. |
+| SUPPLIER_REQUEST_SITE | site_id, request_id, site_name, country_code, address_line1, address_line2, city, region, postal_code, intended_business_unit_id, is_primary | At least one site using the committed schema shape; `site_name` may be derived from supplier name and city for the prototype. |
 | SUPPLIER_REQUEST_CONTACT | contact_id, request_id, contact_name, contact_email, phone_number, email_domain | Contact data and duplicate signal source. |
 | SUPPLIER_REQUEST_BANK | bank_id, request_id, bank_country_code, masked_account_display, account_last4, account_hash, bank_provided_flag | Optional bank data with masked/tokenized duplicate support. |
 | SUPPLIER_REQUEST_DOCUMENT | document_id, request_id, document_type, document_status, is_required, metadata_json, missing_flag | Metadata and missing-document flags; upload optional. |
@@ -120,7 +121,7 @@ Text alternative: users work in Visual Builder. Visual Builder calls ORDS. ORDS 
 |---|---|---|
 | EXISTING_SUPPLIER_REF | supplier_ref_id, fusion_supplier_id, supplier_number, supplier_name, normalized_name, country_code, tax_registration_number, email_domain, phone_normalized, address_normalized, bank_account_hash, last_sync_at | Duplicate reference data from Fusion/mock. |
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id, supplier_ref_id, fusion_site_id, site_name, country_code, address_normalized, business_unit_code | Supplier site reference data. |
-| INTEGRATION_LOG | log_id, request_id, integration_name, oic_instance_id, direction, status, error_category, payload_ref, response_ref, user_message, technical_message, retry_count, retry_eligible_flag, last_retry_at, last_retry_by, retry_history_json, created_at | OIC/Fusion observability, searchable retry summary, and embedded append-only retry audit history. |
+| INTEGRATION_LOG | log_id, request_id, integration_name, oic_instance_id, direction, status, error_category, payload_ref, response_ref, user_message, technical_message, retry_count, retry_eligible_flag, last_retry_at, last_retry_by, retry_history_json, created_at | Request-scoped OIC/Fusion observability, searchable retry summary, and embedded append-only retry audit history. |
 | VALIDATION_RULES | validation_rule_id, rule_code, rule_name, rule_description, field_name, severity, default_message, is_blocking, active_flag, created_at, created_by, updated_at, updated_by | Governed catalog for Section 9.1 blocking validations and global active/inactive settings. |
 | REF_BUSINESS_UNIT | business_unit_id, business_unit_code, business_unit_name, fusion_mapping_code, active_flag | Business unit lookup/mapping. |
 | REF_SUPPLIER_TYPE | supplier_type_id, supplier_type_code, supplier_type_name, tax_required_flag, active_flag | Supplier type lookup. |
@@ -142,14 +143,14 @@ erDiagram
     SUPPLIER_REQUEST ||--o{ DUPLICATE_MATCH : candidate_request
     SUPPLIER_REQUEST ||--o{ RISK_ASSESSMENT : produces
     SUPPLIER_REQUEST ||--o{ AI_SUMMARY : produces
-    SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : has
+    SUPPLIER_REQUEST ||--o{ INTEGRATION_LOG : logs
     REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST : classifies
     REF_BUSINESS_UNIT ||--o{ SUPPLIER_REQUEST_SITE : maps
     EXISTING_SUPPLIER_REF ||--o{ EXISTING_SUPPLIER_SITE_REF : has
     EXISTING_SUPPLIER_REF ||--o{ DUPLICATE_MATCH : candidate
 ```
 
-Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, risk assessments, AI summaries, and integration logs. Each integration log embeds its append-only retry audit history in `retry_history_json`. Every `VALIDATION_RESULT` points to the `VALIDATION_RULES` entry that failed. Reference tables provide business-unit, supplier-type, high-risk-country, and consolidated risk/duplicate scoring configuration. Existing supplier reference tables and staged requests provide the candidate records used by duplicate detection.
+Text alternative: `SUPPLIER_REQUEST` is the parent entity for the request workflow. Child records capture sites, contacts, optional bank/document metadata, status history, validation outputs, duplicate matches, automatic risk assessments, AI summaries, and request-scoped integration logs. Reviewer factor selections and targeted correction guidance are serialized in the status-history decision comment rather than separate tables. Each integration log embeds its append-only retry audit history in `retry_history_json`. Every `VALIDATION_RESULT` points to the `VALIDATION_RULES` entry that failed. Reference tables provide business-unit, supplier-type, high-risk-country, and consolidated risk/duplicate scoring configuration. Existing supplier reference tables and staged requests provide the candidate records used by duplicate detection.
 
 ### 7.5 Database Schema Design Detail
 
@@ -158,7 +159,7 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 | Table | Primary Key | Foreign Keys / Relationships | Required Constraints and Indexes |
 |---|---|---|---|
 | SUPPLIER_REQUEST | request_id | business_unit_id -> REF_BUSINESS_UNIT.business_unit_id; supplier_type_code -> REF_SUPPLIER_TYPE.supplier_type_code | Unique request_number; index status, requester_user, country_code, business_unit_id, supplier_type_code, submitted_at, fusion_supplier_number; check expected_annual_spend >= 0; status constrained to approved status list. |
-| SUPPLIER_REQUEST_SITE | site_id | request_id -> SUPPLIER_REQUEST.request_id; intended_business_unit_id -> REF_BUSINESS_UNIT.business_unit_id | Index request_id; require country_code and address_line1 for submitted requests; one primary site per request by filtered/functional unique rule where supported. |
+| SUPPLIER_REQUEST_SITE | site_id | request_id -> SUPPLIER_REQUEST.request_id; intended_business_unit_id -> REF_BUSINESS_UNIT.business_unit_id | Index request_id; submitted requests require address_line1, address_line2, city, region, and country_code; ORDS/application validation limits both address lines to 20 characters; one primary site per request by filtered/functional unique rule where supported. |
 | SUPPLIER_REQUEST_CONTACT | contact_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and email_domain; validate contact_email format in service/rule layer; normalize email_domain for matching. |
 | SUPPLIER_REQUEST_BANK | bank_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id and account_hash; never store unmasked account number; account_hash nullable when bank data is not provided. |
 | SUPPLIER_REQUEST_DOCUMENT | document_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, document_type, missing_flag; metadata_json stores document metadata only for phase one. |
@@ -169,7 +170,7 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 | AI_SUMMARY | summary_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, prompt_version, created_at; source_facts_hash supports traceability to the risk/duplicate facts used. |
 | EXISTING_SUPPLIER_REF | supplier_ref_id | None | Unique supplier_number where available; index normalized_name, country_code, tax_registration_number, email_domain, bank_account_hash. |
 | EXISTING_SUPPLIER_SITE_REF | site_ref_id | supplier_ref_id -> EXISTING_SUPPLIER_REF.supplier_ref_id | Index supplier_ref_id, country_code, business_unit_code, address_normalized. |
-| INTEGRATION_LOG | log_id | request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, error_category, oic_instance_id, retry_eligible_flag, and created_at; require `retry_history_json` as an array initialized to `[]`; payload/response values should be references, not raw sensitive payloads. |
+| INTEGRATION_LOG | log_id | Required request_id -> SUPPLIER_REQUEST.request_id | Index request_id, integration_name, status, error_category, oic_instance_id, retry_eligible_flag, and created_at; initialize `retry_history_json` to `[]` and `retry_count` to `0` in the service because DBML does not define a retry-count default; payload/response values should be references, not raw sensitive payloads. |
 | VALIDATION_RULES | validation_rule_id | None | Unique rule_code; seed exactly VAL-001 through VAL-009 from Section 9.1; index active_flag, severity, and is_blocking; include created/updated audit fields. |
 | REF_BUSINESS_UNIT | business_unit_id | None | Unique business_unit_code; index fusion_mapping_code and active_flag; fusion_mapping_code required for active values used in Fusion payloads; include created/updated audit fields. |
 | REF_SUPPLIER_TYPE | supplier_type_id | None | Unique supplier_type_code; index active_flag; tax_required_flag drives validation rules; include created/updated audit fields. |
@@ -189,9 +190,11 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 - Keep full bank account values out of ATP unless the customer explicitly approves secure encrypted storage; the prototype baseline stores masked display and hash/token values only.
 - Store Fusion/mock Fusion supplier identifiers directly on `SUPPLIER_REQUEST` so requester dashboards and status details can show the created supplier number without parsing integration logs.
 - Use `run_id` and `is_current` on validation, duplicate, and risk output tables so corrections can trigger reruns while preserving historical evidence.
+- Store selected Reviewer factor codes and targeted correction items only when a decision is recorded, inside the validated `STATUS_HISTORY.action_comment` decision envelope. Do not mutate the automatic `RISK_ASSESSMENT`.
+- Keep `INTEGRATION_LOG` request-scoped as defined by DBML. Use required `request_id` plus `oic_instance_id` for troubleshooting and idempotency; keep global supplier-sync execution logs in OIC monitoring.
 - Keep retry attempts in the append-only `INTEGRATION_LOG.retry_history_json` array. Append the history entry and update `retry_count`, `last_retry_at`, and `last_retry_by` atomically; `retry_count` must equal the array length.
-- Keep the DBML source artifact at `aidlc-docs/inception/application-design/db-schema.dbml`.
-- Use [database-schema-design.md](database-schema-design.md) as the complete table-and-relationship visual companion to this section.
+- Treat [database-schema-design.md](database-schema-design.md) as the authoritative reviewed ATP schema design.
+- Keep `aidlc-docs/inception/application-design/db-schema.dbml` synchronized as its implementation-ready, machine-readable physical equivalent.
 
 ### 7.7 Embedded Retry History Contract
 
@@ -210,7 +213,34 @@ The following schema design is sufficient for wireframes, API contracts, and pro
 ]
 ```
 
-Each object requires all six fields. Existing entries are never updated or removed. The `message` value follows the same redaction policy as other integration diagnostics and must not contain raw sensitive payload data. A retry transaction appends one object, increments `retry_count`, sets `last_retry_at` and `last_retry_by`, and updates the current integration outcome. The summary fields support filtering without querying JSON, while the array supplies the full support/audit timeline.
+Each object requires all six fields. Existing entries are never updated or removed. The `message` value follows the same redaction policy as other integration diagnostics and must not contain raw sensitive payload data. After OIC returns or calls back, one short ATP transaction locks the originating log row, appends one object, increments `retry_count`, sets `last_retry_at` and `last_retry_by`, and updates the current integration outcome. No database transaction remains open across the OIC/Fusion network call. The summary fields support filtering without querying JSON, while the array supplies the full support/audit timeline.
+
+### 7.8 Status-History Decision Evidence Contract
+
+`STATUS_HISTORY.action_comment` stores a service-validated JSON string for Reviewer decisions. This uses the committed text column and adds no table or column:
+
+```json
+{
+  "schemaVersion": 1,
+  "comment": "Please provide a valid tax registration or explain why it is not applicable.",
+  "selectedRiskFactorCodes": ["MISSING_TAX", "VAGUE_JUSTIFICATION"],
+  "correctionItems": [
+    {
+      "itemType": "FIELD",
+      "fieldName": "taxRegistrationNumber",
+      "itemCode": "MISSING_TAX",
+      "instruction": "Provide the tax registration or a business-safe exemption reason."
+    }
+  ],
+  "existingSupplierNumber": null
+}
+```
+
+The envelope is written atomically with the status transition. `schemaVersion` is required so later readers can evolve safely. `actor_user` and `action_timestamp` identify who decided and when. `selectedRiskFactorCodes` are decision evidence and never change the stored risk score. `correctionItems` are required only for Request Correction. `existingSupplierNumber` is required only for Mark Duplicate. ORDS validates allowed factor/item codes, field-name allowlists, collection limits, and string lengths before serialization. It exposes only `comment` plus `correctionItems` to the Requester; Reviewer-only factor selections remain hidden. Historical status rows preserve prior guidance, while a successful resubmission makes the previous correction action no longer current without deleting it. Non-decision history actions may continue to use a plain business-safe comment; parsers branch on `action_code` and fail safely if a decision envelope is malformed.
+
+### 7.9 Integration Identity Contract
+
+Every ATP `INTEGRATION_LOG` belongs to one `SUPPLIER_REQUEST`. The stable troubleshooting tuple is `request_id`, `log_id`, and `oic_instance_id` where OIC supplies one. Retry entries record their own OIC instance ID inside `retry_history_json`. Supplier-reference synchronization has no supplier-request parent, so it does not create an ATP `INTEGRATION_LOG`; OIC monitoring provides the global run status and instance identifier, while synchronized supplier rows record `last_sync_at`.
 
 ## 8. ORDS API Design
 
@@ -231,7 +261,7 @@ Successful response:
   "success": true,
   "data": {},
   "messages": [],
-  "correlationId": "REQ-2026-000123"
+  "traceId": "ords-7f09c2a8"
 }
 ```
 
@@ -247,9 +277,11 @@ Error response:
     "technicalMessage": null,
     "retryEligible": false
   },
-  "correlationId": "REQ-2026-000123"
+  "traceId": "ords-7f09c2a8"
 }
 ```
+
+`traceId` is transient ORDS observability metadata and is not an ATP schema column.
 
 ### 8.3 HTTP Status Guidance
 
@@ -274,11 +306,11 @@ Error response:
 | GET | `/requests` | Requester, Reviewer, Support/Admin | List requests with role-aware scope and filters. |
 | GET | `/requests/{requestId}` | Requester owner, Reviewer, Support/Admin | Retrieve role-aware request detail; Requester projection excludes persisted risk assessment. |
 | PATCH | `/requests/{requestId}` | Requester owner | Update Draft or Correction Requested request. |
-| POST | `/requests/{requestId}/submit` | Requester owner | Submit for validation/review; validation can block submission before review status is reached. |
+| POST | `/requests/{requestId}/submit` | Requester owner | Attempt submit/resubmit; on blocking findings return HTTP 422 and preserve Draft/Correction Requested, otherwise atomically transition through Submitted to Under Review. |
 | POST | `/requests/{requestId}/validate` | Reviewer, Support/Admin, System | Run validation. |
 | GET | `/requests/{requestId}/validation-results` | Requester owner, Reviewer, Support/Admin | Retrieve validation findings. |
 | POST | `/requests/{requestId}/duplicate-check` | Reviewer, Support/Admin, System | Run persisted duplicate check; submit/resubmit orchestration invokes this automatically. |
-| GET | `/requests/{requestId}/duplicate-matches` | Requester owner summary, Reviewer, Support/Admin | Retrieve duplicate matches. |
+| GET | `/requests/{requestId}/duplicate-matches` | Reviewer, Support/Admin | Retrieve persisted duplicate matches; Requesters receive only safe blocker text or the final existing-supplier reference through request detail. |
 | POST | `/requests/{requestId}/risk-score` | Reviewer, Support/Admin, System | Calculate risk. |
 | GET | `/requests/{requestId}/risk-assessment` | Reviewer, Support/Admin | Retrieve the latest persisted risk assessment without recalculating it. |
 | POST | `/requests/{requestId}/ai-summary` | Reviewer, Support/Admin | Generate/regenerate AI summary. |
@@ -287,27 +319,35 @@ Error response:
 | POST | `/requests/{requestId}/attachment-metadata` | Requester owner | Add/update document metadata. |
 | POST | `/requests/{requestId}/approve` | Reviewer | Approve for Fusion submission. |
 | POST | `/requests/{requestId}/reject` | Reviewer | Reject with comment. |
-| POST | `/requests/{requestId}/request-correction` | Reviewer | Return to requester with comment and optional targeted correction items. |
+| POST | `/requests/{requestId}/request-correction` | Reviewer | Return to requester and atomically store comment, selected factor codes, and structured correction items in the new status-history action. |
 | POST | `/requests/{requestId}/mark-duplicate` | Reviewer | Close as duplicate with existing supplier reference. |
 | POST | `/requests/{requestId}/submit-to-fusion` | System, Support/Admin | Trigger OIC submission or mark as pending submission. |
-| POST | `/requests/{requestId}/retry` | Support/Admin | Retry an eligible failed integration and atomically append its audit entry to the originating integration log. |
+| POST | `/integration-logs/{logId}/retry` | Support/Admin | Retry the eligible failure represented by the specified request-scoped log; verify its request/status and atomically append the completed attempt. |
 | GET | `/dashboard/requester-summary` | Requester | Requester dashboard counts. |
 | GET | `/dashboard/reviewer-summary` | Reviewer | Reviewer queue counts. |
 | GET | `/dashboard/support-summary` | Support/Admin | Integration/support counts. |
-| GET | `/integration-logs` | Support/Admin | Search integration logs. |
+| GET | `/integration-logs` | Support/Admin | Search request-scoped integration logs by request ID, OIC instance ID, status, error category, and retry eligibility. |
 | GET | `/integration-logs/{logId}` | Support/Admin | View one integration log, including its embedded retry history. |
 | GET | `/reference/business-units` | All authenticated | Business unit lookup. |
 | GET | `/reference/supplier-types` | All authenticated | Supplier type lookup. |
-| GET | `/admin-settings/high-risk-countries` | Reviewer, Support/Admin | High-risk country lookup. |
-| PUT | `/admin-settings/high-risk-countries/{countryCode}` | Support/Admin | Maintain high-risk country warning configuration if included. |
+| GET | `/admin-settings/high-risk-countries` | Support/Admin | View active and inactive high-risk-country periods. |
+| PUT | `/admin-settings/high-risk-countries/{countryCode}/periods/{effectiveFrom}` | Support/Admin | Maintain one `REF_HIGH_RISK_COUNTRY` composite-key period. |
 | GET | `/admin-settings/validation-rules` | Support/Admin | View validation rule active/inactive configuration. |
 | PUT | `/admin-settings/validation-rules/{ruleCode}` | Support/Admin | Maintain the `VALIDATION_RULES.active_flag` setting. |
 | GET | `/admin-settings/scoring-rules` | Support/Admin | View consolidated scoring configuration, optionally filtered by `ruleType=RISK` or `ruleType=DUPLICATE`. |
 | PUT | `/admin-settings/scoring-rules/{ruleType}/{ruleCode}/versions/{version}` | Support/Admin | Maintain an existing risk or duplicate scoring-rule version in `REF_SCORING_RULE`. |
+| GET | `/admin-settings/business-units` | Support/Admin | View active and inactive business units and Fusion mappings. |
+| PUT | `/admin-settings/business-units/{businessUnitCode}` | Support/Admin | Maintain business-unit mapping and active status in `REF_BUSINESS_UNIT`. |
+| GET | `/admin-settings/supplier-types` | Support/Admin | View active and inactive supplier types and tax-required flags. |
+| PUT | `/admin-settings/supplier-types/{supplierTypeCode}` | Support/Admin | Maintain supplier type, tax-required flag, and active status in `REF_SUPPLIER_TYPE`. |
+| POST | `/admin-settings/supplier-reference-sync` | Support/Admin | Trigger the OIC supplier-reference flow and return its OIC instance ID; run status remains in OIC monitoring. |
+| PUT | `/internal/supplier-references/{fusionSupplierId}` | System/OIC | Idempotently upsert one normalized `EXISTING_SUPPLIER_REF` row and its `last_sync_at`. |
+| PUT | `/internal/supplier-references/{fusionSupplierId}/sites/{fusionSiteId}` | System/OIC | Idempotently upsert one `EXISTING_SUPPLIER_SITE_REF` row. |
+| POST | `/internal/requests/{requestId}/integration-results` | System/OIC | Record request-scoped OIC/Fusion success or failure, supplier identifiers, safe diagnostics, and an `INTEGRATION_LOG` row. |
 
 #### Requester Response Projection
 
-For a Requester owner call to `GET /requests/{requestId}`, the response may contain the current status, status timeline, business-safe reviewer comments, required next action, final existing-supplier reference when marked duplicate, business-safe integration outcome, and Fusion supplier number after successful creation.
+For a Requester owner call to `GET /requests/{requestId}`, the response may contain the current status, status timeline, business-safe Reviewer comments, current targeted correction items parsed from the latest Correction Requested history action, required next action, final existing-supplier reference when marked duplicate, business-safe integration outcome, and Fusion supplier number after successful creation.
 
 The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factors, scoring version, AI summaries, and reviewer-only evidence. Reviewer and Support/Admin clients retrieve the persisted assessment through `GET /requests/{requestId}/risk-assessment`. Server-side AI explanation orchestration may read the stored assessment through the internal risk service or ATP data access without granting Requester access to that endpoint.
 
@@ -326,11 +366,11 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
   },
   "site": {
     "addressLine1": "Office 12",
-    "addressLine2": "Floor 4",
-    "streetArea": "King Street",
+    "addressLine2": "4 King Street",
     "city": "London",
-    "provinceState": "Greater London",
-    "countryCode": "GB"
+    "region": "Greater London",
+    "countryCode": "GB",
+    "postalCode": "SW1A 1AA"
   },
   "businessJustification": "Needed for facilities maintenance services for the London operations site.",
   "productServiceCategory": "Facilities Services",
@@ -350,35 +390,65 @@ The Requester projection must omit `riskScore`, `riskLevel`, risk reasons/factor
 }
 ```
 
+### 8.6 UI/API-to-ATP Field Mapping
+
+| UI / API Field | Authoritative ATP Target | Mapping Rule |
+|---|---|---|
+| `supplierName` | `SUPPLIER_REQUEST.supplier_name` | Preserve display value; normalization for matching is calculated separately. |
+| `supplierType` | `SUPPLIER_REQUEST.supplier_type_code` | Validate against active `REF_SUPPLIER_TYPE.supplier_type_code`. |
+| Header `countryCode` | `SUPPLIER_REQUEST.country_code` | Store the supplier country independently from the site country. |
+| `businessUnitCode` | `SUPPLIER_REQUEST.business_unit_id` | Resolve active code to `REF_BUSINESS_UNIT.business_unit_id`; VAL-004 requires a valid Fusion mapping. |
+| `businessJustification` | `SUPPLIER_REQUEST.business_justification` | Apply length and content validation; may feed deterministic/AI vague-justification review. |
+| `productServiceCategory` | `SUPPLIER_REQUEST.product_service_category` | Store the selected business category. |
+| `expectedAnnualSpend` | `SUPPLIER_REQUEST.expected_annual_spend` | Parse as non-negative decimal. |
+| `taxRegistrationNumber` | `SUPPLIER_REQUEST.tax_registration_number` | Normalize only for duplicate comparison; retain the submitted display value. |
+| Contact name/email/phone | `SUPPLIER_REQUEST_CONTACT.contact_name`, `contact_email`, `phone_number` | Derive lowercase `email_domain`; normalize phone separately for comparisons. |
+| Site address lines | `SUPPLIER_REQUEST_SITE.address_line1`, `address_line2` | Enforce 20-character maximum in ORDS/application validation; street/area text stays inside these fields. |
+| Site city/region/country/postal | `SUPPLIER_REQUEST_SITE.city`, `region`, `country_code`, `postal_code` | Postal code is optional where not applicable; `site_name` may be derived from supplier name plus city. |
+| Site business unit | `SUPPLIER_REQUEST_SITE.intended_business_unit_id` | Default from the header BU for phase one, then resolve to `REF_BUSINESS_UNIT.business_unit_id`. |
+| Bank provided/country/masked value | `SUPPLIER_REQUEST_BANK.bank_provided_flag`, `bank_country_code`, `masked_account_display`, `account_last4` | Never persist a full account number. |
+| Bank token | `SUPPLIER_REQUEST_BANK.account_hash` | Accept only a trusted token/hash from the approved tokenization boundary; use for duplicate comparison. |
+| Document metadata | `SUPPLIER_REQUEST_DOCUMENT.document_type`, `document_status`, `is_required`, `metadata_json`, `missing_flag` | Store metadata and flags only; no phase-one file content. |
+| Review decision | `SUPPLIER_REQUEST.status` plus `STATUS_HISTORY` | Atomically update status and append `action_code`, actor/time, and the Section 7.8 decision envelope in `action_comment`. |
+| Validation/duplicate/risk/AI outputs | `VALIDATION_RESULT`, `DUPLICATE_MATCH`, `RISK_ASSESSMENT`, `AI_SUMMARY` | Server-generated only; clients cannot write calculated scores directly. |
+| Fusion/OIC outcome | `SUPPLIER_REQUEST` Fusion result columns plus `INTEGRATION_LOG` | OIC/system callback records request-scoped outcome; global reference sync does not use `INTEGRATION_LOG`. |
+
 ## 9. Validation Design
 
 ### 9.1 Blocking Validations
 
 | Rule | Description | Failure Status |
 |---|---|---|
-| VAL-001 | Supplier name required. | Validation Failed |
-| VAL-002 | Country required. | Validation Failed |
-| VAL-003 | Supplier type required. | Validation Failed |
-| VAL-004 | Business unit required and mapped. | Validation Failed |
-| VAL-005 | Contact email required and valid. | Validation Failed |
-| VAL-006 | Required structured address/site fields are complete: Address Line 1, Address Line 2, street/area, province/state, city, and address country; Address Line 1 and Address Line 2 are each limited to 20 characters. | Validation Failed |
-| VAL-007 | At least one supplier site required for phase-one baseline. | Validation Failed |
-| VAL-008 | Exact tax registration duplicate found in existing supplier reference data or relevant staged requests. | Validation Failed |
-| VAL-009 | Same bank token/hash duplicate found when bank data is captured. | Validation Failed |
+| VAL-001 | Supplier name required. | Block submit; keep editable status |
+| VAL-002 | Country required. | Block submit; keep editable status |
+| VAL-003 | Supplier type required. | Block submit; keep editable status |
+| VAL-004 | Business unit required and mapped. | Block submit; keep editable status |
+| VAL-005 | Contact email required and valid. | Block submit; keep editable status |
+| VAL-006 | Required site fields are complete: Address Line 1, Address Line 2, city, region/province/state, and address country; street/area belongs inside the address lines. ORDS/application validation limits each address line to 20 characters. | Block submit; keep editable status |
+| VAL-007 | At least one supplier site required for phase-one baseline. | Block submit; keep editable status |
+| VAL-008 | Exact tax registration duplicate found in existing supplier reference data or relevant staged requests. | Block submit; keep editable status |
+| VAL-009 | Same bank token/hash duplicate found when bank data is captured. | Block submit; keep editable status |
 
 These nine definitions are seeded in `VALIDATION_RULES`. `validation_rule_id` is the technical primary key, `rule_code` is the stable unique business identifier, and `active_flag` supplies the global Admin Settings switch. A failed evaluation writes `VALIDATION_RESULT.validation_rule_id` so the exact governed definition is traceable without duplicating the rule code in the result row.
 
-### 9.2 Warning Validations
+Tax registration is not globally mandatory. `REF_SUPPLIER_TYPE.tax_required_flag`, the request country, and the phase-one validation-service country policy determine whether the form presents tax as required. Missing tax is represented by the configured `MISSING_TAX` risk rule unless the customer explicitly promotes it to a blocking validation policy. The committed nine-rule baseline does not invent a separate tax-policy table.
 
-| Rule | Description | Result |
+### 9.2 Risk Warning Factors
+
+| Rule Code | Description | Governing Table |
 |---|---|---|
-| VAL-101 | Tax registration missing but not configured as hard block. | Risk reason |
-| VAL-102 | Bank country differs from supplier country. | Risk reason |
-| VAL-103 | Business justification appears vague. | Risk reason |
-| VAL-104 | Expected annual spend is high and justification is weak. | Risk reason |
-| VAL-105 | Required document metadata indicates missing tax/registration document. | Risk reason |
-| VAL-106 | High-risk country selected. | Risk reason |
-| VAL-107 | Missing or incomplete bank details. | Risk reason |
+| `MISSING_TAX` | Tax registration is missing when expected for supplier type/country but is not configured as a hard block. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `HIGH_RISK_COUNTRY` | Request country has an active warning period in `REF_HIGH_RISK_COUNTRY`. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `BANK_COUNTRY_MISMATCH` | Captured bank country differs from supplier country. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `INCOMPLETE_ADDRESS` | Submitted address is present but remains suspicious or incomplete for manual review. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `INCOMPLETE_BANK_DETAILS` | Bank data is marked provided but its masked/tokenized metadata is incomplete. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `VAGUE_JUSTIFICATION` | Business justification appears vague. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `HIGH_SPEND_WEAK_JUSTIFICATION` | Expected annual spend is high and justification is weak. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `MISSING_DOCUMENT_METADATA` | Required document metadata indicates a missing document. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `DUPLICATE_SCORE_HIGH` | Current duplicate result is High. | `REF_SCORING_RULE`, `rule_type = RISK` |
+| `DUPLICATE_SCORE_MEDIUM` | Current duplicate result is Medium. | `REF_SCORING_RULE`, `rule_type = RISK` |
+
+These are scoring factors, not `VALIDATION_RULES` rows. Their weights, severities, and active/inactive states are maintained through `REF_SCORING_RULE`.
 
 ## 10. Duplicate Detection Design
 
@@ -401,16 +471,16 @@ These nine definitions are seeded in `VALIDATION_RULES`. `validation_rule_id` is
 
 ### 10.3 Scoring Baseline
 
-| Signal | Weight / Effect |
-|---|---:|
-| Exact tax registration match | Blocking validation trigger |
-| Same bank account token/hash | Blocking validation trigger |
-| Strong normalized name similarity | 30 |
-| Same country | 10 |
-| Same email domain | 15 |
-| Same phone | 20 |
-| Address similarity | 20 |
-| Same business unit/site context | 5 |
+| Rule Code | Signal | Weight / Effect |
+|---|---|---:|
+| `DUP_EXACT_TAX` | Exact tax registration match | Blocking signal consumed by VAL-008 |
+| `DUP_SAME_BANK` | Same bank account token/hash | Blocking signal consumed by VAL-009 |
+| `DUP_NAME_SIMILARITY` | Strong normalized name similarity | 30 |
+| `DUP_SAME_COUNTRY` | Same country | 10 |
+| `DUP_EMAIL_DOMAIN` | Same email domain | 15 |
+| `DUP_PHONE` | Same phone | 20 |
+| `DUP_ADDRESS` | Address similarity | 20 |
+| `DUP_BU_SITE` | Same business unit/site context | 5 |
 
 ### 10.4 Levels
 
@@ -421,7 +491,7 @@ These nine definitions are seeded in `VALIDATION_RULES`. `validation_rule_id` is
 | Medium | Score 40-69. |
 | Low | Score < 40. |
 
-Duplicate thresholds and weights are stored in `REF_SCORING_RULE` rows where `rule_type = DUPLICATE`.
+Duplicate thresholds and weights are stored in versioned `REF_SCORING_RULE` rows where `rule_type = DUPLICATE`; threshold rows use stable codes such as `DUP_HIGH_THRESHOLD` and `DUP_MEDIUM_THRESHOLD`, with the numeric threshold in `weight`. The active duplicate rule controls signal/scoring participation; the independent `VAL-008` or `VAL-009` active flag controls whether its corresponding exact signal blocks submission.
 
 ## 11. Risk Scoring Design
 
@@ -433,7 +503,7 @@ Duplicate thresholds and weights are stored in `REF_SCORING_RULE` rows where `ru
 | High-risk country | +25 |
 | Bank country differs from supplier country | +20 |
 | Incomplete address | +15 |
-| Missing or incomplete bank details | +15 |
+| Incomplete bank metadata when bank data is marked provided | +15 |
 | Vague business justification | +15 |
 | High expected spend with weak justification | +20 |
 | Missing required document metadata | +10 |
@@ -448,6 +518,8 @@ Duplicate thresholds and weights are stored in `REF_SCORING_RULE` rows where `ru
 | High | Score >= 70. |
 | Medium | Score 35-69. |
 | Low | Score < 35. |
+
+Versioned `REF_SCORING_RULE` rows with `rule_type = RISK` and stable codes such as `RISK_HIGH_THRESHOLD` and `RISK_MEDIUM_THRESHOLD` store the numeric level boundaries in `weight`. Threshold rows are configuration, not Reviewer-selectable factors.
 
 ### 11.3 Risk Output
 
@@ -472,6 +544,8 @@ Duplicate thresholds and weights are stored in `REF_SCORING_RULE` rows where `ru
 ```
 
 Visibility: the persisted risk score, level, scoring version, and factor-level reasons are available to Reviewer and Support/Admin roles only. Requesters receive status and actionable guidance through the role-aware request-detail response.
+
+Reviewer checkbox selections remain UI decision state until the Reviewer records approve, reject, request correction, or mark duplicate. The selected factor codes are then stored in the Section 7.8 status-history decision envelope and do not change the automatic score. If the request changes, risk is recalculated and the Reviewer makes a fresh selection for the later decision.
 
 ## 12. AI Explanation Design
 
@@ -563,7 +637,7 @@ Steps:
 2. Transform supplier records into ATP reference shape.
 3. Normalize supplier name, tax ID, email domain, phone, address, and bank token where available.
 4. Upsert `EXISTING_SUPPLIER_REF` and `EXISTING_SUPPLIER_SITE_REF`.
-5. Write integration log summary.
+5. Record success/failure in OIC monitoring under the OIC integration instance ID; update synchronized supplier/site rows and `last_sync_at`. Do not write a requestless ATP `INTEGRATION_LOG` row.
 
 ### 13.2 Flow B: Submit Approved Supplier
 
@@ -587,9 +661,10 @@ Purpose: allow support/admin to retry eligible failures.
 Rules:
 - Retry allowed for technical timeout, temporary Fusion outage, corrected mapping failure, or other retry-eligible error.
 - Retry not allowed for Rejected or Marked Duplicate requests.
-- Retry must not create a second supplier if Fusion already created one. Use status checks and, where available, idempotency/correlation keys.
+- Retry must not create a second supplier if Fusion already created one. Use request status, stored Fusion supplier identifiers, request ID, and OIC/Fusion idempotency support where available.
 - Each attempt appends an immutable object to `INTEGRATION_LOG.retry_history_json`; the object includes attempt number, actor, timestamp, result, message, and the retry OIC instance ID.
 - JSON append, retry-count increment, latest-retry summary updates, and the current integration outcome must commit or roll back together.
+- The remote OIC/Fusion call is outside the ATP transaction; the returned/callback outcome is persisted in one short row-locking transaction.
 
 ## 14. Fusion REST API Candidate Mapping
 
@@ -630,8 +705,8 @@ Notes:
 
 ### 15.2 Integration Log Requirements
 
-Each integration log should store:
-- Request ID.
+Each ATP integration log should store:
+- Required request ID.
 - Integration name.
 - OIC instance ID where available.
 - Direction: inbound, outbound, sync, retry.
@@ -646,18 +721,27 @@ Each integration log should store:
 - Append-only retry history JSON using the Section 7.7 contract.
 - Timestamp.
 
+The committed table is request-scoped. Global supplier-reference synchronization is inspected in OIC monitoring and identified by its OIC integration instance ID; it does not create an ATP integration-log row.
+
 ## 16. Security Design
 
 | Control | Design |
 |---|---|
 | Authentication | Use customer Oracle identity platform/SSO mapping to application roles. |
-| Authorization | Enforce Requester, Reviewer, Support/Admin capabilities at ORDS/service layer; deny Requester access to persisted risk assessments and AI review evidence. |
+| Authorization | Enforce deny-by-default, object-level ownership, and least-privilege Requester, Reviewer, Support/Admin capabilities at ORDS/service layer; deny Requester access to persisted risk assessments and AI review evidence; allow CORS only from approved Visual Builder origins. |
+| Encryption | Require ATP encryption at rest and TLS 1.2 or later for Visual Builder, ORDS, ATP, OIC, Fusion/mock, and approved AI-provider traffic. |
+| API access logging | Enable ORDS access/execution logging with timestamp, transient trace ID, authenticated principal, action, status, and latency; redact supplier, bank, token, and payload values. The trace ID is operational metadata, not an ATP column. |
+| Input validation | Apply schema, type, format, allowlist, string-length, collection-size, and request-size validation at ORDS; use parameterized SQL/PLSQL only. |
+| Browser response hardening | Deployed Visual Builder/HTML endpoints must set CSP, HSTS, `X-Content-Type-Options`, `X-Frame-Options`, and `Referrer-Policy` through the serving platform. |
+| Abuse protection | Apply ORDS throttling/rate limits to authenticated APIs and stricter limits to AI generation, retry, and administrative mutation endpoints. |
+| Administrative authentication | Require customer SSO policy and MFA for Support/Admin accounts; credentials and Fusion/AI secrets remain in managed connection/secret stores. |
 | Bank data masking | Display last four digits only where needed. |
 | Bank duplicate matching | Use token/hash, not plain account number, where possible. |
 | AI data minimization | Send curated facts only, no full bank account number. |
 | Payload protection | Payload/response references visible to support/admin only; redact sensitive values. |
 | Fusion credentials | Store in OIC connection/secret management, not in Visual Builder. |
-| Audit | Persist status history, reviewer comments, AI summaries, and retry attempts. |
+| Audit | Persist status history with decision-envelope evidence, AI summaries, Admin Settings audit columns, and retry attempts with actor/time plus request/log/OIC identifiers. Audit records are append-only or versioned and retained according to customer policy, with 90 days as the minimum production baseline until a stricter policy is provided. |
+| Fail-safe errors | Authorization, validation, integration, JSON-append, and audit-write failures fail closed and roll back the action; business users receive safe errors while Support/Admin receives redacted diagnostics. |
 
 ## 17. Non-Functional Design Notes
 
@@ -667,7 +751,7 @@ Prototype target is few hundred supplier references and 50-100 requests. Indexes
 
 ### Reliability
 
-OIC failures should not lose request state. Integration submission should be idempotent by request ID/correlation ID where feasible.
+OIC failures should not lose request state. Integration submission should be idempotent by request ID plus stored Fusion/OIC identifiers. ORDS, OIC, Fusion/mock, and AI calls require explicit timeouts; retryable dependencies should use bounded retry with backoff and circuit-breaking where the selected Oracle runtime supports it. Non-critical AI unavailability degrades to deterministic evidence without blocking Reviewer access to validation, duplicate, and risk facts.
 
 ### Maintainability
 
@@ -675,24 +759,37 @@ Risk and duplicate thresholds should be seeded/configured in `REF_SCORING_RULE` 
 
 ### Observability
 
-Support/admin dashboard should surface integration failures and retry history. Requester and Reviewer should see business-safe statuses.
+Support/admin dashboard should surface request-scoped integration failures and retry history. Requester and Reviewer should see business-safe statuses. Production implementation must provide structured logs, metrics for latency/error/throughput/retry outcomes, transient ORDS trace propagation, request/OIC instance identifiers, dependency health checks, and alerts for authorization failures, integration failure rate, retry exhaustion, and backup failure.
+
+### Resiliency Extension Posture
+
+| Decision Area | Prototype Baseline | Production Gate |
+|---|---|---|
+| Workload criticality | Medium, non-production prototype demonstrating supplier onboarding value. | Customer must classify production criticality and business impact. |
+| Availability, RTO, and RPO | No production SLA is claimed for the prototype. | Customer must select targets and a DR strategy before production infrastructure design. |
+| Deployment topology | Customer-managed Oracle prototype tenancy. | Customer must select single-region multi-zone or an approved multi-region topology. |
+| CI/CD, rollback, and change management | No deployable application artifacts exist yet. | Construction/NFR design must use the customer's named process or capture an approved alternative. |
+| Backup and recovery | ATP remains the persistent request/audit store. | Production ATP automated encrypted backups, retention, and restore testing must align with the selected RPO. |
+| Incident response and resiliency testing | Demo failure/retry scenarios only. | Customer process, alert routing, runbooks, and DR/game-day approach must be selected before go-live. |
+
+These production decisions remain user/customer choices under the enabled Resiliency Baseline. They are deliberately not inferred during this documentation-only prototype amendment.
 
 ## 18. Test Strategy
 
 | Test Area | Required Tests |
 |---|---|
-| Request intake | Draft, submit, correction update, mandatory fields. |
+| Request intake | Draft, submit, structured-address completeness/20-character boundaries, correction update, and mandatory fields. |
 | Role access | Requester isolation, reviewer actions, support/admin retry/reference access. |
 | Validation | Missing mandatory fields, invalid email, missing site, invalid business unit. |
 | Duplicate detection | Exact tax ID, fuzzy name, same bank token, email domain, address, country-only low signal. |
-| Risk scoring | Missing tax, high-risk country, bank mismatch, vague justification, high spend. |
+| Risk scoring | Missing tax, high-risk country, bank mismatch, vague justification, high spend, recalculation, active/inactive risk rules, and decision-time Reviewer factor selections that do not mutate the automatic score. |
 | AI summary | Generated/mocked summary follows schema and does not decide. |
-| Review workflow | Approve, reject, correction, mark duplicate, blocked retry for duplicate/rejected. |
-| OIC integration | Success, Fusion validation failure, timeout/technical failure, retry success. |
+| Review workflow | Approve, reject, targeted correction in status-history decision JSON, role-safe parsing, mark duplicate, and blocked retry for duplicate/rejected. |
+| OIC integration | Request-scoped ATP logs, OIC-native global sync monitoring, success, Fusion validation failure, timeout/technical failure, atomic retry-history append, and retry success. |
 | Masking/security | Bank last-four display, no full bank value in AI/logs. |
 | Demo data | All customer-requested demo scenarios available. |
 
-Property-based testing is recommended for deterministic normalization, duplicate scoring, risk scoring, and payload transformation if approved in the question gate.
+Partial property-based testing is approved for deterministic normalization, duplicate/risk scoring invariants, payload serialization/transformations, decision-envelope parsing, and retry-history invariants. Construction-stage test design must verify normalization idempotence, score/risk-level range consistency, retry-count/history-length equality, JSON round trips, role-safe decision-envelope projection, and preservation of required request/OIC identifiers. The framework is selected when the implementation/test language is confirmed; shrinking and reproducible seed logging are mandatory.
 
 ## 19. Design Limitations and Production Hardening
 
@@ -721,20 +818,21 @@ The verification questions in `requirement-verification-questions.md` have been 
 |---|---|---|
 | Architecture | Complete for proposal and wireframe readiness | Oracle stack boundaries are defined. |
 | Personas and access | Complete for proposal and wireframe readiness | Uses Requester, Reviewer, Support/Admin User only. |
-| Data model and database schema | Complete for proposal and wireframe readiness | ATP entities, relationships, constraints, indexes, and implementation notes are defined; final DDL can be generated during construction. |
+| Data model and database schema | Complete committed baseline | The authoritative `database-schema-design.md` defines 18 tables, 189 columns, and 17 relationships; `db-schema.dbml` is its synchronized machine-readable equivalent. Reviewer evidence and targeted corrections use status-history decision JSON; global sync uses OIC monitoring. Final DDL can be generated during construction. |
 | ORDS APIs | Complete baseline | Endpoint catalog and contracts are defined; OpenAPI spec can be generated later. |
 | Duplicate detection | Complete baseline | Thresholds are configurable ATP reference data. |
 | Risk scoring | Complete baseline | Critical level and weights are configurable defaults. |
 | AI design | Complete baseline | Provider/runtime remains customer-approved enterprise AI service or mock for demo. |
 | OIC/Fusion integration | Complete baseline | Real Fusion payload validation depends on customer tenancy access. |
-| Security | Complete baseline | Role and masking controls defined; formal security review needed before production. |
-| Wireframes | Not started by design | Ready to begin after requirements/design review approval. |
+| Security | Complete proposal baseline | Enabled Security Baseline controls are mapped at design level; customer identity, network, retention, and formal production security review remain implementation gates. |
+| Resiliency | Complete prototype baseline | Retry, idempotency, atomicity, observability, and graceful AI degradation are defined; production SLA/RTO/RPO/topology/process choices remain customer decisions. |
+| Wireframes | Complete first pass | Specification and clickable mockup are ready for approval before construction-stage design. |
 
 ## 22. References
 
-- Oracle Fusion Cloud Procurement Suppliers REST API: https://docs.oracle.com/en/cloud/saas/procurement/26a/fapra/api-suppliers.html
-- Oracle Fusion Cloud Procurement REST endpoints: https://docs.oracle.com/en/cloud/saas/procurement/26a/fapra/rest-endpoints.html
-- Oracle Fusion Cloud Financials External Bank Accounts REST API: https://docs.oracle.com/en/cloud/saas/financials/26a/farfa/api-external-bank-accounts.html
+- Oracle Fusion Cloud Procurement Suppliers REST API: https://docs.oracle.com/en/cloud/saas/procurement/26c/fapra/api-suppliers.html
+- Oracle Fusion Cloud Procurement REST endpoints: https://docs.oracle.com/en/cloud/saas/procurement/26c/fapra/rest-endpoints.html
+- Oracle Fusion Cloud Financials External Bank Accounts REST API: https://docs.oracle.com/en/cloud/saas/financials/26c/farfa/api-external-bank-accounts.html
 - Oracle Visual Builder service connections: https://docs.oracle.com/en/cloud/paas/visual-builder/visualbuilder-building-applications/what-are-service-connections.html
-- Oracle Integration REST Adapter capabilities: https://docs.oracle.com/en/cloud/paas/integration-cloud/rest-adapter/rest-adapter-capabilities.html
-- Oracle REST Data Services PL/SQL package reference: https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/24.2/orddg/ORDS-reference.html
+- Oracle Integration 3 REST Adapter: https://docs.oracle.com/en/cloud/paas/application-integration/rest-adapter/
+- Oracle REST Data Services PL/SQL package reference: https://docs.oracle.com/en/database/oracle/oracle-rest-data-services/25.4/orddg/ORDS-reference.html

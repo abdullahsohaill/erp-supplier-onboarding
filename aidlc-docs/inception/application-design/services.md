@@ -6,11 +6,11 @@ Coordinates supplier request creation, update, submission, status transitions, a
 
 ## Review Workflow Service
 
-Coordinates reviewer actions: approve, reject, request correction, and mark duplicate. It enforces that high-risk and duplicate-risk requests remain human-reviewed.
+Coordinates reviewer actions: approve, reject, request correction, and mark duplicate. It enforces human review, validates the decision payload, and writes comments, selected risk-factor codes, targeted correction items, and any duplicate reference into the new `STATUS_HISTORY.action_comment` decision envelope. Requester reads receive only role-safe comments and correction guidance.
 
 ## Validation Service
 
-Loads active definitions from `VALIDATION_RULES`, runs mandatory and conditional validations, and writes categorized failed findings linked to the exact rule identifier.
+Loads active definitions from `VALIDATION_RULES`, runs mandatory and conditional validations before a submit/resubmit transition is committed, and writes categorized failed findings linked to the exact rule identifier. Blocking findings preserve Draft or Correction Requested and keep the request outside the Reviewer queue.
 
 ## Duplicate Detection Service
 
@@ -30,8 +30,8 @@ Uses OIC to transform and submit approved supplier requests to Fusion or mock Fu
 
 ## Supplier Reference Sync Service
 
-Uses OIC to synchronize supplier reference records from Fusion or load mock data for prototype duplicate detection.
+Uses OIC to synchronize supplier reference records from Fusion or load mock data for prototype duplicate detection. OIC-native monitoring records each global run and its integration instance ID; synchronized ATP reference rows update `last_sync_at`.
 
 ## Integration Observability Service
 
-Stores OIC instance IDs, payload/response references, errors, timestamps, retry summaries, and the append-only retry-history JSON within each integration log.
+Stores request-scoped OIC instance IDs, required request IDs, payload/response references, errors, timestamps, retry summaries, and append-only retry-history JSON. Global supplier-reference sync runs remain in OIC monitoring because the committed `INTEGRATION_LOG.request_id` is mandatory.

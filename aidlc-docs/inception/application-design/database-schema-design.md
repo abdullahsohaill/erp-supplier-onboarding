@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This companion expands Section 7 of `technical-design.md` into a complete table-box-and-connector schema view similar to the supplied reference image. It is generated from `db-schema.dbml`, which remains the implementation-ready source baseline.
+This document is the authoritative reviewed ATP schema design and expands Section 7 of `technical-design.md` into a complete table-box-and-connector view similar to the supplied reference image. `db-schema.dbml` is maintained as its implementation-ready, machine-readable physical equivalent.
 
 ## Scope and Conventions
 

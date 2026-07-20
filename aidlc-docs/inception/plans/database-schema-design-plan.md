@@ -2,7 +2,7 @@
 
 ## Scope
 
-Create a Markdown companion to Section 7 of `technical-design.md` that presents every ATP table as an ERD table box, shows every physical foreign-key connection from `db-schema.dbml`, and documents standalone configuration tables without inventing database relationships.
+Create the authoritative Markdown schema design companion to Section 7 of `technical-design.md`, presenting every ATP table as an ERD table box, showing every physical foreign-key connection, and documenting standalone configuration tables without inventing database relationships. Maintain `db-schema.dbml` as the synchronized machine-readable equivalent.
 
 ## Execution Checklist
 
@@ -16,9 +16,9 @@ Create a Markdown companion to Section 7 of `technical-design.md` that presents 
 
 ## Validation Criteria
 
-- All 18 current DBML tables appear exactly once in the full ER diagram after the approved schema-baseline amendments.
-- All 17 current DBML foreign-key references appear as relationships.
-- Every diagram field exists in the DBML source and preserves its data type and key role.
+- All 18 current schema tables appear exactly once in the full ER diagram and DBML equivalent.
+- All 17 current physical foreign-key references appear as relationships in both artifacts.
+- Every diagram field has a matching DBML field with the same data type and key role.
 - Standalone configuration tables are shown without false physical foreign keys.
 - The diagram includes a text alternative and an explicit relationship catalog.
 - Sensitive bank fields remain masked or hashed as defined by the baseline.
