@@ -1212,3 +1212,26 @@ approved pls proceed"
 **Context**: Mandatory UOW-001 Infrastructure Design review gate.
 
 ---
+
+## UOW-001 Infrastructure Design Approval
+**Timestamp**: 2026-07-21T17:28:19Z
+**User Input**: "approved, proceed next !"
+**AI Response**: "Recorded explicit approval of UOW-001 Core Request Intake Infrastructure Design, loaded the Code Generation rules and all approved unit artifacts, updated AI-DLC state, and started Code Generation Part 1 planning."
+**Context**: AI-DLC Construction - UOW-001 Infrastructure Design approved; UOW-001 Code Generation planning started. No implementation has started.
+
+---
+
+## UOW-001 Code Generation Part 1 Completion
+**Timestamp**: 2026-07-21T17:37:07Z
+**AI Response**: "Completed the UOW-001 Core Request Intake Code Generation plan. The single-source plan contains 28 ordered generation steps and 93 executable Part 2 checkboxes covering the safe root project skeleton, exact dependency/tool pins, Oracle/Nginx Compose runtime, secrets/trust/preflight/lifecycle automation, external migration runner, exact 18-table/189-column/17-relationship schema, representative data in every table, ten PL/SQL packages, the 11 Requester ORDS routes, ORDS 26.2 OAuth2 security, OpenAPI 3.0.3, all 28 business rules, example/property/database/contract/security/e2e/recovery/performance tests, scans/SBOM, focused verification, summaries, and staged commits. The plan explicitly resolves the UOW-001/UOW-002 governed-check boundary and proposes a loopback edge-throttle amendment because ORDS 26.2 does not document native per-client rate limiting. Validation confirmed sequential numbering, exact paths, complete schema/route representation, Markdown table consistency, and explicit statuses for all 15 Security, all 15 Resiliency, and five enforced Partial-PBT rules."
+**Context**: AI-DLC Construction - UOW-001 Code Generation Part 1 plan complete and awaiting explicit approval. Docker memory must be raised to at least 8 GiB before runtime execution. No implementation has started.
+
+---
+
+## UOW-001 Code Generation Plan Approval Prompt
+**Timestamp**: 2026-07-21T17:37:07Z
+**AI Prompt**: "Review aidlc-docs/construction/plans/uow-001-core-request-intake-code-generation-plan.md. Request Changes or explicitly approve the complete plan to begin Code Generation Part 2 at Step 1. Approval also covers the documented loopback edge-throttle infrastructure amendment."
+**Status**: Awaiting user response
+**Context**: Mandatory UOW-001 Code Generation Part 1 review gate. No code may be generated before explicit approval.
+
+---

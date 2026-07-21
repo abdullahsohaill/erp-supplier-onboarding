@@ -166,7 +166,7 @@ No Oracle Cloud, Fusion, OIC, or live AI credentials are required for the local 
 
 The following may require user interaction only if local automation cannot complete them:
 
-1. Start Docker Desktop and allow at least 4 CPUs and 8 GiB memory. Docker is installed, but its daemon is currently stopped.
+1. Keep Docker Desktop running and raise its available memory from approximately 7.65 GiB to at least 8 GiB. Docker currently exposes 10 CPUs and its daemon is running.
 2. Approve any macOS prompt raised by Docker Desktop for privileged networking or filesystem access.
 3. Trust the generated local self-signed ORDS certificate in the browser only if interactive Database Actions/APEX access is desired. Automated tests will use the copied local CA certificate rather than disabling TLS verification.
 4. Later provide customer-managed credentials and tenancy details when replacing mocks with Oracle Cloud ATP, OIC, Fusion, SSO, or a live AI provider.
@@ -176,8 +176,8 @@ Secrets will be generated into ignored local files. They will not be committed o
 ## Execution Checklist
 
 - [x] Approve this construction workflow plan.
-- [ ] Complete and approve UOW-001 functional, NFR, NFR-design, and infrastructure artifacts. Functional Design, NFR Requirements, and NFR Design are approved; Infrastructure Design is complete and awaiting explicit approval.
-- [ ] Complete and approve the UOW-001 code-generation plan and implementation.
+- [x] Complete and approve UOW-001 functional, NFR, NFR-design, and infrastructure artifacts.
+- [ ] Complete and approve the UOW-001 code-generation plan and implementation. The generation plan is drafted and awaiting explicit approval; implementation has not started.
 - [ ] Complete and approve UOW-002 functional, NFR, NFR-design, and infrastructure artifacts.
 - [ ] Complete and approve the UOW-002 code-generation plan and implementation.
 - [ ] Complete and approve UOW-003 functional, NFR, NFR-design, and infrastructure artifacts.
