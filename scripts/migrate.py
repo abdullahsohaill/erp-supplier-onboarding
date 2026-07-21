@@ -38,6 +38,24 @@ def source_files() -> list[str]:
     return [entry["path"] for entry in manifest["install"]]
 
 
+def install_source(relative: str, path: Path) -> str:
+    source = path.read_text(encoding="utf-8")
+    if relative != "ords/security/register_local_clients.sql":
+        return source
+    clients_path = ROOT / ".local/secrets/oauth-clients.json"
+    clients = json.loads(clients_path.read_text(encoding="utf-8"))
+    replacements = {
+        "__REQUESTER_A_SECRET__": clients["requester_a"]["client_secret"],
+        "__REQUESTER_B_SECRET__": clients["requester_b"]["client_secret"],
+        "__REVIEWER_SECRET__": clients["reviewer_test"]["client_secret"],
+        "__SUPPORT_SECRET__": clients["support_admin_test"]["client_secret"],
+        "__SYSTEM_SECRET__": clients["system_oic_test"]["client_secret"],
+    }
+    for placeholder, secret in replacements.items():
+        source = source.replace(placeholder, secret.replace("'", "''"))
+    return source
+
+
 def bootstrap(env: dict[str, str]) -> None:
     source = (ROOT / "database/bootstrap/000_create_principals.sql").read_text(encoding="utf-8")
     bind_setup = (
@@ -71,7 +89,7 @@ def main() -> int:
             "started_at": started.isoformat(),
         }
         try:
-            sqlplus("ERP_APP", env["ERP_APP_PASSWORD"], path.read_text(encoding="utf-8"))
+            sqlplus("ERP_APP", env["ERP_APP_PASSWORD"], install_source(relative, path))
             record["result"] = "PASS"
         except RuntimeFailure as exc:
             record["result"] = "FAIL"

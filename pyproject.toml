@@ -9,6 +9,7 @@ markers = [
   "performance: local non-production performance test",
   "security: security and abuse test",
   "recovery: restart, rollback, or rebuild test",
+  "runtime: requires the complete local Oracle and ORDS stack",
 ]
 
 [tool.hypothesis]

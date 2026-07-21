@@ -263,9 +263,9 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 7: Generate Bootstrap and External Migration Runner
 
-- [ ] Create ADMIN-only bootstrap SQL for `ERP_APP`, optional `ERP_VERIFY`, quotas, and least-privilege grants.
-- [ ] Create an ordered JSON migration manifest and Python runner that records SHA-256, UTC timing, database fingerprint, result, and safe errors outside the schema.
-- [ ] Make SQL/PLSQL warnings/errors fail fast and prohibit a migration-history application table.
+- [x] Create ADMIN-only bootstrap SQL for `ERP_APP`, optional `ERP_VERIFY`, quotas, and least-privilege grants.
+- [x] Create an ordered JSON migration manifest and Python runner that records SHA-256, UTC timing, database fingerprint, result, and safe errors outside the schema.
+- [x] Make SQL/PLSQL warnings/errors fail fast and prohibit a migration-history application table.
 
 ### Step 8: Generate the Finalized 18-Table DDL
 
@@ -282,10 +282,10 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 10: Generate Representative Seed Data for Every Table
 
-- [ ] Seed `REF_BUSINESS_UNIT`, `REF_SUPPLIER_TYPE`, `REF_HIGH_RISK_COUNTRY`, `VALIDATION_RULES` (`VAL-001` through `VAL-009`), and typed/versioned `REF_SCORING_RULE` rows with active/inactive examples.
-- [ ] Seed Requester-owned Draft, Correction Requested, Under Review, duplicate-blocked, warning-only, final outcome, and integration-failure scenarios across all 18 tables.
-- [ ] Use only deterministic dummy masked/hash bank data, valid JSON, and referentially valid IDs discovered through business keys.
-- [ ] Verify every application table contains representative data and `retry_count` equals retry history length.
+- [x] Seed `REF_BUSINESS_UNIT`, `REF_SUPPLIER_TYPE`, `REF_HIGH_RISK_COUNTRY`, `VALIDATION_RULES` (`VAL-001` through `VAL-009`), and typed/versioned `REF_SCORING_RULE` rows with active/inactive examples.
+- [x] Seed Requester-owned Draft, Correction Requested, Under Review, duplicate-blocked, warning-only, final outcome, and integration-failure scenarios across all 18 tables.
+- [x] Use only deterministic dummy masked/hash bank data, valid JSON, and referentially valid IDs discovered through business keys.
+- [x] Verify every application table contains representative data and `retry_count` equals retry history length.
 
 ### Step 11: Generate Common PL/SQL Packages
 
