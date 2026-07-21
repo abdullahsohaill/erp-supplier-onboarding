@@ -4,8 +4,8 @@
 - **Project Name**: Supplier Onboarding, Duplicate Detection, and Risk Scoring
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
-- **Current Phase**: INCEPTION
-- **Current Stage**: INCEPTION - Oracle ATP/ORDS construction workflow plan awaiting explicit approval
+- **Current Phase**: CONSTRUCTION
+- **Current Stage**: CONSTRUCTION - UOW-001 Core Request Intake NFR Design complete; explicit approval required
 
 ## Workspace State
 - **Existing Code**: No
@@ -46,9 +46,9 @@
 - [x] Oracle ATP/ORDS construction workflow plan drafted
 
 ### CONSTRUCTION PHASE
-- [ ] Functional Design per unit
-- [ ] NFR Requirements per unit
-- [ ] NFR Design per unit
+- [ ] Functional Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
+- [ ] NFR Requirements per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
+- [ ] NFR Design per unit (UOW-001 complete and awaiting approval; UOW-002 through UOW-005 pending)
 - [ ] Infrastructure Design per unit
 - [ ] Code Generation planning
 - [ ] Build and Test planning
@@ -61,4 +61,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-The finalized `database-schema-design.md` remains the authoritative 18-table, 189-column, 17-relationship contract, with `db-schema.dbml` as its synchronized machine-readable equivalent. The construction workflow is defined in `aidlc-docs/construction/plans/oracle-atp-ords-construction-plan.md` and awaits explicit approval. It selects the pinned official Oracle Autonomous AI Database Free 26ai ARM64 image in ATP mode with bundled ORDS, preserves the schema contract, implements all 42 approved endpoint contracts, seeds every application table, tests all mapped use cases and security boundaries, and produces migration plus consolidated reports. No runtime, migration, endpoint, seed, or test implementation has started.
+UOW-001 Core Request Intake NFR Design is complete and awaiting explicit approval. The design defines 34 security, performance, resilience, observability, maintainability, and testing patterns; 21 logical components; trust boundaries; interfaces; failure/recovery behavior; and an exact mapping for all 53 approved NFRs. Security Baseline, Resiliency Baseline, and enabled Property-Based Testing rules have no applicable blocking findings. No implementation has started. Approval advances UOW-001 to Infrastructure Design.

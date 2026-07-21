@@ -1086,3 +1086,106 @@ idk if it's the same or not"
 **Context**: Repository maintenance during the AI-DLC construction-plan review gate. Existing configured Git identity is used unchanged.
 
 ---
+
+## Local Runtime Clarification
+**Timestamp**: 2026-07-20T18:45:26Z
+**User Input**: "why do u need docker btw"
+**AI Response**: "Explained that Docker is not an application or production requirement. It is the recommended local runtime because Oracle Autonomous AI Database Free and its bundled ORDS are distributed as a Linux container, while the development host is an ARM64 Mac. Docker supplies the isolated Linux environment, pinned reproducible Oracle version, persistent data volume, and clean rebuild/reset behavior. Cloud ATP, Podman, or a Linux virtual machine are alternatives."
+**Context**: AI-DLC construction-plan review clarification; no implementation decision or stage status changed.
+
+---
+
+## Oracle ATP and ORDS Construction Plan Approval
+**Timestamp**: 2026-07-20T18:52:34Z
+**User Input**: "\"📋 Workflow Planning Complete
+The construction plan is ready at [oracle-atp-ords-construction-plan.md](/Users/abdullahsohail/abdullahsohail/GoSaaS/erp_project/aidlc-docs/construction/plans/oracle-atp-ords-construction-plan.md).
+It covers:
+Official Oracle Autonomous AI Database Free 26ai in ATP mode with bundled ORDS.
+Exact preservation of 18 tables, 189 columns, and 17 relationships.
+All 42 approved ORDS endpoints.
+Oracle migrations, PL/SQL packages, OAuth2 role security, and OpenAPI.
+Representative data in every table.
+Mock Fusion/OIC and deterministic AI behavior.
+Tests for all 14 user stories, security, contracts, migrations, properties, and performance.
+Consolidated implementation, test, and migration reports.
+The pinned image exists for ARM64, and your 16 GB Mac meets its documented 4 CPU/8 GiB requirement. Oracle container documentation, ORDS documentation.
+Possible manual steps:
+Docker Desktop may need to be started and allocated at least 4 CPUs and 8 GiB RAM.
+You may need to approve macOS Docker networking/filesystem prompts.
+Browser access may require trusting ORDS’s local certificate. Automated tests will validate it without disabling TLS.
+Real ATP, OIC, Fusion, SSO, and AI credentials are only required when replacing local mocks.
+Security, resiliency, and property-testing extensions are covered at the planning level with no blocking findings. Runtime compliance will be tested during construction.
+REVIEW REQUIRED:
+Please examine the construction plan linked above.
+You may:
+Request Changes - Modify the construction approach.
+Approve & Continue - Begin UOW-001 Functional Design and the implementation workflow.
+
+No database containers, migrations, endpoints, or seed scripts have been created yet because AI-DLC requires this approval gate first.\"
+
+approved pls proceed"
+**AI Response**: "Recorded explicit approval of the Oracle ATP/ORDS construction workflow, marked the plan approval checkbox complete, moved AI-DLC state to CONSTRUCTION, and started UOW-001 Core Request Intake Functional Design."
+**Context**: AI-DLC Construction - workflow plan approved; UOW-001 Functional Design started. Code generation remains gated behind the required design and code-generation-plan reviews.
+
+---
+
+## UOW-001 Functional Design Completion
+**Timestamp**: 2026-07-20T18:56:05Z
+**AI Response**: "Completed UOW-001 Core Request Intake Functional Design for US-001 through US-003 and FR-001 through FR-004. Created the business logic model, 28-rule business catalog, domain entity model, Requester frontend/API contract, and testable-property inventory. Defined owner-scoped Draft creation, Draft/Correction Requested editing, automatic submit orchestration, blocker-state preservation, atomic Submitted-to-Under-Review handoff, role-safe Requester projections, sensitive-bank-data restrictions, and exact schema boundaries. Validation passed for Markdown structure, rule numbering, story/requirement traceability, plan checkboxes, terminology, and absence of unsupported physical tables."
+**Context**: AI-DLC Construction - UOW-001 Functional Design complete and awaiting explicit approval. Security Baseline is compliant for applicable functional controls; runtime controls are deferred. Resiliency Baseline is compliant for transactional/state behavior; production targets are N/A at this stage. Partial Property-Based Testing is compliant through identified round-trip, invariant, idempotence, stateful-model, and easy-verification properties. No blocking extension finding remains.
+
+---
+
+## UOW-001 Functional Design Approval Prompt
+**Timestamp**: 2026-07-20T18:56:05Z
+**AI Prompt**: "Review aidlc-docs/construction/uow-001-core-request-intake/functional-design/. Request changes or explicitly approve Functional Design to continue to UOW-001 NFR Requirements."
+**Status**: Awaiting user response
+**Context**: Mandatory UOW-001 Functional Design review gate.
+
+---
+
+## UOW-001 Functional Design Approval
+**Timestamp**: 2026-07-21T16:52:48Z
+**User Input**: "approved, please proceed to next stage"
+**AI Response**: "Recorded explicit approval of UOW-001 Core Request Intake Functional Design, updated the construction plan and AI-DLC state, and started UOW-001 NFR Requirements."
+**Context**: AI-DLC Construction - UOW-001 Functional Design approved; UOW-001 NFR Requirements started.
+
+---
+
+## UOW-001 NFR Requirements Completion
+**Timestamp**: 2026-07-21T16:55:45Z
+**AI Response**: "Completed UOW-001 Core Request Intake NFR Requirements. Defined 53 measurable requirements for local prototype performance/capacity, recoverability, security/privacy, authorization, audit/observability, maintainability, usability, and testability. Selected the pinned Oracle Autonomous AI Database Free ATP-mode runtime, bundled ORDS, PL/SQL, ORDS OAuth2, OpenAPI 3.0.3, ordered external-manifest migrations, Python 3.13, pytest, python-oracledb, requests, jsonschema, Hypothesis, vulnerability scanning, secret scanning, and CycloneDX SBOM. Validation confirmed unique NFR IDs, all 15 Security rules, all 15 Resiliency rules, all five enforced partial-PBT rules, schema-contract preservation, balanced Markdown, and no blocking extension findings."
+**Context**: AI-DLC Construction - UOW-001 NFR Requirements complete and awaiting explicit approval. Production SLA/RTO/RPO/topology/identity/compliance decisions remain documented customer gates and are N/A to local prototype implementation.
+
+---
+
+## UOW-001 NFR Requirements Approval Prompt
+**Timestamp**: 2026-07-21T16:55:45Z
+**AI Prompt**: "Review aidlc-docs/construction/uow-001-core-request-intake/nfr-requirements/. Request changes or explicitly approve NFR Requirements to continue to UOW-001 NFR Design."
+**Status**: Awaiting user response
+**Context**: Mandatory UOW-001 NFR Requirements review gate.
+
+---
+
+## UOW-001 NFR Requirements Approval
+**Timestamp**: 2026-07-21T16:58:10Z
+**User Input**: "approved, proceed next !"
+**AI Response**: "Recorded explicit approval of UOW-001 Core Request Intake NFR Requirements, updated the construction plan and AI-DLC state, and started UOW-001 NFR Design."
+**Context**: AI-DLC Construction - UOW-001 NFR Requirements approved; UOW-001 NFR Design started.
+
+---
+
+## UOW-001 NFR Design Completion
+**Timestamp**: 2026-07-21T17:02:54Z
+**AI Response**: "Completed UOW-001 Core Request Intake NFR Design. Defined 34 patterns covering layered authorization, object ownership, safe projections, sensitive-data minimization, bounded pagination, indexed access, atomic transactions, blocker-state preservation, optimistic conflict handling, health/rebuild behavior, redacted observability, modularity, supply-chain controls, and example/property/contract/security/performance testing. Defined 21 logical components with interfaces, trust boundaries, create/update/submit/read flows, dependency direction, failure and recovery behavior, and test seams. Added exact traceability for all 53 approved NFR IDs. Validation confirmed unique pattern/component IDs, complete requirement coverage, extension compliance, Markdown consistency, and no unsupported database table or column."
+**Context**: AI-DLC Construction - UOW-001 NFR Design complete and awaiting explicit approval. Security Baseline, Resiliency Baseline, and enabled Partial Property-Based Testing rules have no applicable blocking findings. No code, database container, migration, seed, or endpoint implementation has started.
+
+---
+
+## UOW-001 NFR Design Approval Prompt
+**Timestamp**: 2026-07-21T17:02:54Z
+**AI Prompt**: "Review aidlc-docs/construction/uow-001-core-request-intake/nfr-design/. Request Changes or explicitly Continue to Next Stage to begin UOW-001 Infrastructure Design."
+**Status**: Awaiting user response
+**Context**: Mandatory UOW-001 NFR Design review gate.
+
+---

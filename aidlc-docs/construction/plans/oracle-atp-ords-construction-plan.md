@@ -2,7 +2,7 @@
 
 ## Status
 
-**Awaiting explicit approval. No implementation steps have started.**
+**Approved. Construction design is in progress; implementation has not started.**
 
 ## Objective
 
@@ -175,8 +175,8 @@ Secrets will be generated into ignored local files. They will not be committed o
 
 ## Execution Checklist
 
-- [ ] Approve this construction workflow plan.
-- [ ] Complete and approve UOW-001 functional, NFR, NFR-design, and infrastructure artifacts.
+- [x] Approve this construction workflow plan.
+- [ ] Complete and approve UOW-001 functional, NFR, NFR-design, and infrastructure artifacts. Functional Design and NFR Requirements are approved; NFR Design is complete and awaiting explicit approval.
 - [ ] Complete and approve the UOW-001 code-generation plan and implementation.
 - [ ] Complete and approve UOW-002 functional, NFR, NFR-design, and infrastructure artifacts.
 - [ ] Complete and approve the UOW-002 code-generation plan and implementation.
