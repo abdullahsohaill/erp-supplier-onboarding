@@ -1189,3 +1189,26 @@ approved pls proceed"
 **Context**: Mandatory UOW-001 NFR Design review gate.
 
 ---
+
+## UOW-001 NFR Design Approval
+**Timestamp**: 2026-07-21T17:06:20Z
+**User Input**: "approved, proceed next !"
+**AI Response**: "Recorded explicit approval of UOW-001 Core Request Intake NFR Design, loaded the Infrastructure Design and enabled extension rules, updated AI-DLC state, and started UOW-001 Infrastructure Design."
+**Context**: AI-DLC Construction - UOW-001 NFR Design approved; UOW-001 Infrastructure Design started. No implementation has started.
+
+---
+
+## UOW-001 Infrastructure Design Completion
+**Timestamp**: 2026-07-21T17:12:54Z
+**AI Response**: "Completed UOW-001 Core Request Intake Infrastructure Design. Mapped all 21 logical components and all 53 approved NFRs to 12 concrete local resources, defined the single-service Docker Compose/Oracle Autonomous AI Database Free ATP-mode topology, bundled ORDS HTTPS/OAuth2 boundary, exact 11-route UOW-001 deployment catalog, loopback-only TLS/mTLS networking, named-volume persistence, least-privilege database and ORDS identities, generated local secret/trust paths, host Python test infrastructure, migration/schema/seed/OpenAPI/scan/SBOM/report infrastructure, health and recovery gates, and future production decision boundaries. Validation confirmed complete traceability, explicit per-rule Security/Resiliency/Partial-PBT compliance, consistent Markdown tables, and no unsupported application table or column. Host verification found ARM64, 16 GB host memory, Docker/Compose/Python readiness, and FileVault enabled; Docker currently exposes approximately 7.65 GiB and must be raised to at least 8 GiB before runtime startup."
+**Context**: AI-DLC Construction - UOW-001 Infrastructure Design complete and awaiting explicit approval. No code, image pull, container, schema, migration, seed, or endpoint configuration has been created.
+
+---
+
+## UOW-001 Infrastructure Design Approval Prompt
+**Timestamp**: 2026-07-21T17:12:54Z
+**AI Prompt**: "Review aidlc-docs/construction/uow-001-core-request-intake/infrastructure-design/. Request Changes or explicitly Continue to Next Stage to begin UOW-001 Code Generation planning."
+**Status**: Awaiting user response
+**Context**: Mandatory UOW-001 Infrastructure Design review gate.
+
+---

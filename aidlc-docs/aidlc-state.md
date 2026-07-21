@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: CONSTRUCTION
-- **Current Stage**: CONSTRUCTION - UOW-001 Core Request Intake NFR Design complete; explicit approval required
+- **Current Stage**: CONSTRUCTION - UOW-001 Core Request Intake Infrastructure Design complete; explicit approval required
 
 ## Workspace State
 - **Existing Code**: No
@@ -48,8 +48,8 @@
 ### CONSTRUCTION PHASE
 - [ ] Functional Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
 - [ ] NFR Requirements per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
-- [ ] NFR Design per unit (UOW-001 complete and awaiting approval; UOW-002 through UOW-005 pending)
-- [ ] Infrastructure Design per unit
+- [ ] NFR Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
+- [ ] Infrastructure Design per unit (UOW-001 complete and awaiting approval; UOW-002 through UOW-005 pending)
 - [ ] Code Generation planning
 - [ ] Build and Test planning
 
@@ -61,4 +61,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-UOW-001 Core Request Intake NFR Design is complete and awaiting explicit approval. The design defines 34 security, performance, resilience, observability, maintainability, and testing patterns; 21 logical components; trust boundaries; interfaces; failure/recovery behavior; and an exact mapping for all 53 approved NFRs. Security Baseline, Resiliency Baseline, and enabled Property-Based Testing rules have no applicable blocking findings. No implementation has started. Approval advances UOW-001 to Infrastructure Design.
+UOW-001 Core Request Intake Infrastructure Design is complete and awaiting explicit approval. It maps all 21 logical components, all 53 approved NFRs, and the 11 UOW-001 ORDS routes to 12 concrete local resources: Docker Compose, Oracle Autonomous AI Database Free ATP-mode with bundled ORDS, loopback HTTPS/TLS/mTLS networking, named-volume persistence, least-privilege database/ORDS identities, generated local secrets/trust, host Python tests, health gates, and redacted evidence. Security, Resiliency, and enabled Property-Based Testing rules have no applicable blocking findings. Docker currently exposes about 7.65 GiB and must be raised to at least 8 GiB before runtime startup. No implementation has started.
