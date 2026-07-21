@@ -12,7 +12,7 @@ The finalized 18-table, 189-column, 17-relationship application schema remains a
 |---|---|
 | Environment | Local non-production runtime on the approved ARM64 Mac using Docker Desktop and Docker Compose v2. |
 | Database | `ghcr.io/oracle/adb-free:26.2.4.2-26ai` in ATP mode. The code-generation stage resolves and records the immutable digest before first use. |
-| REST tier | ORDS bundled inside the Oracle autonomous container and exposed only over loopback HTTPS. |
+| REST tier | A loopback-only Nginx edge terminates local HTTPS, applies token-scoped throttling, and proxies allowlisted application paths to ORDS bundled inside the Oracle autonomous container over verified private HTTPS. |
 | Database logic | SQL and PL/SQL packages owned by `ERP_APP`; thin ORDS handlers call package interfaces. |
 | API identity | Local ORDS OAuth2 clients, roles, and privileges; production SSO remains a customer decision gate. |
 | Persistence | Named Docker volume mounted at `/u01/data`; committed data survives normal container restarts. |
@@ -39,18 +39,19 @@ Oracle's official container documentation confirms ATP workload support, ARM64 s
 | U1-INF-010 | Database source | `database/` | Versioned migrations, packages, seeds, and verification SQL. |
 | U1-INF-011 | ORDS source | `ords/` | Versioned modules, security definitions, and OpenAPI contract. |
 | U1-INF-012 | Automation source | `scripts/` and `tests/` | Versioned lifecycle commands and executable test suites. |
+| U1-INF-013 | Local HTTPS edge | `erp-edge` Nginx container | Loopback HTTPS ingress, route allowlist, body limits, redacted access logs, and token-scoped read/mutation throttles. |
 
-Only U1-INF-003 is a long-running application service. Test and migration commands run as bounded host processes so they do not create a second application runtime or weaken database/network isolation.
+U1-INF-003 and U1-INF-013 are the only long-running services. Test and migration commands run as bounded host processes. The edge is a local enforcement adapter, not a business-logic service or production gateway claim.
 
 ## Logical Component Mapping
 
 | Logical Component | Infrastructure Mapping | Deployment/Control Boundary |
 |---|---|---|
-| U1-LC-001 ORDS HTTPS Gateway | Bundled ORDS in U1-INF-003 on loopback port 8443 | HTTPS only; explicit CORS origins; structured access events. |
+| U1-LC-001 ORDS HTTPS Gateway | U1-INF-013 accepts loopback HTTPS and proxies allowlisted paths to bundled ORDS in U1-INF-003 over verified private HTTPS | HTTPS only; explicit CORS origins; token-scoped throttling; structured redacted access events. |
 | U1-LC-002 OAuth2 Token Validator | ORDS OAuth2 metadata in the autonomous database | Validates local client token and denies absent/invalid credentials. |
 | U1-LC-003 Endpoint Privilege Guard | ORDS roles and privileges | Route patterns are bound to least-privilege role sets. |
 | U1-LC-004 Principal Adapter | `ERP_APP` PL/SQL utility package called by handlers | Derives trusted subject and roles from ORDS runtime context. |
-| U1-LC-005 Rate and Size Guard | ORDS configuration plus handler validation package | Rejects excessive request rates, bodies, pages, and collections before mutation. |
+| U1-LC-005 Rate and Size Guard | Nginx request zones/body limits plus ORDS and handler validation | Rejects excessive token-scoped rates, bodies, pages, and collections before mutation. |
 | U1-LC-006 Request Input Mapper | `ERP_APP` request/API package | Validates allowlisted JSON and converts it to typed PL/SQL values. |
 | U1-LC-007 Request Authorization Guard | `ERP_APP` authorization package | Enforces role, owner, and lifecycle state inside the database transaction. |
 | U1-LC-008 Request Command Service | `ERP_APP` request command package | Owns Draft create/update transactions. |
@@ -88,11 +89,25 @@ Only U1-INF-003 is a long-running application service. Test and migration comman
 
 The current host has 10 Docker CPUs but reports approximately 7.65 GiB to containers. Docker Desktop must be raised slightly to at least 8 GiB before runtime construction. The image is not currently pulled; Code Generation records its resolved digest after the approved pull.
 
+### Edge Service Contract
+
+| Setting | Design Value |
+|---|---|
+| Image | `nginx:1.28.0-alpine`; resolved digest recorded before startup. |
+| Ingress | `127.0.0.1:8443` only, with a generated local CA/server certificate. |
+| Upstream | Private `https://oracle-adb:8443`; hostname and certificate chain verification are mandatory. |
+| Routes | Application base path and OAuth token path only; Database Actions, APEX, REST-enabled SQL, and unrecognized paths are denied. |
+| Rate keys | Bearer token for authenticated API traffic; loopback address for token issuance. Authorization values are never logged. |
+| Limits | 120 reads/minute/token and 30 mutations/minute/token; excess returns 429. |
+| Logs | UTC, request ID, method, normalized route, status, latency, and safe client category only. |
+
+This local token-scoped control approximates the deterministic one-token-per-client test model. Production requires an identity-aware customer gateway/WAF policy and must not inherit this prototype assumption.
+
 ### Compose Profiles
 
 | Profile/Command Class | Purpose | Persistent Effect |
 |---|---|---|
-| Default | Start/stop U1-INF-003 and network. | Preserves U1-INF-005. |
+| Default | Start/stop U1-INF-003, U1-INF-013, and network. | Preserves U1-INF-005. |
 | Bootstrap | Generate local secrets, start service, copy trust material, and wait for database/ORDS readiness. | Creates ignored local files and persistent database state. |
 | Migrate | Apply ordered schema/package/ORDS definitions after readiness. | Creates approved database and ORDS objects. |
 | Seed | Load deterministic dummy data only after migration/schema checks. | Populates all approved application tables. |
@@ -142,7 +157,7 @@ Local rebuild is the rollback mechanism. Production backup retention, point-in-t
 
 | Host Binding | Container Target | Protocol/Purpose | Exposure Rule |
 |---|---|---|---|
-| `127.0.0.1:8443` | `8443` | HTTPS for ORDS, Database Actions, and APEX | Required locally; never bind to all interfaces. |
+| `127.0.0.1:8443` | U1-INF-013 `8443` | HTTPS application/OAuth ingress | Required locally; never bind to all interfaces. |
 | `127.0.0.1:1521` | `1522` | Oracle TLS-compatible local mapping used by approved aliases/tools | Required only for host database automation. |
 | `127.0.0.1:1522` | `1522` | Oracle mTLS connection using generated wallet | Required for wallet-based verification. |
 
@@ -151,7 +166,8 @@ Port 27017 is not exposed because Mongo API is outside scope. No HTTP port, publ
 Network controls:
 
 - Docker publishes required ports only to `127.0.0.1`.
-- ORDS accepts HTTPS; tests never disable certificate verification.
+- The edge and ORDS upstream both use HTTPS; tests and proxy configuration never disable certificate verification.
+- ORDS port 8443 is private to `erp_backend` and is not published directly to the host.
 - The copied local CA/wallet is the trust source for Python and database clients.
 - CORS contains explicit local development origin values and never uses wildcard origins for authenticated APIs.
 - Body, collection, page-size, and rate controls are applied before expensive business processing.
@@ -284,7 +300,7 @@ Repository secret scanning and explicit ignore assertions must fail the build if
 | U1-NFR-SEC-010 | Ignored permission-restricted `.local/` material and secret scan. |
 | U1-NFR-SEC-011 | Generated credential bootstrap and preflight rejection of defaults/weak values. |
 | U1-NFR-SEC-012 | Central package/ORDS error mapping and redacted logs. |
-| U1-NFR-SEC-013 | Per-client read/mutation throttles. |
+| U1-NFR-SEC-013 | Token-scoped Nginx read/mutation throttles for deterministic local clients; production identity-aware gateway remains gated. |
 | U1-NFR-SEC-014 | Pinned image tag/digest, exact Python dependencies, scan, and CycloneDX SBOM. |
 | U1-NFR-SEC-015 | N/A to JSON-only handlers; future HTML delivery remains gated. |
 | U1-NFR-OBS-001 | ORDS/package trace IDs in every envelope/event. |

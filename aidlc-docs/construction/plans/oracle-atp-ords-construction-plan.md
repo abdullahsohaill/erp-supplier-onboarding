@@ -177,7 +177,7 @@ Secrets will be generated into ignored local files. They will not be committed o
 
 - [x] Approve this construction workflow plan.
 - [x] Complete and approve UOW-001 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-001 code-generation plan and implementation. The generation plan is drafted and awaiting explicit approval; implementation has not started.
+- [ ] Complete and approve the UOW-001 code-generation plan and implementation. The plan is approved and implementation is in progress on `construction-phase`.
 - [ ] Complete and approve UOW-002 functional, NFR, NFR-design, and infrastructure artifacts.
 - [ ] Complete and approve the UOW-002 code-generation plan and implementation.
 - [ ] Complete and approve UOW-003 functional, NFR, NFR-design, and infrastructure artifacts.

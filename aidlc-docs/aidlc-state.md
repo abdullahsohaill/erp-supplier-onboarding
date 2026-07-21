@@ -5,7 +5,8 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: CONSTRUCTION
-- **Current Stage**: CONSTRUCTION - UOW-001 Core Request Intake Code Generation Part 1 planning; plan review required
+- **Current Stage**: CONSTRUCTION - UOW-001 Core Request Intake Code Generation Part 2 in progress
+- **Construction Branch**: `construction-phase`
 
 ## Workspace State
 - **Existing Code**: No
@@ -50,7 +51,8 @@
 - [ ] NFR Requirements per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
 - [ ] NFR Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
 - [ ] Infrastructure Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
-- [ ] Code Generation planning (UOW-001 plan drafted and awaiting approval)
+- [ ] Code Generation planning (UOW-001 approved; UOW-002 through UOW-005 will use the user's blanket construction approval)
+- [ ] Code Generation per unit (UOW-001 in progress)
 - [ ] Build and Test planning
 
 ### OPERATIONS PHASE
@@ -61,4 +63,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-UOW-001 Core Request Intake Infrastructure Design is approved. Code Generation Part 1 has produced a detailed generation plan and is awaiting explicit approval before Part 2. The plan covers the complete 18-table migration baseline, UOW-001 PL/SQL and 11 ORDS routes, deterministic governed-check compatibility behavior, representative seed data in every table, OAuth2/ownership controls, OpenAPI, lifecycle automation, example/property/contract/security/recovery/performance tests, supply-chain evidence, and staged commits. It also records an edge-throttle infrastructure amendment because ORDS 26.2 does not document native per-client request throttling. Docker memory must be raised from about 7.65 GiB to at least 8 GiB before runtime startup. No implementation has started.
+The user explicitly approved all remaining construction stages through UOW-005. UOW-001 Code Generation Part 2 is in progress on `construction-phase`; Step 1 is complete. The infrastructure baseline now contains 13 resources, including the local edge-throttle service and private ORDS path. `main` has been restored to `ebd9d6d`; it will not receive construction changes unless the user later requests a merge. The implementation must still satisfy every per-step checkbox, security/resiliency/PBT gate, schema/API contract, runtime test, and audit requirement.

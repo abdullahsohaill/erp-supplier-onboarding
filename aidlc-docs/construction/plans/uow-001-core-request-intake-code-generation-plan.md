@@ -2,7 +2,7 @@
 
 ## Status
 
-Part 1 planning complete; awaiting explicit approval. Part 2 generation has not started.
+Approved by the user's blanket construction authorization. Part 2 generation is in progress on `construction-phase`.
 
 This document is the single source of truth for UOW-001 Code Generation. Part 2 must execute the numbered steps in order and mark each checkbox in the same interaction that completes the step.
 
@@ -226,9 +226,9 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 1: Revalidate Baseline and Record Infrastructure Amendment
 
-- [ ] Re-read the approved plan/artifacts and verify Git status contains no unexpected user changes.
-- [ ] Amend `infrastructure-design.md`, `deployment-architecture.md`, and AI-DLC state/audit to add the loopback edge-throttle resource and ORDS-private network path.
-- [ ] Validate the amended infrastructure traceability and extension compliance before creating root code.
+- [x] Re-read the approved plan/artifacts and verify Git status contains no unexpected user changes.
+- [x] Amend `infrastructure-design.md`, `deployment-architecture.md`, and AI-DLC state/audit to add the loopback edge-throttle resource and ORDS-private network path.
+- [x] Validate the amended infrastructure traceability and extension compliance before creating root code.
 
 ### Step 2: Create Safe Project Skeleton
 

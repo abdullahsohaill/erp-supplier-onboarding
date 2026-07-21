@@ -1235,3 +1235,26 @@ approved pls proceed"
 **Context**: Mandatory UOW-001 Code Generation Part 1 review gate. No code may be generated before explicit approval.
 
 ---
+
+## Construction Completion and Branch Transfer Authorization
+**Timestamp**: 2026-07-21T17:39:33Z
+**User Input**: "complete eveything till uow 005 please, u have all my permissions and approvals, get everything done, another thing is, could you possibly transfer all the commits done after this commit:ebd9d6d into a separate branch? like create a branch and transfer it there? and revert from the main branch? continue committing and push onto that branch for this entire construction phase, i will let u know if u want u to merge / push onto main as well later on"
+**AI Response**: "Accepted the user's explicit blanket authorization for all remaining AI-DLC construction gates through UOW-005. Created and pushed `construction-phase` containing commits 30d47c4, 5e007c8, and 24ca21d; restored local and remote `main` to ebd9d6d using a lease-protected update; and continued work only on `construction-phase`. Started UOW-001 Code Generation Part 2 under the approved plan."
+**Context**: AI-DLC Construction - branch separation complete; UOW-001 through UOW-005 stages and implementation are pre-approved by the user. Required plan checkboxes, validation, audit, testing, reports, and branch-only commits remain mandatory.
+
+---
+
+## UOW-001 Code Generation Plan Approval
+**Timestamp**: 2026-07-21T17:39:33Z
+**User Input**: "complete eveything till uow 005 please, u have all my permissions and approvals, get everything done"
+**AI Response**: "Recorded approval of the complete UOW-001 Code Generation plan, including the loopback edge-throttle amendment, and started Part 2 at Step 1."
+**Context**: Mandatory Code Generation plan gate satisfied by explicit blanket construction approval.
+
+---
+
+## UOW-001 Code Generation Step 1 Completion
+**Timestamp**: 2026-07-21T17:39:33Z
+**AI Response**: "Revalidated the approved baseline and working tree, amended UOW-001 infrastructure from 12 to 13 resources, added the loopback Nginx edge and private verified-HTTPS ORDS path, corrected the duplicated submit route in the deployment catalog, preserved the 18-table schema boundary, and validated extension/NFR traceability."
+**Context**: UOW-001 Code Generation Part 2 - Step 1 complete. Root implementation files have not yet been generated.
+
+---

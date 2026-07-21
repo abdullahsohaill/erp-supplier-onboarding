@@ -2,7 +2,7 @@
 
 ## Architecture Context
 
-UOW-001 uses one local autonomous database container with bundled ORDS. Browser/mock clients and the automated test harness reach ORDS through loopback HTTPS. Migration and verification tools reach Oracle through loopback TLS/mTLS. Application behavior executes in `ERP_APP` PL/SQL packages and the finalized Oracle tables.
+UOW-001 uses one local autonomous database container with bundled ORDS and one lightweight loopback Nginx edge container. Browser/mock clients and the automated test harness reach the edge through loopback HTTPS; the edge forwards allowlisted application/OAuth traffic to ORDS over verified private HTTPS. Migration and verification tools reach Oracle through loopback TLS/mTLS. Application behavior executes in `ERP_APP` PL/SQL packages and the finalized Oracle tables.
 
 This is a local deployment architecture, not a production cloud topology.
 
@@ -12,7 +12,8 @@ This is a local deployment architecture, not a production cloud topology.
 |---|---|---|
 | Local clients | Static wireframe/browser inspection, API test clients, Python migration/test/report commands | Untrusted request and operator-input boundary. |
 | Host controls | Docker Compose, generated-secret bootstrap, trust store, `.venv`, lifecycle scripts, local reports | Developer-machine control plane; destructive commands require local target verification. |
-| Container boundary | `oracle-adb` autonomous ATP-mode database plus bundled ORDS/APEX/Database Actions | Isolated Docker process with only explicit loopback-published ports. |
+| Edge container boundary | `erp-edge` Nginx | Only loopback HTTPS ingress; route/body/rate controls and redacted access events. |
+| Database container boundary | `oracle-adb` autonomous ATP-mode database plus bundled ORDS/APEX/Database Actions | Private ORDS listener plus explicit loopback database ports. |
 | ORDS security boundary | HTTPS listener, OAuth2 token handling, roles, privileges, route/body controls | Authenticates and performs function-level authorization before PL/SQL. |
 | Application boundary | `ERP_APP` API, authorization, workflow, projection, and utility packages | Enforces object ownership, validation, transactions, and safe envelopes. |
 | Data boundary | Approved 18 application tables, constraints, indexes, and status/evidence rows | Oracle-encrypted persistent state in named volume. |
@@ -20,13 +21,14 @@ This is a local deployment architecture, not a production cloud topology.
 
 ### Textual Deployment View
 
-1. A local client connects to `https://127.0.0.1:8443` and validates the generated local certificate authority.
-2. Bundled ORDS validates OAuth2 credentials and endpoint privileges.
-3. Thin ORDS handlers derive the trusted principal and invoke `ERP_APP` package procedures/functions.
-4. PL/SQL performs object authorization and accesses only the approved Oracle application objects.
-5. Oracle commits or rolls back the complete aggregate transaction and retains committed state in `oracle_adb_data`.
-6. ORDS returns a role-safe envelope and emits redacted access metadata.
-7. Host test/report tools collect schema, API, security, recovery, performance, and supply-chain evidence into `.local/reports/`.
+1. A local client connects to `https://127.0.0.1:8443` and validates the generated edge certificate authority.
+2. Nginx allowlists the path, enforces body/rate policy, removes sensitive logging, and proxies to private ORDS over verified HTTPS.
+3. Bundled ORDS validates OAuth2 credentials and endpoint privileges.
+4. Thin ORDS handlers derive the trusted principal and invoke `ERP_APP` package procedures/functions.
+5. PL/SQL performs object authorization and accesses only the approved Oracle application objects.
+6. Oracle commits or rolls back the complete aggregate transaction and retains committed state in `oracle_adb_data`.
+7. ORDS returns a role-safe envelope through the edge; both tiers emit redacted operational metadata.
+8. Host test/report tools collect schema, API, security, recovery, performance, and supply-chain evidence into `.local/reports/`.
 
 No request crosses a public network, message broker, cache, remote AI service, OIC endpoint, or Fusion endpoint in UOW-001.
 
@@ -35,6 +37,7 @@ No request crosses a public network, message broker, cache, remote AI service, O
 | Unit | Type | Lifecycle | Version/Identity |
 |---|---|---|---|
 | Oracle ADB Free image | OCI container image | Pull once, start/stop/recreate through Compose | Exact `26.2.4.2-26ai` tag plus resolved digest. |
+| Nginx edge image | OCI container image | Starts after private ORDS trust is available | Exact `1.28.0-alpine` tag plus resolved digest. |
 | Compose definition | Versioned configuration | Validated before every startup | Repository commit and Compose config hash. |
 | Database migrations | Ordered SQL/PLSQL | Applied after DB readiness; fail-fast | Sequence plus SHA-256 in external manifest. |
 | ORDS definitions | SQL/PLSQL metadata definitions | Applied after packages and before API tests | Versioned base path and endpoint inventory. |
@@ -68,8 +71,9 @@ A failed step stops all dependent steps. Rerun begins from a verified state; it 
 
 | Hop | Control | Failure Behavior |
 |---|---|---|
-| Client to ORDS HTTPS | Certificate validation, OAuth token, media/body/rate controls | 401/403/413/429 or safe 400 before business processing. |
-| ORDS to API package | Endpoint privilege, trusted principal adapter, allowlisted JSON mapping | Safe failure envelope; no dynamic SQL. |
+| Client to edge HTTPS | Certificate validation, path/body/rate controls, redacted logs | 413/429 or denied path before ORDS processing. |
+| Edge to ORDS HTTPS | Verified private TLS, OAuth token forwarding, explicit upstream | Fail closed; no plaintext fallback. |
+| ORDS to API package | OAuth token, endpoint privilege, trusted principal adapter, allowlisted JSON mapping | 401/403 or safe 400 before mutation. |
 | API package to request package | Requester role, owner, editable status, expected update timestamp | 403/404/409 with no unauthorized mutation. |
 | Request package to Oracle tables | One short aggregate transaction and constraints | Complete rollback on error. |
 | Projection to response | Allowlisted Requester fields and trace ID | Internal evidence and technical detail remain absent. |
@@ -96,7 +100,8 @@ A failed step stops all dependent steps. Rerun begins from a verified state; it 
 
 | Boundary | Primary Threats | Controls | Verification |
 |---|---|---|---|
-| Local client to ORDS | Token theft, malformed JSON, replay/abuse, oversized input | HTTPS, external secrets, OAuth2, throttles, body/schema limits | Contract and security tests. |
+| Local client to edge | Token theft, malformed JSON, replay/abuse, oversized input | HTTPS, external secrets, route allowlist, token throttle, body limits | Contract and security tests. |
+| Edge to ORDS | Upstream impersonation or plaintext downgrade | Private network, trusted CA, hostname verification, no HTTP fallback | Certificate and fail-closed tests. |
 | ORDS route to package | Function-level bypass, forged actor/role, injection | Explicit privileges, server-derived principal, typed package calls, bind/static SQL | Wrong-role and adversarial tests. |
 | Principal to object | IDOR/cross-owner access | PL/SQL owner predicate on every resource method | Two-Requester generated isolation tests. |
 | Package to database | Partial writes, invalid transitions, mass assignment | Transactions, constraints, allowlists, locks/conflict check | Fault-injection and lifecycle tests. |
@@ -110,11 +115,11 @@ A failed step stops all dependent steps. Rerun begins from a verified state; it 
 
 | Host | Container | Consumer | Policy |
 |---|---:|---|---|
-| `127.0.0.1:8443` | 8443 | Browser and HTTPS test clients | ORDS HTTPS only; certificate verification required. |
+| `127.0.0.1:8443` | `erp-edge:8443` | Browser and HTTPS test clients | Edge HTTPS only; certificate verification required. |
 | `127.0.0.1:1521` | 1522 | TLS-capable database tooling according to generated aliases | Local automation only. |
 | `127.0.0.1:1522` | 1522 | mTLS database tooling | Wallet required; local automation only. |
 
-The design intentionally omits public interface bindings, port 27017, port 80, SSH, a reverse proxy, a load balancer, and an externally reachable Docker network.
+The design intentionally omits public interface bindings, port 27017, port 80, SSH, a public load balancer, and an externally reachable Docker network. The Nginx reverse proxy is local-only and exists solely for enforceable prototype ingress controls.
 
 ### CORS and API Base
 
@@ -193,10 +198,11 @@ Every mutating script validates the profile and database fingerprint. The mere p
 |---|---|---|
 | `HOST_BLOCKED` | Docker unavailable, insufficient resources, disk encryption off, ports occupied, or unsafe paths | `HOST_READY` after corrective action. |
 | `HOST_READY` | Preflight passes | `CONTAINER_STARTING`. |
-| `CONTAINER_STARTING` | Compose service created | `DATABASE_READY` or `FAILED`. |
+| `CONTAINER_STARTING` | Oracle service created | `DATABASE_READY` or `FAILED`. |
 | `DATABASE_READY` | Expected ATP identity responds over TLS/mTLS | `SCHEMA_READY`. |
 | `SCHEMA_READY` | Migrations and parity/validity checks pass | `ORDS_READY`. |
-| `ORDS_READY` | HTTPS/token/protected-route probes pass | `SEEDED`. |
+| `ORDS_READY` | Private HTTPS/token/protected-route probes pass | `EDGE_READY`. |
+| `EDGE_READY` | Upstream verification, route allowlist, redaction, and throttling probes pass | `SEEDED`. |
 | `SEEDED` | Every approved table has valid representative data | `VERIFIED`. |
 | `VERIFIED` | Required test/scan/report gates pass | Reviewable local implementation. |
 | `FAILED` | Any bounded stage fails | Correct cause, then rerun from a verified prerequisite or clean reset. |
