@@ -5,6 +5,31 @@
 .env
 .env.*
 *.local
+.local/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Oracle and TLS trust material
+*.wallet
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+*.jks
+*.sso
+tnsnames.ora
+sqlnet.ora
+
+# Test and security reports
+reports/
+*.junit.xml
+sbom*.json
 
 # Customer/source documents
 *.pdf
@@ -15,4 +40,3 @@ temp/
 dist/
 build/
 node_modules/
-

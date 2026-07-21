@@ -232,34 +232,34 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 2: Create Safe Project Skeleton
 
-- [ ] Create the planned root directories and UOW-001 code-summary directory.
-- [ ] Extend `.gitignore` for `.env`, `.local/`, `.venv/`, wallets, certificates, reports, tokens, and generated secrets without removing existing rules.
-- [ ] Create `.env.example` with names/placeholders only and update `README.md` to Construction status and safe prerequisites.
-- [ ] Validate that no executable/config file is created under `aidlc-docs/`.
+- [x] Create the planned root directories and UOW-001 code-summary directory.
+- [x] Extend `.gitignore` for `.env`, `.local/`, `.venv/`, wallets, certificates, reports, tokens, and generated secrets without removing existing rules.
+- [x] Create `.env.example` with names/placeholders only and update `README.md` to Construction status and safe prerequisites.
+- [x] Validate that no executable/config file is created under `aidlc-docs/`.
 
 ### Step 3: Pin Python and Security Tooling
 
-- [ ] Create `requirements.in`, hash-locked `requirements.txt`, and `pyproject.toml` using the approved versions.
-- [ ] Create pinned installer/checksum metadata for Gitleaks and Trivy under `scripts/tools/`.
-- [ ] Generate the local virtual environment only under ignored `.venv/`; run dependency and import checks.
+- [x] Create `requirements.in`, hash-locked `requirements.txt`, and `pyproject.toml` using the approved versions.
+- [x] Create pinned installer/checksum metadata for Gitleaks and Trivy under `scripts/tools/`.
+- [x] Generate the local virtual environment only under ignored `.venv/`; run dependency and import checks.
 
 ### Step 4: Generate Compose and Edge Gateway Configuration
 
-- [ ] Create `docker-compose.yml` with pinned Oracle and Nginx tags, loopback-only gateway/database ports, private network, named Oracle volume, health dependencies, resource expectations, no Mongo port, and no plaintext secrets.
-- [ ] Create Nginx HTTPS, upstream certificate verification, approved-route allowlist, body limits, redacted access logs, and token-scoped read/mutation rate zones.
-- [ ] Validate resolved Compose config contains exactly the expected services/resources and no secret values.
+- [x] Create `docker-compose.yml` with pinned Oracle and Nginx tags, loopback-only gateway/database ports, private network, named Oracle volume, health dependencies, resource expectations, no Mongo port, and no plaintext secrets.
+- [x] Create Nginx HTTPS, upstream certificate verification, approved-route allowlist, body limits, redacted access logs, and token-scoped read/mutation rate zones.
+- [x] Validate resolved Compose config contains exactly the expected services/resources and no secret values.
 
 ### Step 5: Generate Preflight, Secret, and Trust Automation
 
-- [ ] Implement host preflight for ARM64, Docker/Compose, at least 4 CPUs/8 GiB, FileVault, disk/ports, ignored paths, and local target fingerprint.
-- [ ] Implement cryptographically strong local database/wallet/gateway/OAuth secret and certificate generation with owner-only permissions and no echoed values.
-- [ ] Implement Oracle image digest capture, wallet/ORDS certificate extraction, trust-bundle construction, and certificate verification; never use an insecure client flag.
+- [x] Implement host preflight for ARM64, Docker/Compose, at least 4 CPUs/8 GiB, FileVault, disk/ports, ignored paths, and local target fingerprint.
+- [x] Implement cryptographically strong local database/wallet/gateway/OAuth secret and certificate generation with owner-only permissions and no echoed values.
+- [x] Implement Oracle image digest capture, wallet/ORDS certificate extraction, trust-bundle construction, and certificate verification; never use an insecure client flag.
 
 ### Step 6: Generate Lifecycle Command Surface
 
-- [ ] Create start, stop, bounded health, logs, migrate, seed, verify, test, report, and explicitly guarded reset commands.
-- [ ] Ensure ordinary stop/down preserves the named volume.
-- [ ] Ensure reset rejects non-loopback/non-`ERPATP`/wrong-Compose targets and requires a destructive confirmation flag.
+- [x] Create start, stop, bounded health, logs, migrate, seed, verify, test, report, and explicitly guarded reset commands.
+- [x] Ensure ordinary stop/down preserves the named volume.
+- [x] Ensure reset rejects non-loopback/non-`ERPATP`/wrong-Compose targets and requires a destructive confirmation flag.
 
 ### Step 7: Generate Bootstrap and External Migration Runner
 
@@ -269,16 +269,16 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 8: Generate the Finalized 18-Table DDL
 
-- [ ] Translate all 189 authoritative columns to explicit Oracle types/lengths/defaults/identity behavior without inventing fields.
-- [ ] Create all 18 approved tables in dependency-safe order, including valid JSON CLOB constraints and boolean-like check conventions.
-- [ ] Validate table/column names against both `database-schema-design.md` and `db-schema.dbml`.
+- [x] Translate all 189 authoritative columns to explicit Oracle types/lengths/defaults/identity behavior without inventing fields.
+- [x] Create all 18 approved tables in dependency-safe order, including valid JSON CLOB constraints and boolean-like check conventions.
+- [x] Validate table/column names against both `database-schema-design.md` and `db-schema.dbml`.
 
 ### Step 9: Generate Constraints, Relationships, Indexes, and Views
 
-- [ ] Create all primary/unique/check constraints and exactly 17 approved physical foreign keys.
-- [ ] Create approved access-path indexes without duplicating PK/UK backing indexes.
-- [ ] Add only justified role-safe/helper views; views must not change the 18-table count.
-- [ ] Create schema parity and zero-invalid-object verification scripts.
+- [x] Create all primary/unique/check constraints and exactly 17 approved physical foreign keys.
+- [x] Create approved access-path indexes without duplicating PK/UK backing indexes.
+- [x] Add only justified role-safe/helper views; views must not change the 18-table count.
+- [x] Create schema parity and zero-invalid-object verification scripts.
 
 ### Step 10: Generate Representative Seed Data for Every Table
 

@@ -1,6 +1,6 @@
 # ERP Supplier Onboarding
 
-AI-DLC documentation package for an ERP supplier onboarding prototype.
+AI-DLC implementation workspace for an ERP supplier onboarding prototype.
 
 ## Scope
 
@@ -8,7 +8,31 @@ The project defines a supplier onboarding solution using Oracle Visual Builder, 
 
 ## Current Phase
 
-The project is in AI-DLC Inception. Requirements, verification questions, technical design, the committed 18-table ATP schema, and first-pass wireframes/mockups form one consolidated review baseline before construction-stage design.
+Construction is in progress on the `construction-phase` branch. The local target is Oracle Autonomous AI Database Free 26ai in ATP mode with bundled ORDS, fronted by a loopback-only HTTPS Nginx gateway. The finalized 18-table, 189-column, 17-relationship schema remains the database contract.
+
+## Safe Prerequisites
+
+- Apple Silicon macOS with FileVault enabled.
+- Docker Desktop with at least 4 CPUs and 8 GiB available to its Linux VM.
+- Python 3.13 and OpenSSL.
+- At least 25 GiB free disk space for the Oracle image and persistent database volume.
+
+Do not put real supplier, bank, customer, Fusion, OIC, SSO, or AI credentials in this repository. Local secrets and certificates are generated under ignored `.local/` paths.
+
+## Construction Commands
+
+The lifecycle commands are added and validated during UOW-001 construction. The intended command surface is:
+
+```bash
+./scripts/start.sh
+python3 scripts/migrate.py
+python3 scripts/seed.py
+python3 scripts/verify.py
+./scripts/test.sh
+./scripts/stop.sh
+```
+
+`stop.sh` preserves the named database volume. Destructive local reset requires an explicit confirmation argument and refuses non-local targets.
 
 Key documents:
 

@@ -1,0 +1,34 @@
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
+timeout = 60
+markers = [
+  "database: requires the local Oracle database",
+  "api: requires the local HTTPS gateway and ORDS",
+  "e2e: exercises an end-to-end user story",
+  "performance: local non-production performance test",
+  "security: security and abuse test",
+  "recovery: restart, rollback, or rebuild test",
+]
+
+[tool.hypothesis]
+deadline = 1000
+max_examples = 100
+print_blob = true
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+exclude = [".local", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "S", "B", "UP"]
+ignore = ["S101"]
+
+[tool.coverage.run]
+branch = true
+source = ["scripts", "tests/support"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
