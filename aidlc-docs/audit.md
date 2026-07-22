@@ -1382,3 +1382,20 @@ also i want to set up stuff locally, not on oracle playground, but yes i wanna s
 **Context**: CONSTRUCTION - local Oracle broad-test amendment publication complete. Remote `main` remains unchanged at `ebd9d6d`.
 
 ---
+
+## Local Oracle Demonstration Completion Request
+**Timestamp**: 2026-07-22T16:08:59Z
+**User Input**: "pls install all oracle free setup and wallet etceverything and complete the enrite construction dude so i can manually check evrytuhing, see db's created, data, check what flows were tested, to complete this fully:\"I want you to create this ATP database and set up oracle DB locally. Configure the ORDS endpoints, set up mock data and run migrations on it and seed sample/dummy data in each table. Also tell me if you require any steps to be completed from my side manually. Write and test it all with test cases against all the use cases and at the end also create a consolidated detailed report. I also want a summary of all the migrations you did.\"
+
+as i need to present the detailed report to my team lead, and also i want to be able to show him db's and stuff on oraceld database paltform or wtv using localhost, and postman, and try out stuff on my end"
+**AI Response**: "Resumed the AI-DLC Build and Test completion gate to finish a team-lead-ready local demonstration. Verified the existing Oracle ADB Free ATP-mode database, ORDS, generated wallet, populated schema, and API runtime; began installing Postman and Oracle SQLcl and preparing a loopback-only Oracle Database Actions console with read-only inspection access, complete rerun evidence, migration summary, use-case matrix, and presentation runbook."
+**Context**: CONSTRUCTION - local Oracle demonstration and Build/Test completion amendment on `construction-phase`; no application schema redesign.
+
+---
+
+## Construction - Local Oracle Demonstration Verification
+**Timestamp**: 2026-07-22T16:39:43Z
+**AI Response**: "Completed the approved local-only Oracle construction scope on construction-phase. Installed Postman Desktop, Oracle SQLcl, and a user-space OpenJDK; ran the official Oracle ADB Free 26ai image in ATP mode with bundled ORDS; generated the local mTLS wallet, TLS chain, owner-only credentials, Postman environment, and access card; enabled Database Actions only on a separate TLS loopback listener; REST-enabled SELECT-only ERP_VERIFY under alias erp-inspector; rebuilt from an empty volume; passed all 47 ordered assets; preserved exact 18-table/189-column/17-foreign-key parity; seeded all 18 tables with seven lifecycle scenarios; exposed 42 protected operations; passed 67 of 67 broad tests covering all 14 stories; verified SQLcl wallet access and all six query pages; and generated the detailed team-lead report, migration summary, local demo runbook, and sanitized runtime report. Dependency audit, Git and working-tree secret scans, source High/Critical scan, Ruff, compilation, OpenAPI/schema, Compose, JSON/YAML, TLS health, and runtime checks passed. The official Oracle image's documented vendor findings remain a production release gate; this does not block the explicitly requested isolated local demonstration."
+**Context**: CONSTRUCTION - local demonstration completion, runtime verification, reports, and extension compliance. Security Baseline: compliant for local scope (loopback TLS, OAuth2, read-only verifier, owner-only ignored secrets); production image gate retained. Resiliency Baseline: compliant (fresh rebuild, deterministic migrations/seeds, stop/start persistence). Property-Based Testing: compliant in approved partial mode (four property tests retained in the 67-test suite). Content validation: compliant (source validators, JSON/YAML parsing, Markdown/reference review, and diff checks passed).
+
+---

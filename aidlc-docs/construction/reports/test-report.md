@@ -4,7 +4,7 @@
 
 Final command: `./scripts/qa.sh all`
 
-Result: 66 passed, 0 failed, 0 errors, 0 skipped, with one dependency deprecation warning. Pytest runtime was 209.18 seconds.
+Result: 67 passed, 0 failed, 0 errors, 0 skipped, with one dependency deprecation warning. Pytest runtime was 202.00 seconds.
 
 | Category | Tests | Result |
 |---|---:|---|
@@ -12,14 +12,14 @@ Result: 66 passed, 0 failed, 0 errors, 0 skipped, with one dependency deprecatio
 | Property-based | 4 | PASS |
 | Integration/database | 12 | PASS |
 | OpenAPI/ORDS/Postman contract | 12 | PASS |
-| Security/abuse/role matrix | 12 | PASS |
+| Security/abuse/role matrix | 13 | PASS |
 | End-to-end/user stories | 15 | PASS |
 | Pytest performance smoke | 1 | PASS |
-| Total | 66 | PASS |
+| Total | 67 | PASS |
 
 ## Functional Coverage
 
-All 14 approved user stories have executable flows. Tests cover the 42-operation API, five identities/four application roles, every unauthenticated route, every restricted route with a wrong role, every route with an allowed role, OpenAPI-to-handler role parity, automatic validation/duplicate/risk processing, critical blockers, warning behavior, Reviewer evidence and decisions, dashboard actions, Admin Settings toggles, deterministic AI, Fusion/OIC mock behavior, retries, reference upserts, every table/column/key/index/JSON/package/view, read-only verifier privileges, Postman assets, and restart persistence.
+All 14 approved user stories have executable flows. Tests cover the 42-operation API, five identities/four application roles, every unauthenticated route, every restricted route with a wrong role, every route with an allowed role, OpenAPI-to-handler role parity, automatic validation/duplicate/risk processing, critical blockers, warning behavior, Reviewer evidence and decisions, dashboard actions, Admin Settings toggles, deterministic AI, Fusion/OIC mock behavior, retries, reference upserts, every table/column/key/index/JSON/package/view, read-only verifier privileges, Postman assets, Database Actions loopback/TLS configuration, SQLcl wallet connectivity, and restart persistence.
 
 ## Quality Notes
 

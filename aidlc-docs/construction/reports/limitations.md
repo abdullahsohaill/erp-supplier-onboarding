@@ -2,6 +2,7 @@
 
 - The runtime is a local prototype, not a production Oracle Cloud deployment.
 - The selected environment is local Oracle ADB Free in ATP mode; no Oracle Playground or managed cloud database is configured or required.
+- Database Actions and REST-enabled SQL are enabled only for the authenticated loopback demonstration console; this local inspection surface is not a production topology.
 - Bundled ORDS reports version 25.4 even though the ADB release is 26ai.
 - Fusion and OIC behavior is deterministic local PL/SQL mock behavior; no real tenant calls were made.
 - Supplier-reference sync is represented through protected contracts and mock data, not a deployed OIC schedule.

@@ -4,7 +4,7 @@
 
 - Apple Silicon macOS with FileVault enabled.
 - Docker Desktop with at least 4 CPUs and 8 GiB; 10 GiB is recommended.
-- Python 3.13, OpenSSL, Git, and at least 25 GiB free disk.
+- Python 3.13, OpenSSL, Git, Homebrew OpenJDK, Oracle SQLcl, Postman Desktop, and at least 25 GiB free disk.
 - Branch `construction-phase`.
 
 ## Build and Provision
@@ -30,12 +30,12 @@ python3 scripts/health.py
 ./scripts/stop.sh
 ```
 
-`stop.sh` preserves `erp_oracle_adb_data`. Use `./scripts/reset-local.sh --confirm-local-reset` only for an intentional local rebuild.
+`stop.sh` preserves `erp_oracle_adb_data`. Use `./scripts/reset-local.sh --confirm-destroy-local-erpatp` only for an intentional local rebuild.
 
 ## Troubleshooting
 
 - If preflight rejects memory, allocate at least 8 GiB to Docker Desktop.
 - First boot downloads the ATP PDB and can take several minutes.
-- If ports 1521, 1522, or 8443 are occupied, stop the conflicting local service.
+- If ports 1521, 1522, 8443, or 8444 are occupied, stop the conflicting local service.
 - Never bypass certificate validation; rerun `scripts/trust.py` after Oracle certificate replacement.
 - Do not commit anything under `.local/`.

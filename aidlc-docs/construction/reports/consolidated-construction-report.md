@@ -17,8 +17,8 @@ Application build, runtime, migrations, data, API contracts, tests, persistence,
 | Security | OAuth2 roles, exact handler role guards, object/function authorization, verified TLS, loopback edge, throttling, route allowlist, masking/redaction |
 | Mock behavior | Deterministic AI and Fusion/OIC outcomes |
 | Data | Representative rows in every application table |
-| Tests | 66 passing broad tests plus five-minute ten-worker performance evidence |
-| Self-service | Category QA runner, complete Postman collection/environment generator, read-only SQL catalog |
+| Tests | 67 passing broad tests plus five-minute ten-worker performance evidence |
+| Self-service | Database Actions, Oracle SQLcl, Postman, category QA runner, read-only SQL catalog |
 | Operations | Start, stop, migrate, seed, verify, health, logs, report, guarded reset |
 
 ## Unit Outcomes
@@ -39,7 +39,9 @@ OpenAPI and ORDS source match exactly. Handler distribution is UOW-001 11, UOW-0
 
 ## Test and Performance
 
-All 66 broad tests passed in 209.18 seconds: 10 unit, 4 property, 12 integration/database, 12 contract, 12 security, 15 E2E/story, and 1 performance smoke. The broad tests internally retain per-operation OpenAPI/ORDS/Postman checks, exact role-guard parity, 42 unauthenticated denials, 40 wrong-role denials, 42 allowed-role reachability cases, and per-object database verification. The post-authorization-fix five-minute run completed 574 requests across ten workers with no errors. Sequential p95 values ranged from 177.29 ms to 2,527.11 ms and remained below every local threshold.
+All 67 broad tests passed in 202.00 seconds: 10 unit, 4 property, 12 integration/database, 12 contract, 13 security, 15 E2E/story, and 1 performance smoke. The broad tests internally retain per-operation OpenAPI/ORDS/Postman checks, exact role-guard parity, 42 unauthenticated denials, 40 wrong-role denials, 42 allowed-role reachability cases, per-object database verification, Database Actions isolation, and SQLcl wallet connectivity. The post-authorization-fix five-minute run completed 574 requests across ten workers with no errors. Sequential p95 values ranged from 177.29 ms to 2,527.11 ms and remained below every local threshold.
+
+The final presentation state was rebuilt from an empty local Oracle volume after test evidence was captured. All 47 assets passed, and the clean seven-request dataset is currently running for manual review.
 
 The expansion found and corrected inconsistent wrong-role HTTP handling. Every ORDS handler now rejects disallowed roles with HTTP `403` before business logic executes. Repeated-run fixture cleanup and QA subprocess failure reporting were also corrected.
 

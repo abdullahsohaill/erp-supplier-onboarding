@@ -8,9 +8,20 @@ Run the complete reproducible local workflow:
 ./scripts/qa.sh all
 ```
 
-This starts the pinned local stack, reapplies 47 ordered assets, reseeds all 18 tables, regenerates Postman assets, validates the schema/OpenAPI source, and runs all 66 broad tests. JUnit output is written to ignored `.local/reports/pytest-full.xml`.
+This starts the pinned local stack, reapplies 47 ordered assets, reseeds all 18 tables, regenerates Postman and local access assets, validates the schema/OpenAPI source, proves SQLcl wallet connectivity, and runs all 67 broad tests. JUnit output is written to ignored `.local/reports/pytest-full.xml`.
 
 The broad suite keeps detailed matrices inside capability-level tests: all 42 operations, role combinations, database objects, and user stories are still checked even though pytest no longer reports each matrix row as a separate test.
+
+## Oracle Database Actions and SQLcl
+
+```bash
+./scripts/qa.sh generate
+open .local/demo/local-access.md
+open https://localhost:8444/ords/sql-developer
+./scripts/sqlcl.sh
+```
+
+Database Actions and SQLcl use `ERP_VERIFY`, the generated mTLS wallet, and SELECT-only grants. The browser console is TLS-protected and bound only to loopback port 8444. See `local-demo-runbook.md` for the exact demonstration sequence and the one optional manual macOS certificate-trust step.
 
 Run a smaller suite against an already healthy stack:
 

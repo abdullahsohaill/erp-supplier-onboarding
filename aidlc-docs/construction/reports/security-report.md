@@ -14,13 +14,13 @@ Application-controlled security gates pass. The local-container production-use g
 | Filesystem vulnerability/secret/misconfiguration scan | Zero High/Critical findings |
 | Nginx image | Zero High/Critical findings after upgrade to 1.30.4 Alpine 3.24 |
 | CycloneDX SBOM | Generated with 78 components |
-| Runtime security tests | 12 broad OAuth, role-matrix, ownership, input, CORS, masking, redaction, throttling, and hardening tests |
+| Runtime security tests | 13 broad OAuth, role-matrix, ownership, input, CORS, masking, redaction, throttling, Database Actions, and hardening tests |
 
 ## Blocking Vendor Finding
 
 Trivy found 184 High and 3 Critical fixed-version findings in the latest official `ghcr.io/oracle/adb-free:26.2.4.2-26ai` image. Oracle's official repository listed this as the latest 26ai release at verification time. The three Critical records apply to packaged kernel headers; other findings include OS, bundled ORDS/Jetty/Jackson, database tooling, and Python packages.
 
-The stack mitigates exposure through loopback ingress, private ORDS networking, verified TLS, OAuth2, exact per-handler role guards, package authorization, one-MiB input limits, throttling, route allowlisting, and disabled REST SQL/Database API/Database Actions/Mongo. These controls do not patch the image.
+The stack mitigates exposure through loopback ingress, private ORDS networking, verified TLS, OAuth2, exact per-handler role guards, package authorization, one-MiB input limits, throttling, route allowlisting, and disabled Mongo. Database Actions and its required REST SQL/Database API services are enabled only on a separate TLS loopback listener for authenticated local inspection with the SELECT-only `ERP_VERIFY` user. These controls do not patch the image.
 
 ## Decision Required
 

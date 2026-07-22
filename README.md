@@ -15,6 +15,8 @@ Construction through UOW-005 is implemented on the `construction-phase` branch. 
 - Apple Silicon macOS with FileVault enabled.
 - Docker Desktop with at least 4 CPUs and 8 GiB available to its Linux VM. Ten GiB is recommended when scans and tests run beside Oracle.
 - Python 3.13 and OpenSSL.
+- Homebrew OpenJDK and Oracle SQLcl for native wallet inspection.
+- Postman Desktop for manual API execution.
 - At least 25 GiB free disk space for the Oracle image and persistent database volume.
 
 Do not put real supplier, bank, customer, Fusion, OIC, SSO, or AI credentials in this repository. Local secrets and certificates are generated under ignored `.local/` paths.
@@ -55,7 +57,7 @@ ERP_PERF_DURATION_SECONDS=300 \
 .venv/bin/python scripts/report.py
 ```
 
-The full QA command runs 66 broad tests and writes JUnit evidence under ignored `.local/reports/`. The broad tests retain the complete per-table, per-operation, and role matrices as internal assertions. See `aidlc-docs/construction/build-and-test/self-service-testing-instructions.md` for suite meanings, read-only Oracle queries, Postman setup, and authorization checks.
+The full QA command runs 67 broad tests and writes JUnit evidence under ignored `.local/reports/`. The broad tests retain the complete per-table, per-operation, and role matrices as internal assertions. See `aidlc-docs/construction/build-and-test/self-service-testing-instructions.md` for suite meanings, read-only Oracle queries, Database Actions, SQLcl, Postman setup, and authorization checks.
 
 Generate the complete 42-operation Postman collection and ignored local credential environment:
 
@@ -80,13 +82,33 @@ Stop without deleting data:
 ./scripts/stop.sh
 ```
 
-`stop.sh` preserves the named database volume. Destructive local reset requires `./scripts/reset-local.sh --confirm-local-reset` and refuses non-local targets.
+`stop.sh` preserves the named database volume. Destructive local reset requires `./scripts/reset-local.sh --confirm-destroy-local-erpatp` and refuses non-local targets.
+
+## Local Demonstration
+
+Generate the owner-only access card and open Oracle Database Actions:
+
+```bash
+./scripts/qa.sh generate
+open .local/demo/local-access.md
+open https://localhost:8444/ords/sql-developer
+```
+
+Use the `ERP_VERIFY` credentials from the access card. This user is REST-enabled under alias `erp-inspector` and has SELECT-only access to the 18 application tables and four views.
+
+Connect with Oracle SQLcl through the generated wallet:
+
+```bash
+./scripts/sqlcl.sh
+```
+
+Postman Desktop is installed. Import the committed collection and ignored local environment described in `aidlc-docs/construction/build-and-test/local-demo-runbook.md`.
 
 To trust the local edge certificate in macOS browsers, manually add `.local/trust/local-ca.crt` to the login keychain and mark it trusted. CLI tests use the generated CA file directly and do not disable TLS verification.
 
 ## Security Gate
 
-Python dependency, source-secret, filesystem, and Nginx image scans are clean. The latest official Oracle ADB Free 26ai image available during construction contains vendor-fixed High/Critical package findings. The local prototype mitigates exposure with loopback-only ingress, verified TLS, OAuth2, exact per-operation role guards, a route allowlist, and disabled optional ORDS surfaces, but the image finding remains a local-container release gate. Use this stack for controlled local development and demonstration only; it is not a production deployment baseline.
+Python dependency, source-secret, filesystem, and Nginx image scans are clean. The latest official Oracle ADB Free 26ai image available during construction contains vendor-fixed High/Critical package findings. The local prototype mitigates exposure with loopback-only ingress, verified TLS, OAuth2, exact per-operation role guards, a route allowlist, and a separate authenticated read-only Database Actions console. Mongo remains disabled. The image finding remains a local-container release gate. Use this stack for controlled local development and demonstration only; it is not a production deployment baseline.
 
 Key documents:
 
@@ -100,6 +122,9 @@ Key documents:
 - `aidlc-docs/inception/application-design/db-schema.dbml` (machine-readable physical equivalent)
 - `aidlc-docs/inception/application-design/wireframe-readiness.md`
 - `aidlc-docs/inception/wireframes/wireframe-spec.md`
+- `aidlc-docs/construction/reports/team-lead-construction-report.md`
+- `aidlc-docs/construction/reports/migration-summary.md`
+- `aidlc-docs/construction/build-and-test/local-demo-runbook.md`
 - `mockups/supplier-onboarding-wireframes.html`
 
 To open the static mockup locally:

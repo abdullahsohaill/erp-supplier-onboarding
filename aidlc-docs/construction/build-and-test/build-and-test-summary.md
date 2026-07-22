@@ -12,7 +12,7 @@
 | Seed completeness | PASS: data in all 18 tables |
 | OpenAPI/ORDS parity | PASS: 42 operations |
 | Stop/start persistence | PASS |
-| Application tests | PASS: 66 of 66 broad tests |
+| Application tests | PASS: 67 of 67 broad tests |
 | Local performance | PASS |
 | Application-controlled security scans | PASS |
 | Oracle base-image vulnerability gate | BLOCKED |
@@ -25,10 +25,10 @@
 | Property | 4 |
 | Integration | 12 |
 | Contract | 12 |
-| Security | 12 |
+| Security | 13 |
 | E2E/story | 15 |
 | Pytest performance | 1 |
-| Total | 66 |
+| Total | 67 |
 
 The post-authorization-fix performance harness passed ten workers for 300 seconds with 574 requests and zero errors. Every measured p95 was below its local threshold.
 
