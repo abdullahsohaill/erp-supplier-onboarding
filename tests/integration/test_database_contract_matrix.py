@@ -55,90 +55,110 @@ JSON_COLUMNS = [
 
 
 @pytest.mark.runtime
-@pytest.mark.parametrize("table", TABLE_NAMES)
-def test_every_table_has_exact_source_columns(table: str) -> None:
-    expected = hashlib.sha256(",".join(TABLES[table]).encode()).hexdigest().upper()
-    sql = (
-        "select standard_hash(listagg(column_name, ',') "  # noqa: S608
-        "within group (order by column_id), 'SHA256') "
-        f"from user_tab_columns where table_name = '{table}'"
-    )
-    actual = query_scalar(sql)
-    assert actual == expected
+def test_schema_inventory_columns_and_primary_keys_match_contract() -> None:
+    column_mismatches: dict[str, tuple[str, str]] = {}
+    primary_key_mismatches: dict[str, str] = {}
+    for table in TABLE_NAMES:
+        expected = hashlib.sha256(",".join(TABLES[table]).encode()).hexdigest().upper()
+        column_sql = (
+            "select standard_hash(listagg(column_name, ',') "  # noqa: S608
+            "within group (order by column_id), 'SHA256') "
+            f"from user_tab_columns where table_name = '{table}'"
+        )
+        actual = query_scalar(column_sql)
+        if actual != expected:
+            column_mismatches[table] = (expected, actual)
+
+        primary_key_sql = (
+            "select count(*) from user_constraints "  # noqa: S608
+            f"where table_name = '{table}' and constraint_type = 'P' "
+            "and status = 'ENABLED'"
+        )
+        primary_key_count = query_scalar(primary_key_sql)
+        if primary_key_count != "1":
+            primary_key_mismatches[table] = primary_key_count
+
+    assert len(TABLE_NAMES) == 18
+    assert sum(len(columns) for columns in TABLES.values()) == 189
+    assert not column_mismatches
+    assert not primary_key_mismatches
 
 
 @pytest.mark.runtime
-@pytest.mark.parametrize("table", TABLE_NAMES)
-def test_every_table_has_a_primary_key(table: str) -> None:
-    sql = (
-        "select count(*) from user_constraints "  # noqa: S608
-        f"where table_name = '{table}' and constraint_type = 'P' "
-        "and status = 'ENABLED'"
-    )
-    assert query_scalar(sql) == "1"
+def test_declared_foreign_keys_and_indexes_exist() -> None:
+    missing_foreign_keys: list[str] = []
+    missing_indexes: list[str] = []
+    for foreign_key in sorted(FOREIGN_KEYS):
+        sql = (
+            "select count(*) from user_constraints "  # noqa: S608
+            f"where constraint_name = upper('{foreign_key}') "
+            "and constraint_type = 'R' and status = 'ENABLED'"
+        )
+        if query_scalar(sql) != "1":
+            missing_foreign_keys.append(foreign_key)
 
-
-@pytest.mark.runtime
-@pytest.mark.parametrize("foreign_key", sorted(FOREIGN_KEYS))
-def test_every_foreign_key_is_enabled(foreign_key: str) -> None:
-    sql = (
-        "select count(*) from user_constraints "  # noqa: S608
-        f"where constraint_name = upper('{foreign_key}') "
-        "and constraint_type = 'R' and status = 'ENABLED'"
-    )
-    assert query_scalar(sql) == "1"
-
-
-@pytest.mark.runtime
-@pytest.mark.parametrize("index_name", sorted(INDEXES))
-def test_every_declared_index_exists(index_name: str) -> None:
-    assert (
-        query_scalar(
+    for index_name in sorted(INDEXES):
+        count = query_scalar(
             f"select count(*) from user_indexes "  # noqa: S608
             f"where index_name = upper('{index_name}')"
         )
-        == "1"
-    )
+        if count != "1":
+            missing_indexes.append(index_name)
+
+    assert len(FOREIGN_KEYS) == 17
+    assert len(INDEXES) == 48
+    assert not missing_foreign_keys
+    assert not missing_indexes
 
 
 @pytest.mark.runtime
-@pytest.mark.parametrize(("table", "column"), JSON_COLUMNS)
-def test_every_json_column_contains_valid_json(table: str, column: str) -> None:
-    assert (
-        query_scalar(
+def test_json_documents_are_valid_and_every_table_has_demo_data() -> None:
+    invalid_json_columns: dict[str, str] = {}
+    empty_tables: list[str] = []
+    for table, column in JSON_COLUMNS:
+        invalid_count = query_scalar(
             f"select count(*) from {table} "  # noqa: S608
             f"where {column} is not null and {column} is not json"
         )
-        == "0"
-    )
+        if invalid_count != "0":
+            invalid_json_columns[f"{table}.{column}"] = invalid_count
+
+    for table in TABLE_NAMES:
+        if int(query_scalar(f"select count(*) from {table}")) <= 0:  # noqa: S608
+            empty_tables.append(table)
+
+    assert not invalid_json_columns
+    assert not empty_tables
 
 
 @pytest.mark.runtime
-@pytest.mark.parametrize("table", TABLE_NAMES)
-def test_every_finalized_table_contains_demo_data(table: str) -> None:
-    assert int(query_scalar(f"select count(*) from {table}")) > 0  # noqa: S608
+def test_all_packages_and_views_are_valid() -> None:
+    invalid_packages: dict[str, str] = {}
+    invalid_views: dict[str, str] = {}
+    for package_name in PACKAGE_NAMES:
+        package_sql = (
+            "select count(*) from user_objects "  # noqa: S608
+            f"where object_name = '{package_name}' "
+            "and object_type in ('PACKAGE','PACKAGE BODY') and status = 'VALID'"
+        )
+        package_count = query_scalar(package_sql)
+        if package_count != "2":
+            invalid_packages[package_name] = package_count
 
+    for view_name in VIEW_NAMES:
+        view_sql = (
+            "select count(*) from user_objects "  # noqa: S608
+            f"where object_name = '{view_name}' "
+            "and object_type = 'VIEW' and status = 'VALID'"
+        )
+        view_count = query_scalar(view_sql)
+        if view_count != "1":
+            invalid_views[view_name] = view_count
 
-@pytest.mark.runtime
-@pytest.mark.parametrize("package_name", PACKAGE_NAMES)
-def test_every_package_spec_and_body_is_valid(package_name: str) -> None:
-    sql = (
-        "select count(*) from user_objects "  # noqa: S608
-        f"where object_name = '{package_name}' "
-        "and object_type in ('PACKAGE','PACKAGE BODY') and status = 'VALID'"
-    )
-    assert query_scalar(sql) == "2"
-
-
-@pytest.mark.runtime
-@pytest.mark.parametrize("view_name", VIEW_NAMES)
-def test_every_declared_view_is_valid(view_name: str) -> None:
-    sql = (
-        "select count(*) from user_objects "  # noqa: S608
-        f"where object_name = '{view_name}' "
-        "and object_type = 'VIEW' and status = 'VALID'"
-    )
-    assert query_scalar(sql) == "1"
+    assert len(PACKAGE_NAMES) == 15
+    assert len(VIEW_NAMES) == 4
+    assert not invalid_packages
+    assert not invalid_views
 
 
 def test_matrix_inventory_matches_finalized_contract() -> None:
