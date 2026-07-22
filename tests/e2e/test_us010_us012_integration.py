@@ -4,14 +4,14 @@ import pytest
 
 
 @pytest.mark.runtime
-def test_us010_approved_request_is_created_in_mock_fusion(support_admin) -> None:
+def test_us011_approved_request_is_created_in_mock_fusion(support_admin) -> None:
     response = support_admin.request("POST", "/requests/105/submit-to-fusion")
     assert response.status_code == 200, response.text
     assert response.json()["data"]["status"] == "SUCCESS"
 
 
 @pytest.mark.runtime
-def test_us011_support_can_retry_eligible_failure(support_admin) -> None:
+def test_us010_support_can_retry_eligible_failure(support_admin) -> None:
     response = support_admin.request("POST", "/integration-logs/10002/retry")
     assert response.status_code == 200, response.text
     data = response.json()["data"]

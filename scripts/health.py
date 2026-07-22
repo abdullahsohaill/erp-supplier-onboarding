@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import ssl
 import time
 import urllib.error
@@ -25,31 +26,32 @@ def main() -> int:
         edge = json.loads(response.read().decode("utf-8"))
     if edge.get("status") != "UP":
         raise RuntimeFailure("Edge health endpoint did not report UP")
-    application_api: dict[str, object] | None = None
-    for attempt in range(1, 7):
-        try:
-            urllib.request.urlopen(  # noqa: S310 - fixed local HTTPS endpoint.
-                "https://127.0.0.1:8443/ords/erp/supplier-onboarding/v1/requests",
-                context=context,
-                timeout=30,
-            )
-        except urllib.error.HTTPError as exc:
-            if exc.code not in {401, 403}:
-                raise
-            application_api = {
-                "status": "UP",
-                "unauthenticated_status": exc.code,
-                "attempt": attempt,
-            }
-            break
-        except (TimeoutError, urllib.error.URLError):
-            if attempt == 6:
-                raise
-            time.sleep(5)
-        else:
-            raise RuntimeFailure("Application API did not deny unauthenticated readiness probe")
-    if application_api is None:
-        raise RuntimeFailure("Application API readiness probe did not complete")
+    application_api: dict[str, object] = {"status": "NOT_CHECKED_BEFORE_MIGRATION"}
+    if os.environ.get("ERP_REQUIRE_API_READY") == "1":
+        for attempt in range(1, 7):
+            try:
+                urllib.request.urlopen(  # noqa: S310 - fixed local HTTPS endpoint.
+                    "https://127.0.0.1:8443/ords/erp/supplier-onboarding/v1/requests",
+                    context=context,
+                    timeout=30,
+                )
+            except urllib.error.HTTPError as exc:
+                if exc.code not in {401, 403}:
+                    raise
+                application_api = {
+                    "status": "UP",
+                    "unauthenticated_status": exc.code,
+                    "attempt": attempt,
+                }
+                break
+            except (TimeoutError, urllib.error.URLError):
+                if attempt == 6:
+                    raise
+                time.sleep(5)
+            else:
+                raise RuntimeFailure("Application API did not deny readiness probe")
+        if application_api.get("status") != "UP":
+            raise RuntimeFailure("Application API readiness probe did not complete")
     database_actions_request = urllib.request.Request(
         "https://127.0.0.1:8444/ords/sql-developer", method="GET"
     )

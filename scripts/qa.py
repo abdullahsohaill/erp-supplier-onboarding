@@ -28,7 +28,11 @@ def generate() -> None:
 
 
 def require_runtime() -> None:
-    command([str(PYTHON), "scripts/health.py"], capture=False)
+    command(
+        [str(PYTHON), "scripts/health.py"],
+        capture=False,
+        env={"ERP_REQUIRE_API_READY": "1"},
+    )
 
 
 def main() -> int:
@@ -45,7 +49,11 @@ def main() -> int:
         run_python("scripts/seed.py")
         generate()
         run_python("scripts/verify.py")
-        run_python("scripts/health.py")
+        command(
+            [str(PYTHON), "scripts/health.py"],
+            capture=False,
+            env={"ERP_REQUIRE_API_READY": "1"},
+        )
         run_python("scripts/sqlcl_smoke.py")
         command(
             [str(ROOT / "scripts/test.sh"), "-q", f"--junitxml={REPORTS / 'pytest-full.xml'}"],
