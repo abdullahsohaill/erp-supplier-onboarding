@@ -43,4 +43,4 @@ Approved by the user's direct request on 2026-07-22. This Build and Test amendme
 ## Step 7: Report and Publish
 
 - [x] Update README, Build/Test instructions, security decision, test report, consolidated report, state, and audit.
-- [ ] Validate Markdown/JSON/OpenAPI, scan for secrets/vulnerabilities, commit, and push to construction-phase.
+- [x] Validate Markdown/JSON/OpenAPI, scan for secrets/vulnerabilities, commit, and push to construction-phase.
