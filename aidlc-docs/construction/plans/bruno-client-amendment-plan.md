@@ -13,7 +13,7 @@ Add an offline-first local API client that requires no account or sign-in. Prese
 - [x] Execute collection smoke tests against the running ORDS stack.
 - [x] Add opening/usage instructions and align README and Build/Test documentation.
 - [x] Run content, source, security, and Git checks.
-- [ ] Commit and push the amendment to `construction-phase` without changing `main`.
+- [x] Commit and push the amendment to `construction-phase` without changing `main`.
 
 ## Extension Compliance
 

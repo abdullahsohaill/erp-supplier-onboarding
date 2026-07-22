@@ -1421,3 +1421,10 @@ as i need to present the detailed report to my team lead, and also i want to be 
 **Context**: CONSTRUCTION - account-free API client amendment verification. Security Baseline: compliant (ignored owner-only generated secrets, verified custom-CA TLS, zero final npm/source/secret findings). Resiliency Baseline: compliant (idempotent collection/tool generation and CLI smoke command). Property-Based Testing: N/A because no business transformation or invariant changed. Database schema, migrations, seeds, and endpoint behavior were not modified.
 
 ---
+
+## Construction - Account-Free Bruno Publication
+**Timestamp**: 2026-07-22T17:30:03Z
+**AI Response**: "Committed the Bruno desktop/CLI workflow, safe dependency overrides, owner-only workspace generator, contract alignment, reports, runbook, AI-DLC state, and audit evidence as 35e3984 and pushed it to origin/construction-phase after confirming zero remote divergence. Origin main remains unchanged at ebd9d6d. Closed every checkbox in the Bruno client amendment plan."
+**Context**: CONSTRUCTION - account-free API client enhancement published on the isolated construction branch.
+
+---
