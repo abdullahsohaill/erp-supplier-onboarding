@@ -15,6 +15,7 @@
   --report-path .local/reports/gitleaks-working-tree.json
 .local/tools/trivy/trivy fs --scanners vuln,secret,misconfig \
   --severity HIGH,CRITICAL --exit-code 1 --format json \
+  --skip-dirs .git --skip-dirs .local --skip-dirs .venv \
   --output .local/reports/trivy-filesystem-final.json .
 .local/tools/trivy/trivy image --timeout 20m --scanners vuln \
   --severity HIGH,CRITICAL --format json \

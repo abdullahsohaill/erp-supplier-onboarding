@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: CONSTRUCTION
-- **Current Stage**: CONSTRUCTION - Build and Test security review gate
+- **Current Stage**: CONSTRUCTION - Build and Test managed-cloud review gate
 - **Construction Branch**: `construction-phase`
 
 ## Workspace State
@@ -65,4 +65,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-UOW-001 through UOW-005 implementation is complete on `construction-phase`: 46 ordered assets, 18/189/17 schema parity, zero invalid objects, data in every table, 42 ORDS operations, all 14 stories, 45 passing tests, restart persistence, and passing local performance evidence. Application-controlled security scans pass. SECURITY-09/SECURITY-10 remain blocking because Trivy reports 184 High and 3 Critical fixed-version findings in Oracle's latest official ADB Free 26ai image. The next user decision is to wait for/use a patched official image or explicitly accept the documented risk for time-bounded local-only prototype use. `main` remains at `ebd9d6d` and will not receive construction changes unless the user later requests a merge.
+UOW-001 through UOW-005 implementation is complete on `construction-phase`: 47 ordered assets, 18/189/17 schema parity, zero invalid objects, data in every table, 42 ORDS operations with exact transport role guards, all 14 stories, 583 passing tests, read-only SQL inspection, complete Postman assets, restart persistence, and passing local performance evidence. Application-controlled security scans pass. The local image remains blocked because Trivy reports 184 High and 3 Critical fixed-version findings in Oracle's latest official ADB Free 26ai image. Managed Oracle Always Free ATP is the supported shared/cloud path; cloud execution awaits the user's OCI database, wallet, network/identity decisions, and ORDS endpoint. `main` remains at `ebd9d6d` and will not receive construction changes unless the user later requests a merge.

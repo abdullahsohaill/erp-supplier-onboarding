@@ -1336,3 +1336,18 @@ approved pls proceed"
 **Context**: CONSTRUCTION - verified artifacts through UOW-005 are safely isolated and published on the construction branch; no merge to main was performed.
 
 ---
+
+## Construction Verification Expansion Request
+**Timestamp**: 2026-07-22T10:49:59Z
+**User Input**: "please checkagain for a correct fixl, also we can use oracle atp free db, also why are the tests only 45? i think there shouldve been more. and will u be making the entire testing framework or postman or wtv where i can basically check all databases, query them, test flows myself, authorizations/authenticqtions etc everything"
+**AI Response**: "Resumed the Build and Test security review gate, confirmed the construction branch is current, and started a supported Oracle Free ATP remediation review plus expansion of the executable test, API client, authorization, database inspection, and self-service verification framework."
+**Context**: CONSTRUCTION - Build and Test enhancement and Oracle runtime security remediation analysis on `construction-phase`.
+
+---
+
+## Verification Framework Expansion Completion
+**Timestamp**: 2026-07-22T11:41:49Z
+**AI Response**: "Expanded the executable suite from 45 scenario-level tests to 583 traceable tests covering unit, property, database/integration, OpenAPI/ORDS/Postman/cloud contracts, authentication/authorization, all 14 user stories, and performance smoke. The expanded matrix exposed and corrected inconsistent wrong-role HTTP handling across all 42 ORDS handlers, repeat-run cleanup ordering, a long schema-column assertion, and QA subprocess error reporting. Added the local-only ERP_VERIFY SELECT grant without changing the finalized 18/189/17 schema, six curated read-only query pages, a complete generated Postman collection and ignored environment, category/full QA commands, an Oracle Always Free ATP profile/preflight, and managed-cloud manual instructions. The complete QA run passed 583/583 in 209.52 seconds. The post-fix 300-second ten-worker performance run completed 574 requests with zero errors. Dependency, Git-aware secret, and source-tree High/Critical scans passed with zero findings."
+**Context**: CONSTRUCTION - Build and Test verification expansion. Security Baseline is compliant for application-controlled OAuth, exact handler-role enforcement, ownership, secrets, TLS, input, masking, and scanning; the local Oracle vendor image remains a documented blocking finding. Resiliency and partial Property-Based Testing remain compliant. Managed Always Free ATP is the supported shared/cloud target, but cloud execution is not claimed until the user supplies an OCI database, wallet, network/identity decisions, and ORDS endpoint.
+
+---

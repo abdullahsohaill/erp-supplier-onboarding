@@ -18,7 +18,9 @@ python3 scripts/seed.py
 .venv/bin/python scripts/verify.py
 ```
 
-Success means two healthy containers, exact 18/189/17 schema parity, zero invalid objects, 46 ordered assets applied or verified, and every application table seeded.
+Success means two healthy containers, exact 18/189/17 schema parity, zero invalid objects, 47 ordered assets applied or verified, and every application table seeded.
+
+For the complete self-service build and regression workflow, run `./scripts/qa.sh all`.
 
 ## Lifecycle
 

@@ -13,7 +13,7 @@ ERP_RUNTIME_TESTS=1 .venv/bin/pytest -q tests/integration tests/contract
 
 | Scenario | Expected result |
 |---|---|
-| Migration/install | 46 assets apply in order; validators pass |
+| Migration/install | 47 assets apply in order; verifier grant and validators pass |
 | Verified rerun | Unchanged assets skip safely; validators rerun |
 | Schema contract | 18 tables, 189 columns, 17 foreign keys, zero invalid objects |
 | Seed contract | Every table has data; retry count equals history length |
@@ -21,5 +21,6 @@ ERP_RUNTIME_TESTS=1 .venv/bin/pytest -q tests/integration tests/contract
 | OAuth and roles | Unauthenticated, wrong-role, and cross-owner access fail |
 | Restart recovery | Compose stop/start preserves the named volume and data |
 | Cross-unit workflow | Intake, analysis, review, integration, retry, and Admin Settings interoperate |
+| Read-only inspection | ERP_VERIFY reads all tables/views and cannot update application data |
 
 After testing, use `./scripts/stop.sh` to preserve data or leave the healthy local stack running for review.

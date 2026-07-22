@@ -11,6 +11,6 @@ The authoritative `database-schema-design.md` remains ground truth. Seven ordere
 | Package specifications/bodies | 15 / 15 |
 | Invalid objects | 0 |
 
-The external manifest installs seven DDL migrations, two validators, 30 package assets, five ORDS modules, and two ORDS security assets: 46 ordered assets total. Checksums are recorded in ignored evidence. Unchanged reruns skip verified assets while validators always run; a changed package specification forces package recompilation.
+The external manifest installs seven DDL migrations, one local QA read-grant asset, two validators, 30 package assets, five ORDS modules, and two ORDS security assets: 47 ordered assets total. Checksums are recorded in ignored evidence. Unchanged reruns skip verified assets while the grant and validators always run; a changed package specification forces package recompilation.
 
 Three deterministic seed scripts populate every table. Identity sequences are synchronized, retry count/history is checked, and a full stop/start preserved the Oracle volume before migrations, seeds, parity, and health passed again.

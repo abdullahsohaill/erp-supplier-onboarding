@@ -2,7 +2,7 @@
 
 ## Status
 
-**Approved. Construction design is in progress; implementation has not started.**
+**Approved and implemented through UOW-005 on `construction-phase`. Build/Test evidence is complete; managed cloud execution awaits user-supplied OCI access and wallet.**
 
 ## Objective
 
@@ -24,7 +24,8 @@ Create a reproducible local Oracle Autonomous Transaction Processing environment
 
 | Area | Selected Approach | Rationale |
 |---|---|---|
-| Database | `ghcr.io/oracle/adb-free:26.2.4.2-26ai` | Official Oracle Autonomous AI Database Free image, native ARM64, pinned release, and supports ATP workload mode. |
+| Local database | `ghcr.io/oracle/adb-free:26.2.4.2-26ai` | Official Oracle Autonomous AI Database Free image, native ARM64, pinned release, and supports ATP workload mode. Local use retains the documented vendor-image gate. |
+| Shared/cloud database | Oracle Always Free Autonomous AI Database, Transaction Processing workload | Oracle-managed service is the supported clean target; wallet/tenancy setup requires the user's OCI account. |
 | Workload | `WORKLOAD_TYPE=ATP` | Closest supported local equivalent to the target Oracle ATP service. |
 | ORDS | ORDS bundled with the Autonomous Database Free image | Avoids a second ORDS installation and provides HTTPS on port 8443. |
 | Orchestration | Docker Compose | Reproducible startup, persistence, health checks, resource settings, and teardown. |
