@@ -1,0 +1,34 @@
+name: erp-supplier-onboarding
+
+services:
+  adb:
+    image: ghcr.io/oracle/adb-free:26.2.4.2-26ai
+    container_name: erp-adb-free
+    restart: unless-stopped
+    environment:
+      WORKLOAD_TYPE: ATP
+      DATABASE_NAME: ${ADB_DATABASE_NAME:-ERPATP}
+      ADMIN_PASSWORD: ${ADB_ADMIN_PASSWORD:?Set ADB_ADMIN_PASSWORD in .env}
+      WALLET_PASSWORD: ${ADB_WALLET_PASSWORD:?Set ADB_WALLET_PASSWORD in .env}
+      ENABLE_ARCHIVE_LOG: "true"
+    ports:
+      - "127.0.0.1:1521:1521"
+      - "127.0.0.1:1522:1522"
+      - "127.0.0.1:8443:8443"
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+    volumes:
+      - adb-data:/u01/data
+    cpus: 4
+    mem_limit: 10g
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8443'"]
+      interval: 30s
+      timeout: 10s
+      retries: 40
+      start_period: 15m
+volumes:
+  adb-data:
+    name: erp-supplier-onboarding-adb-data

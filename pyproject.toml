@@ -1,0 +1,32 @@
+[project]
+name = "erp-supplier-onboarding-construction"
+version = "0.1.0"
+description = "Oracle ATP/ORDS migrations and verification for supplier onboarding"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "hypothesis==6.136.9",
+  "jsonschema==4.24.0",
+  "oracledb==3.2.0",
+  "pytest==9.0.3",
+  "pytest-cov==6.2.1",
+  "pyyaml==6.0.2",
+  "requests==2.33.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --strict-config"
+testpaths = ["tests"]
+markers = [
+  "oracle: requires a running local Oracle ATP-compatible database",
+  "ords: requires a running ORDS HTTPS endpoint and OAuth clients",
+  "performance: local smoke performance checks",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["scripts", "tests/support"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 80

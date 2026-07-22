@@ -1,0 +1,184 @@
+openapi: 3.1.0
+info:
+  title: ERP Supplier Onboarding ORDS API
+  version: 1.0.0
+  description: Versioned ATP/ORDS API for request intake, governed review, mock Fusion integration, and administration.
+servers:
+  - url: https://localhost:8443/ords/erp/v1
+x-success-response: &successResponse
+  description: Successful operation.
+  content:
+    application/json:
+      schema: {$ref: '#/components/schemas/SuccessEnvelope'}
+x-created-response: &createdResponse
+  description: Resource created.
+  content:
+    application/json:
+      schema: {$ref: '#/components/schemas/SuccessEnvelope'}
+x-error-response: &errorResponse
+  description: Safe error envelope.
+  content:
+    application/json:
+      schema: {$ref: '#/components/schemas/ErrorEnvelope'}
+paths:
+  /requests:
+    post: {operationId: createRequest, tags: [Requests], x-roles: [Requester], security: [{RequesterOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'201': *createdResponse, '400': *errorResponse, '401': *errorResponse}}
+    get: {operationId: listRequests, tags: [Requests], x-roles: [Requester, Reviewer, SupportAdmin], security: [{RequesterOAuth: []}, {ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '401': *errorResponse}}
+  /requests/{requestId}:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getRequest, tags: [Requests], x-roles: [RequesterOwner, Reviewer, SupportAdmin], security: [{RequesterOAuth: []}, {ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '404': *errorResponse}}
+    patch: {operationId: updateRequest, tags: [Requests], x-roles: [RequesterOwner], security: [{RequesterOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '404': *errorResponse, '409': *errorResponse}}
+  /requests/{requestId}/submit:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: submitRequest, tags: [Requests], x-roles: [RequesterOwner], security: [{RequesterOAuth: []}], responses: {'200': *successResponse, '409': *errorResponse, '422': *errorResponse}}
+  /requests/{requestId}/validate:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: validateRequest, tags: [Validation], x-roles: [Reviewer, SupportAdmin, SystemOIC], security: [{ReviewerOAuth: []}, {AdminOAuth: []}, {SystemOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /requests/{requestId}/validation-results:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getValidationResults, tags: [Validation], x-roles: [RequesterOwner, Reviewer, SupportAdmin], security: [{RequesterOAuth: []}, {ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '404': *errorResponse}}
+  /requests/{requestId}/duplicate-check:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: runDuplicateCheck, tags: [Duplicate], x-roles: [Reviewer, SupportAdmin, SystemOIC], security: [{ReviewerOAuth: []}, {AdminOAuth: []}, {SystemOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /requests/{requestId}/duplicate-matches:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getDuplicateMatches, tags: [Duplicate], x-roles: [Reviewer, SupportAdmin], security: [{ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /requests/{requestId}/risk-score:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: calculateRisk, tags: [Risk], x-roles: [Reviewer, SupportAdmin, SystemOIC], security: [{ReviewerOAuth: []}, {AdminOAuth: []}, {SystemOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /requests/{requestId}/risk-assessment:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getRiskAssessment, tags: [Risk], x-roles: [Reviewer, SupportAdmin], security: [{ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /requests/{requestId}/ai-summary:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: generateAiSummary, tags: [AI], x-roles: [Reviewer, SupportAdmin], security: [{ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /requests/{requestId}/ai-summaries:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getAiSummaries, tags: [AI], x-roles: [Reviewer, SupportAdmin], security: [{ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /requests/{requestId}/attachments:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getAttachments, tags: [Requests], x-roles: [RequesterOwner, Reviewer, SupportAdmin], security: [{RequesterOAuth: []}, {ReviewerOAuth: []}, {AdminOAuth: []}], responses: {'200': *successResponse, '404': *errorResponse}}
+  /requests/{requestId}/attachment-metadata:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: saveAttachmentMetadata, tags: [Requests], x-roles: [RequesterOwner], security: [{RequesterOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '409': *errorResponse}}
+  /requests/{requestId}/approve:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: approveRequest, tags: [Review], x-roles: [Reviewer], security: [{ReviewerOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '409': *errorResponse}}
+  /requests/{requestId}/reject:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: rejectRequest, tags: [Review], x-roles: [Reviewer], security: [{ReviewerOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '409': *errorResponse}}
+  /requests/{requestId}/request-correction:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: requestCorrection, tags: [Review], x-roles: [Reviewer], security: [{ReviewerOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '409': *errorResponse}}
+  /requests/{requestId}/mark-duplicate:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: markDuplicate, tags: [Review], x-roles: [Reviewer], security: [{ReviewerOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '409': *errorResponse}}
+  /requests/{requestId}/submit-to-fusion:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: submitToFusion, tags: [Integration], x-roles: [SupportAdmin, SystemOIC], security: [{AdminOAuth: []}, {SystemOAuth: []}], responses: {'200': *successResponse, '409': *errorResponse}}
+  /integration-logs/{logId}/retry:
+    parameters: [{$ref: '#/components/parameters/LogId'}]
+    post: {operationId: retryIntegration, tags: [Integration], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse, '404': *errorResponse, '409': *errorResponse}}
+  /dashboard/requester-summary:
+    get: {operationId: getRequesterSummary, tags: [Dashboard], x-roles: [Requester], security: [{RequesterOAuth: []}], responses: {'200': *successResponse}}
+  /dashboard/reviewer-summary:
+    get: {operationId: getReviewerSummary, tags: [Dashboard], x-roles: [Reviewer], security: [{ReviewerOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /dashboard/support-summary:
+    get: {operationId: getSupportSummary, tags: [Dashboard], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /integration-logs:
+    get: {operationId: listIntegrationLogs, tags: [Integration], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse}}
+  /integration-logs/{logId}:
+    parameters: [{$ref: '#/components/parameters/LogId'}]
+    get: {operationId: getIntegrationLog, tags: [Integration], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse, '403': *errorResponse, '404': *errorResponse}}
+  /reference/business-units:
+    get: {operationId: getBusinessUnitReference, tags: [Reference], x-roles: [Authenticated], security: [{RequesterOAuth: []}, {ReviewerOAuth: []}, {AdminOAuth: []}, {SystemOAuth: []}], responses: {'200': *successResponse}}
+  /reference/supplier-types:
+    get: {operationId: getSupplierTypeReference, tags: [Reference], x-roles: [Authenticated], security: [{RequesterOAuth: []}, {ReviewerOAuth: []}, {AdminOAuth: []}, {SystemOAuth: []}], responses: {'200': *successResponse}}
+  /admin-settings/high-risk-countries:
+    get: {operationId: getHighRiskCountries, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse}}
+  /admin-settings/high-risk-countries/{countryCode}/periods/{effectiveFrom}:
+    parameters: [{$ref: '#/components/parameters/CountryCode'}, {$ref: '#/components/parameters/EffectiveFrom'}]
+    put: {operationId: updateHighRiskCountry, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '404': *errorResponse}}
+  /admin-settings/validation-rules:
+    get: {operationId: getValidationRules, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse}}
+  /admin-settings/validation-rules/{ruleCode}:
+    parameters: [{$ref: '#/components/parameters/RuleCode'}]
+    put: {operationId: updateValidationRule, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '404': *errorResponse}}
+  /admin-settings/scoring-rules:
+    get:
+      operationId: getScoringRules
+      tags: [Admin]
+      x-roles: [SupportAdmin]
+      security: [{AdminOAuth: []}]
+      parameters: [{name: ruleType, in: query, required: false, schema: {type: string, enum: [RISK, DUPLICATE]}}]
+      responses: {'200': *successResponse}
+  /admin-settings/scoring-rules/{ruleType}/{ruleCode}/versions/{version}:
+    parameters: [{$ref: '#/components/parameters/RuleType'}, {$ref: '#/components/parameters/RuleCode'}, {$ref: '#/components/parameters/Version'}]
+    put: {operationId: updateScoringRule, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '404': *errorResponse}}
+  /admin-settings/business-units:
+    get: {operationId: getAdminBusinessUnits, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse}}
+  /admin-settings/business-units/{businessUnitCode}:
+    parameters: [{$ref: '#/components/parameters/BusinessUnitCode'}]
+    put: {operationId: updateBusinessUnit, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '404': *errorResponse}}
+  /admin-settings/supplier-types:
+    get: {operationId: getAdminSupplierTypes, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'200': *successResponse}}
+  /admin-settings/supplier-types/{supplierTypeCode}:
+    parameters: [{$ref: '#/components/parameters/SupplierTypeCode'}]
+    put: {operationId: updateSupplierType, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '404': *errorResponse}}
+  /admin-settings/supplier-reference-sync:
+    post: {operationId: triggerSupplierReferenceSync, tags: [Admin], x-roles: [SupportAdmin], security: [{AdminOAuth: []}], responses: {'202': *successResponse, '403': *errorResponse}}
+  /internal/supplier-references/{fusionSupplierId}:
+    parameters: [{$ref: '#/components/parameters/FusionSupplierId'}]
+    put: {operationId: upsertSupplierReference, tags: [Internal], x-roles: [SystemOIC], security: [{SystemOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse}}
+  /internal/supplier-references/{fusionSupplierId}/sites/{fusionSiteId}:
+    parameters: [{$ref: '#/components/parameters/FusionSupplierId'}, {$ref: '#/components/parameters/FusionSiteId'}]
+    put: {operationId: upsertSupplierSiteReference, tags: [Internal], x-roles: [SystemOIC], security: [{SystemOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse, '404': *errorResponse}}
+  /internal/requests/{requestId}/integration-results:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: recordIntegrationResult, tags: [Internal], x-roles: [SystemOIC], security: [{SystemOAuth: []}], requestBody: {$ref: '#/components/requestBodies/JsonBody'}, responses: {'200': *successResponse, '400': *errorResponse}}
+components:
+  securitySchemes:
+    RequesterOAuth: {type: oauth2, flows: {clientCredentials: {tokenUrl: /ords/erp/oauth/token, scopes: {}}}}
+    ReviewerOAuth: {type: oauth2, flows: {clientCredentials: {tokenUrl: /ords/erp/oauth/token, scopes: {}}}}
+    AdminOAuth: {type: oauth2, flows: {clientCredentials: {tokenUrl: /ords/erp/oauth/token, scopes: {}}}}
+    SystemOAuth: {type: oauth2, flows: {clientCredentials: {tokenUrl: /ords/erp/oauth/token, scopes: {}}}}
+  requestBodies:
+    JsonBody:
+      required: true
+      content:
+        application/json:
+          schema: {type: object, additionalProperties: true, maxProperties: 100}
+  parameters:
+    RequestId: {name: requestId, in: path, required: true, schema: {type: integer, minimum: 1}}
+    LogId: {name: logId, in: path, required: true, schema: {type: integer, minimum: 1}}
+    CountryCode: {name: countryCode, in: path, required: true, schema: {type: string, pattern: '^[A-Z]{2,3}$'}}
+    EffectiveFrom: {name: effectiveFrom, in: path, required: true, schema: {type: string, format: date}}
+    RuleCode: {name: ruleCode, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 60}}
+    RuleType: {name: ruleType, in: path, required: true, schema: {type: string, enum: [RISK, DUPLICATE]}}
+    Version: {name: version, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 20}}
+    BusinessUnitCode: {name: businessUnitCode, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 40}}
+    SupplierTypeCode: {name: supplierTypeCode, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 40}}
+    FusionSupplierId: {name: fusionSupplierId, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 100}}
+    FusionSiteId: {name: fusionSiteId, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 100}}
+  schemas:
+    SuccessEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success: {type: boolean, const: true}
+        data: {}
+    ErrorEnvelope:
+      type: object
+      required: [success, error, traceId]
+      properties:
+        success: {type: boolean, const: false}
+        error:
+          type: object
+          required: [category, code, message, retryEligible]
+          properties:
+            category: {type: string}
+            code: {type: string}
+            message: {type: string}
+            technicalMessage: {type: [string, 'null']}
+            retryEligible: {type: boolean}
+        traceId: {type: string}

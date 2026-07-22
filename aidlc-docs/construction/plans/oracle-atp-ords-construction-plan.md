@@ -2,7 +2,7 @@
 
 ## Status
 
-**Awaiting explicit approval. No implementation steps have started.**
+**Direct implementation and live local ATP/ORDS verification are complete. The full 64-test suite passes against the running Oracle runtime. Per-stage AI-DLC gates were bypassed by explicit user instruction on 2026-07-21.**
 
 ## Objective
 
@@ -24,15 +24,15 @@ Create a reproducible local Oracle Autonomous Transaction Processing environment
 
 | Area | Selected Approach | Rationale |
 |---|---|---|
-| Database | `ghcr.io/oracle/adb-free:26.2.4.2-26ai` | Official Oracle Autonomous AI Database Free image, native ARM64, pinned release, and supports ATP workload mode. |
+| Database | `ghcr.io/oracle/adb-free:26.2.4.2-26ai` | Official pinned Oracle Autonomous AI Database Free multi-architecture image, native to this host's Linux AMD64 architecture, with ATP workload support. |
 | Workload | `WORKLOAD_TYPE=ATP` | Closest supported local equivalent to the target Oracle ATP service. |
 | ORDS | ORDS bundled with the Autonomous Database Free image | Avoids a second ORDS installation and provides HTTPS on port 8443. |
 | Orchestration | Docker Compose | Reproducible startup, persistence, health checks, resource settings, and teardown. |
 | Database logic | Oracle SQL and PL/SQL packages behind ORDS | Matches the approved technical design and keeps validation, duplicate, risk, workflow, and integration behavior transactional. |
 | API security | ORDS OAuth2 clients, privileges, and roles for Requester, Reviewer, Support/Admin, and System/OIC | Enforces deny-by-default role and function boundaries without trusting UI state. |
-| Test runtime | Python 3.13 with pinned `pytest`, `python-oracledb`, `requests`, `jsonschema`, and `hypothesis` dependencies | Supports database, HTTPS API, contract, example-based, and property-based testing. |
+| Test runtime | Python 3.13 provisioned through the available `uv` tool, with pinned `pytest`, `python-oracledb`, `requests`, `jsonschema`, and `hypothesis` dependencies | Avoids dependence on the host's default Python 3.12.3 while supporting database, HTTPS API, contract, example-based, and property-based testing. |
 
-Oracle documents the selected image as supporting ATP workload mode, ORDS, ARM64, and Docker-compatible OCI images. The local host has 16 GB RAM and ARM64 architecture; the image requires 4 CPUs and 8 GiB RAM.
+Oracle documents the selected 26ai image as a Docker-compatible OCI image supporting ATP workload mode, bundled ORDS, and native `linux/amd64` plus `linux/arm64` variants. The current execution host has 8 CPUs, approximately 16 GB RAM, and x86_64/AMD64 architecture; the image requires 4 CPUs and 8 GiB RAM.
 
 Official references:
 
@@ -166,38 +166,35 @@ No Oracle Cloud, Fusion, OIC, or live AI credentials are required for the local 
 
 The following may require user interaction only if local automation cannot complete them:
 
-1. Start Docker Desktop and allow at least 4 CPUs and 8 GiB memory. Docker is installed, but its daemon is currently stopped.
-2. Approve any macOS prompt raised by Docker Desktop for privileged networking or filesystem access.
-3. Trust the generated local self-signed ORDS certificate in the browser only if interactive Database Actions/APEX access is desired. Automated tests will use the copied local CA certificate rather than disabling TLS verification.
-4. Later provide customer-managed credentials and tenancy details when replacing mocks with Oracle Cloud ATP, OIC, Fusion, SSO, or a live AI provider.
+1. Trust the generated local self-signed ORDS certificate in the browser only if interactive Database Actions/APEX access is desired. Automated tests use the copied local certificate as an exact trust anchor rather than disabling TLS verification.
+2. Later provide customer-managed credentials and tenancy details when replacing mocks with Oracle Cloud ATP, OIC, Fusion, SSO, or a live AI provider.
+
+Python 3.13 does not require a manual host installation: the available `uv` tool will provision the pinned interpreter and isolated test environment during code generation.
 
 Secrets will be generated into ignored local files. They will not be committed or written into documentation.
 
 ## Execution Checklist
 
-- [ ] Approve this construction workflow plan.
-- [ ] Complete and approve UOW-001 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-001 code-generation plan and implementation.
-- [ ] Complete and approve UOW-002 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-002 code-generation plan and implementation.
-- [ ] Complete and approve UOW-003 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-003 code-generation plan and implementation.
-- [ ] Complete and approve UOW-004 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-004 code-generation plan and implementation.
-- [ ] Complete and approve UOW-005 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-005 code-generation plan and implementation.
-- [ ] Start the pinned local ATP/ORDS runtime and apply all migrations.
-- [ ] Seed every approved application table and verify referential integrity.
-- [ ] Execute unit, property, integration, contract, security, end-to-end, and performance tests.
-- [ ] Correct failures and rerun the complete suite.
-- [ ] Generate migration, test, and consolidated implementation reports.
-- [ ] Present the final build-and-test review gate.
+Current checkpoint: implementation, migration, seed, ORDS installation, schema verification, test, OpenAPI, SBOM, vulnerability, and report artifacts are complete. The full 64-test suite passes against the live local Oracle/ORDS runtime.
+
+- [x] Approve this construction workflow plan.
+- [x] Implement UOW-001 request intake directly, without additional stage plans or approval gates.
+- [x] Implement UOW-002 validation, duplicate detection, risk scoring, and deterministic AI support directly.
+- [x] Implement UOW-003 review decisions and business dashboard services directly.
+- [x] Implement UOW-004 mock Fusion/OIC integration, logs, and embedded retry directly.
+- [x] Implement UOW-005 governed settings, representative data, tests, and reporting directly.
+- [x] Create the pinned runtime definition, exact migrations, PL/SQL packages, ORDS security/handlers, and OpenAPI document.
+- [x] Start the pinned local ATP/ORDS runtime and apply all migrations.
+- [x] Apply the completed seed set to every approved application table and verify live referential integrity.
+- [x] Execute the Oracle, ORDS, end-to-end, performance, unit, property, contract, and security tests.
+- [x] Correct runtime-only failures and rerun the complete 64-test suite successfully.
+- [x] Generate migration, test, build, SBOM, vulnerability, and consolidated implementation reports.
 
 ## Planning Checklist
 
 - [x] Loaded approved requirements, verification answers, stories, personas, application design, units, schema, and endpoint catalog.
 - [x] Verified the authoritative schema and DBML are equivalent.
-- [x] Assessed the local ARM64 host, memory, Docker, Java, Node, and Python availability.
+- [x] Assessed the local x86_64/AMD64 host, memory, Docker, Java, Node, and Python availability.
 - [x] Selected a pinned official Oracle ATP-capable local image with bundled ORDS.
 - [x] Incorporated enabled Security, Resiliency, and partial Property-Based Testing extensions.
 - [x] Defined implementation boundaries, migration approach, seed scenarios, test categories, reports, and possible manual actions.

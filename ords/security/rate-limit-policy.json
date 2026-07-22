@@ -1,0 +1,33 @@
+{
+  "policyVersion": 1,
+  "enforcementPoint": "trusted reverse proxy or API management layer in front of ORDS",
+  "default": {
+    "requestsPerMinute": 120,
+    "burst": 30
+  },
+  "overrides": [
+    {
+      "path": "/erp/v1/requests/*/submit",
+      "methods": ["POST"],
+      "requestsPerMinute": 10,
+      "burst": 3
+    },
+    {
+      "path": "/erp/v1/integration-logs/*/retry",
+      "methods": ["POST"],
+      "requestsPerMinute": 5,
+      "burst": 1
+    },
+    {
+      "path": "/erp/v1/internal/*",
+      "methods": ["POST", "PUT"],
+      "requestsPerMinute": 300,
+      "burst": 50
+    }
+  ],
+  "response": {
+    "status": 429,
+    "retryAfterHeader": true
+  },
+  "notes": "ADB Free bundled ORDS is bound to localhost for local construction. Production ingress must enforce this versioned policy and centralize access logs."
+}

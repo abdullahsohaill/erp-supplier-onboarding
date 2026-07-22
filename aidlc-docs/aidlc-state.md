@@ -4,8 +4,8 @@
 - **Project Name**: Supplier Onboarding, Duplicate Detection, and Risk Scoring
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
-- **Current Phase**: INCEPTION
-- **Current Stage**: INCEPTION - Oracle ATP/ORDS construction workflow plan awaiting explicit approval
+- **Current Phase**: CONSTRUCTION
+- **Current Stage**: DIRECT CONSTRUCTION - implementation artifacts complete; container runtime required for ATP/ORDS execution
 
 ## Workspace State
 - **Existing Code**: No
@@ -44,6 +44,7 @@
 - [x] Cross-artifact consistency amendment
 - [x] Schema ground-truth reconciliation amendment
 - [x] Oracle ATP/ORDS construction workflow plan drafted
+- [x] Oracle ATP/ORDS construction workflow plan approved
 
 ### CONSTRUCTION PHASE
 - [ ] Functional Design per unit
@@ -53,6 +54,14 @@
 - [ ] Code Generation planning
 - [ ] Build and Test planning
 
+### DIRECT CONSTRUCTION PROGRESS
+- [x] Exact 18-table Oracle DDL, constraints, indexes, packages, and checksummed runner
+- [x] All 42 ORDS handlers, OAuth roles/clients, rate policy, and OpenAPI contract
+- [x] Complete reference and workflow seed scripts for every application table
+- [x] Unit, property, contract, and security tests (38 passed)
+- [x] Build/test instructions, migration summary, consolidated report, SBOM, and clean vulnerability scan
+- [ ] Live Oracle migrations, object compilation, seed verification, ORDS tests, end-to-end tests, and performance tests (container runtime unavailable)
+
 ### OPERATIONS PHASE
 - [ ] Operations placeholder
 
@@ -61,4 +70,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-The finalized `database-schema-design.md` remains the authoritative 18-table, 189-column, 17-relationship contract, with `db-schema.dbml` as its synchronized machine-readable equivalent. The construction workflow is defined in `aidlc-docs/construction/plans/oracle-atp-ords-construction-plan.md` and awaits explicit approval. It selects the pinned official Oracle Autonomous AI Database Free 26ai ARM64 image in ATP mode with bundled ORDS, preserves the schema contract, implements all 42 approved endpoint contracts, seeds every application table, tests all mapped use cases and security boundaries, and produces migration plus consolidated reports. No runtime, migration, endpoint, seed, or test implementation has started.
+The finalized `database-schema-design.md` remains the authoritative 18-table, 189-column, 17-relationship contract, with `db-schema.dbml` as its synchronized machine-readable equivalent. At the user's explicit direction, construction is executing directly without additional AI-DLC plans or per-stage approval gates. Runtime, DDL, packages, all 42 ORDS handlers, OpenAPI, complete seed scripts, test suites, and reports are implemented. Static/unit/property/contract/security verification reports 38 passed tests and a clean dependency audit; 26 Oracle/ORDS/e2e/performance checks are blocked because the current Ubuntu environment exposes no container runtime and passwordless `sudo` is unavailable. The available `uv` tool has provisioned Python 3.13.14.
