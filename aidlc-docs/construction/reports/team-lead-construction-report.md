@@ -21,7 +21,8 @@ The complete executable suite passed 67 of 67 broad tests in 202.00 seconds. Tho
 | API contract | PASS | 42 OpenAPI operations match 42 ORDS handlers and roles |
 | Authentication/authorization | PASS | Missing-token, wrong-role, allowed-role, and ownership matrices |
 | User stories | PASS | All 14 approved stories have executable E2E coverage |
-| Postman | PASS | Desktop installed; collection has every operation exactly once |
+| Account-free API client | PASS | Bruno installed; generated workspace has all 42 operations and needs no sign-in or credential entry |
+| Postman compatibility | PASS | Desktop installed; collection has every operation exactly once |
 | Database inspection | PASS | Database Actions on TLS loopback and six curated read-only query pages |
 | Test suite | PASS | 67 passed, zero failed/skipped/errors |
 | Production release | NOT CLAIMED | Local prototype only; vendor-image and production NFR gates remain |
@@ -36,7 +37,8 @@ The complete executable suite passed 67 of 67 broad tests in 202.00 seconds. Tho
 | Database Actions | ORDS Database Actions with REST-enabled SQL | `https://localhost:8444/ords/sql-developer` |
 | Database inspection user | `ERP_VERIFY`, REST alias `erp-inspector` | SELECT-only on 18 tables and four views |
 | Oracle CLI | Oracle SQLcl 26.2 with Homebrew OpenJDK 26 | `./scripts/sqlcl.sh` |
-| API client | Postman Desktop 12.20.2 | Generated collection and ignored local environment |
+| API client | Bruno Desktop 3.5.3 and CLI 3.5.2 | Account-free generated collection; authenticated eight-request smoke PASS |
+| Compatibility client | Postman Desktop 12.20.2 | Generated collection and ignored local environment |
 | Python verification | Python 3.13 virtual environment with hash-locked requirements | `./scripts/qa.sh all` |
 
 Database Actions is on a separate loopback-only port and does not broaden the application API gateway. It is authenticated and intended solely for local inspection. The generated access card and all passwords remain under ignored `.local/` paths with owner-only permissions.
@@ -106,7 +108,7 @@ OAuth2 clients represent two Requesters, one Reviewer, Support/Admin, and System
 | Unit | 10 | Input allowlists, envelopes, projections, workflow, query guard |
 | Property | 4 | Normalization, bank masking, address boundaries, owner identity |
 | Integration/database | 12 | Schema, keys, indexes, JSON, seed, packages, views, verifier grants |
-| Contract | 12 | OpenAPI, ORDS, all operations/roles, Postman assets |
+| Contract | 12 | OpenAPI, ORDS, all operations/roles, Bruno generator, and Postman compatibility assets |
 | Security | 13 | OAuth, role matrices, IDOR, abuse, TLS, Database Actions, rate limits |
 | E2E/story | 15 | All 14 stories and critical warning/blocking variants |
 | Performance smoke | 1 | Local read p95 |
@@ -124,9 +126,10 @@ Three seed files then populated governed reference data, two existing suppliers/
 
 1. Oracle Database Actions: browse tables and run read-only SQL as `ERP_VERIFY`.
 2. Oracle SQLcl: connect through the generated mTLS wallet with `./scripts/sqlcl.sh`.
-3. Postman Desktop: run authentication, role folders, all 42 operations, or guided workflows.
-4. Curated CLI queries: run the six pages under `database/qa/` using `scripts/query.py`.
-5. Static wireframes: open `mockups/supplier-onboarding-wireframes.html` for the user experience.
+3. Bruno Desktop: account-free authentication, role folders, all 42 operations, and guided workflows.
+4. Postman Desktop: optional compatibility client using the same API contract.
+5. Curated CLI queries: run the six pages under `database/qa/` using `scripts/query.py`.
+6. Static wireframes: open `mockups/supplier-onboarding-wireframes.html` for the user experience.
 
 The exact presentation sequence and credential handling are documented in `local-demo-runbook.md`.
 
@@ -138,5 +141,4 @@ The current official Oracle ADB Free image contains documented vendor package fi
 
 ## Conclusion
 
-The requested local construction scope is complete and demonstrable: database, wallet, migrations, seed data, ORDS endpoints, authentication/authorization, Postman, Database Actions, SQLcl, use-case tests, and reports are installed and verified. No OCI account or Oracle Playground is required.
-
+The requested local construction scope is complete and demonstrable: database, wallet, migrations, seed data, ORDS endpoints, authentication/authorization, account-free Bruno, Postman compatibility assets, Database Actions, SQLcl, use-case tests, and reports are installed and verified. No OCI account or Oracle Playground is required.

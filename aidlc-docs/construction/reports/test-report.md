@@ -19,7 +19,7 @@ Result: 67 passed, 0 failed, 0 errors, 0 skipped, with one dependency deprecatio
 
 ## Functional Coverage
 
-All 14 approved user stories have executable flows. Tests cover the 42-operation API, five identities/four application roles, every unauthenticated route, every restricted route with a wrong role, every route with an allowed role, OpenAPI-to-handler role parity, automatic validation/duplicate/risk processing, critical blockers, warning behavior, Reviewer evidence and decisions, dashboard actions, Admin Settings toggles, deterministic AI, Fusion/OIC mock behavior, retries, reference upserts, every table/column/key/index/JSON/package/view, read-only verifier privileges, Postman assets, Database Actions loopback/TLS configuration, SQLcl wallet connectivity, and restart persistence.
+All 14 approved user stories have executable flows. Tests cover the 42-operation API, five identities/four application roles, every unauthenticated route, every restricted route with a wrong role, every route with an allowed role, OpenAPI-to-handler role parity, automatic validation/duplicate/risk processing, critical blockers, warning behavior, Reviewer evidence and decisions, dashboard actions, Admin Settings toggles, deterministic AI, Fusion/OIC mock behavior, retries, reference upserts, every table/column/key/index/JSON/package/view, read-only verifier privileges, Bruno/Postman client assets, Database Actions loopback/TLS configuration, SQLcl wallet connectivity, and restart persistence. A separate Bruno CLI smoke run passed five OAuth token requests and three representative role endpoints.
 
 ## Quality Notes
 

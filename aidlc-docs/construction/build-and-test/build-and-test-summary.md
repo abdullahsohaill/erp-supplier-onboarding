@@ -34,7 +34,7 @@ The post-authorization-fix performance harness passed ten workers for 300 second
 
 ## Overall Status
 
-UOW-001 through UOW-005 application code, migrations, APIs, seeds, mocks, self-service query/Postman tooling, and tests are complete. The local runtime is healthy and suitable for controlled development/demo review. Build and Test cannot mark the local container production-ready because the latest official Oracle ADB Free image scan contains 184 High and 3 Critical fixed-version findings.
+UOW-001 through UOW-005 application code, migrations, APIs, seeds, mocks, account-free Bruno, Postman compatibility, self-service query tooling, and tests are complete. The local runtime is healthy and suitable for controlled development/demo review. Build and Test cannot mark the local container production-ready because the latest official Oracle ADB Free image scan contains 184 High and 3 Critical fixed-version findings.
 
 ## Required Decision
 

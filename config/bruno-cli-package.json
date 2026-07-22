@@ -1,0 +1,13 @@
+{
+  "name": "erp-local-bruno-cli",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@usebruno/cli": "3.5.2"
+  },
+  "overrides": {
+    "axios": "1.18.1",
+    "form-data": "4.0.6",
+    "uuid": "11.1.1"
+  }
+}

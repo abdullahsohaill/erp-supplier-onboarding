@@ -32,9 +32,17 @@ This file contains a generated local-only password. Do not share or commit it.
 - Service: erpatp_tp
 - Wallet: .local/trust/tls_wallet
 
-## ORDS API and Postman
+## ORDS API and Account-Free Bruno
 
 - API base: https://localhost:8443/ords/erp/supplier-onboarding/v1
+- Open command: ./scripts/bruno.sh open
+- Test command: ./scripts/bruno.sh test
+- Generated collection: .local/bruno/erp-supplier-onboarding
+- No account, import, or credential entry required
+- Local CA: .local/trust/local-ca.crt
+
+## Optional Postman Compatibility
+
 - Collection: postman/erp-supplier-onboarding.postman_collection.json
 - Environment: .local/postman/erp-local.postman_environment.json
 - Local CA: .local/trust/local-ca.crt

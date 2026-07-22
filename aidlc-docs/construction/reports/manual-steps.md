@@ -7,11 +7,11 @@
 3. Keep at least 25 GiB free for the Oracle image, first-boot PDB cache, and named volume.
 4. Allow Docker networking/filesystem prompts if macOS requests them.
 5. Optionally trust `.local/trust/local-ca.crt` in the macOS login keychain for Database Actions without a browser warning.
-6. Import the generated collection/environment into Postman Desktop and add the same local CA certificate.
+6. Run `./scripts/bruno.sh open`; if Bruno reports a local certificate warning, select the same CA under Preferences, Use Custom CA Certificate.
 
 CLI tests already trust the generated CA explicitly and never disable TLS verification.
 
-Postman Desktop, Oracle SQLcl, and Homebrew OpenJDK are already installed on this Mac. No OCI account, Oracle Playground, cloud wallet, or database creation step is required.
+Bruno Desktop, Postman Desktop, Oracle SQLcl, and Homebrew OpenJDK are already installed on this Mac. Bruno needs no account, import, environment selection, or credential entry. No OCI account, Oracle Playground, cloud wallet, or database creation step is required.
 
 ## Required Before Real Integrations
 

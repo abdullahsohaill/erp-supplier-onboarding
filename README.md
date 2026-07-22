@@ -16,7 +16,7 @@ Construction through UOW-005 is implemented on the `construction-phase` branch. 
 - Docker Desktop with at least 4 CPUs and 8 GiB available to its Linux VM. Ten GiB is recommended when scans and tests run beside Oracle.
 - Python 3.13 and OpenSSL.
 - Homebrew OpenJDK and Oracle SQLcl for native wallet inspection.
-- Postman Desktop for manual API execution.
+- Bruno Desktop for account-free, offline API execution; Postman remains optional.
 - At least 25 GiB free disk space for the Oracle image and persistent database volume.
 
 Do not put real supplier, bank, customer, Fusion, OIC, SSO, or AI credentials in this repository. Local secrets and certificates are generated under ignored `.local/` paths.
@@ -57,9 +57,17 @@ ERP_PERF_DURATION_SECONDS=300 \
 .venv/bin/python scripts/report.py
 ```
 
-The full QA command runs 67 broad tests and writes JUnit evidence under ignored `.local/reports/`. The broad tests retain the complete per-table, per-operation, and role matrices as internal assertions. See `aidlc-docs/construction/build-and-test/self-service-testing-instructions.md` for suite meanings, read-only Oracle queries, Database Actions, SQLcl, Postman setup, and authorization checks.
+The full QA command runs 67 broad tests and writes JUnit evidence under ignored `.local/reports/`. The broad tests retain the complete per-table, per-operation, and role matrices as internal assertions. See `aidlc-docs/construction/build-and-test/self-service-testing-instructions.md` for suite meanings, read-only Oracle queries, Database Actions, SQLcl, Bruno/Postman setup, and authorization checks.
 
-Generate the complete 42-operation Postman collection and ignored local credential environment:
+Open the ready-to-use account-free Bruno workspace:
+
+```bash
+./scripts/bruno.sh open
+```
+
+This generates an owner-only collection under `.local/bruno/`, includes all local OAuth2 values without committing them, and opens Bruno without a sign-in. Run the `00 Authentication` folder once, then use any role folder or guided flow. Verify the same flow from the CLI with `./scripts/bruno.sh test`.
+
+Generate the optional 42-operation Postman compatibility collection and ignored local credential environment:
 
 ```bash
 ./scripts/qa.sh generate
@@ -102,7 +110,7 @@ Connect with Oracle SQLcl through the generated wallet:
 ./scripts/sqlcl.sh
 ```
 
-Postman Desktop is installed. Import the committed collection and ignored local environment described in `aidlc-docs/construction/build-and-test/local-demo-runbook.md`.
+Bruno Desktop is installed and requires no account. Run `./scripts/bruno.sh open`; no collection import, environment selection, username, secret, or token entry is required. Postman assets remain available for teammates who prefer Postman.
 
 To trust the local edge certificate in macOS browsers, manually add `.local/trust/local-ca.crt` to the login keychain and mark it trusted. CLI tests use the generated CA file directly and do not disable TLS verification.
 

@@ -2,7 +2,7 @@
 
 ## Current Ready State
 
-The local stack is installed, running, freshly migrated, and seeded. Postman Desktop, Oracle SQLcl, and OpenJDK are installed. Generated passwords, OAuth clients, wallet files, and certificates are under ignored `.local/` directories.
+The local stack is installed, running, freshly migrated, and seeded. Bruno Desktop, Postman Desktop, Oracle SQLcl, and OpenJDK are installed. Generated passwords, OAuth clients, API-client workspaces, wallet files, and certificates are under ignored `.local/` directories.
 
 ## Before the Meeting
 
@@ -15,10 +15,11 @@ git checkout construction-phase
 .venv/bin/python scripts/health.py
 ```
 
-3. Generate or refresh the owner-only access card and Postman environment:
+3. Generate or refresh the owner-only access card and account-free Bruno workspace:
 
 ```bash
 ./scripts/qa.sh generate
+./scripts/bruno.sh open
 open .local/demo/local-access.md
 ```
 
@@ -28,7 +29,7 @@ Do not screen-share or send the access card. It contains the local read-only dat
 
 For a browser with no certificate warning, open `.local/trust/local-ca.crt` in Keychain Access, add it to the login keychain, and set it to Always Trust. This changes macOS trust settings and is intentionally left as a manual user action.
 
-Postman can trust the same file under Settings, Certificates, CA Certificates. Keep SSL certificate verification enabled.
+Bruno can use the same file under Preferences, Use Custom CA Certificate. Postman can use it under Settings, Certificates, CA Certificates. Keep SSL certificate verification enabled.
 
 ## Demonstrate Oracle Database Actions
 
@@ -101,7 +102,17 @@ For an automated native-client proof:
 .venv/bin/python scripts/sqlcl_smoke.py
 ```
 
-## Demonstrate Postman
+## Demonstrate Bruno Without an Account
+
+1. Run `./scripts/bruno.sh open`.
+2. Bruno opens the generated local collection directly; skip any optional account or cloud prompts.
+3. If needed once, select `.local/trust/local-ca.crt` under Preferences, Use Custom CA Certificate.
+4. Run the `00 Authentication` folder.
+5. Open a role folder or `10 Guided Flows` and send requests.
+
+The ignored collection already contains the generated local client values and uses runtime-only access tokens. Nothing needs to be imported or typed. `./scripts/bruno.sh test` independently proves all five token requests plus representative Requester, Reviewer, and Support/Admin requests.
+
+## Demonstrate Postman (Optional)
 
 1. Open Postman Desktop.
 2. Import `postman/erp-supplier-onboarding.postman_collection.json`.
@@ -125,7 +136,7 @@ Recommended sequence:
 | 8 | Retry failed integration | Retry count/history and eligibility update atomically |
 | 9 | Admin Settings | Validation/risk/duplicate controls and reference data |
 
-The collection contains all 42 canonical operations exactly once and generates role tokens without committing secrets.
+Both client workspaces contain all 42 canonical operations exactly once and generate role tokens without committing secrets.
 
 ## Fast Read-Only CLI Inspection
 
@@ -163,4 +174,3 @@ Resume later:
 ```
 
 Do not run the guarded reset before a presentation. It deletes the local database volume and is intended only for a deliberate clean rebuild.
-

@@ -9,6 +9,9 @@ from tests.support.endpoint_matrix import operation_cases
 ROOT = Path(__file__).resolve().parents[2]
 COLLECTION = ROOT / "postman/erp-supplier-onboarding.postman_collection.json"
 TEMPLATE = ROOT / "postman/erp-local.postman_environment.template.json"
+BRUNO_GENERATOR = ROOT / "scripts/generate_bruno.js"
+BRUNO_WRAPPER = ROOT / "scripts/bruno.sh"
+BRUNO_MANIFEST = ROOT / "config/bruno-cli-package.json"
 
 
 def _walk(items: list[dict[str, object]]):
@@ -42,10 +45,22 @@ def test_collection_contains_every_canonical_operation_once() -> None:
 
 
 def test_committed_postman_assets_are_secret_free() -> None:
-    source = COLLECTION.read_text(encoding="utf-8") + TEMPLATE.read_text(encoding="utf-8")
+    source = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (
+            COLLECTION,
+            TEMPLATE,
+            BRUNO_GENERATOR,
+            BRUNO_WRAPPER,
+            BRUNO_MANIFEST,
+        )
+    )
     assert "GENERATE_LOCALLY" in source
     assert "client_secret\"" not in source.lower()
     assert not re.search(r'"access_token"\s*:\s*"[^\"]+"', source, re.IGNORECASE)
+    assert ".local/bruno" in source
+    assert '"@usebruno/cli": "3.5.2"' in source
+    assert '"axios": "1.18.1"' in source
 
 
 def test_environment_template_marks_secret_values() -> None:

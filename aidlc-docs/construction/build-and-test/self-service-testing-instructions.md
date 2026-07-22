@@ -35,7 +35,7 @@ Run a smaller suite against an already healthy stack:
 | Mode | Coverage |
 |---|---|
 | `db` | Tables, columns, keys, indexes, JSON data, seeds, packages, views, migrations, and read-only verifier |
-| `contract` | OpenAPI, ORDS, all 42 operations, handler roles, and Postman assets |
+| `contract` | OpenAPI, ORDS, all 42 operations, handler roles, and local API-client assets |
 | `auth` | Authentication, every wrong/allowed role route, ownership, abuse, TLS/CORS, masking, redaction, and throttling |
 | `flows` | All 14 approved user stories |
 
@@ -60,7 +60,25 @@ The utility connects as `ERP_VERIFY`. The parser permits only `SELECT`, `WITH`, 
 
 For SQL Developer or another Oracle client, use the generated wallet under `.local/trust/tls_wallet`, service `erpatp_tp`, username `ERP_VERIFY`, and the local verifier password from `.local/secrets/adb.env`. Do not share or commit that file.
 
-## Postman
+## Bruno - Recommended Account-Free Client
+
+```bash
+./scripts/bruno.sh open
+```
+
+The command installs the pinned local CLI dependency when needed, regenerates the API collection, places generated OAuth2 values only in the ignored owner-only collection, and opens Bruno Desktop. Bruno is offline-first and does not require an account. No import, environment selection, username, client secret, or token entry is required.
+
+In Bruno, run `00 Authentication` once and then open any Requester, Reviewer, Support/Admin, System/OIC, or Guided Flows request. If the desktop app reports a local certificate warning, select `.local/trust/local-ca.crt` under Preferences, Use Custom CA Certificate. Do not disable TLS verification.
+
+Verify authentication and representative role endpoints without the desktop UI:
+
+```bash
+./scripts/bruno.sh test
+```
+
+This runs five token requests plus Requester, Reviewer, and Support/Admin reads with the custom CA and writes ignored JUnit evidence to `.local/reports/bruno-smoke.xml`.
+
+## Postman - Optional Compatibility Client
 
 Regenerate the committed collection and ignored credential environment:
 
@@ -77,7 +95,7 @@ Add `.local/trust/local-ca.crt` as a trusted CA certificate in Postman. Keep SSL
 
 Run `00 Authentication` first. It obtains short-lived tokens for both Requesters, Reviewer, Support/Admin, and System/OIC without placing tokens in the committed collection. Then run a role folder, one canonical operation, or a guided flow. The collection contains every one of the 42 operations exactly once, representative safe payloads, declared-status tests, response-time checks, and Requester, Reviewer, and Support/Admin guided flows.
 
-The committed environment template contains placeholders only. The generated local environment is mode `0600`, Git-ignored, and must not be shared.
+The committed environment template contains placeholders only. The generated local environment is mode `0600`, Git-ignored, and must not be shared. No Postman account is needed when Bruno is used instead.
 
 ## Authorization Checks
 

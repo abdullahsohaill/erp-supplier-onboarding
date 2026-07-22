@@ -1406,3 +1406,18 @@ as i need to present the detailed report to my team lead, and also i want to be 
 **Context**: CONSTRUCTION - local demonstration delivery complete on the isolated construction branch. No database-schema-design or database migration source was modified by this completion amendment.
 
 ---
+
+## Construction - Account-Free API Client Request
+**Timestamp**: 2026-07-22T17:17:44Z
+**User Input**: "can u do smthn that is like postman? maybe i can install some extension of postman similar stuf to view it? i dont wanna enter or sign up anything myself"
+**AI Response**: "Selected Bruno as the account-free, offline-first local API client. Started a Build and Test amendment to install the desktop app, generate a native collection and ignored local environment from the existing 42-operation contract and generated credentials, execute representative requests without manual data entry, and add concise opening instructions."
+**Context**: CONSTRUCTION - self-service API client enhancement on `construction-phase`; no database schema, migration, or endpoint behavior change.
+
+---
+
+## Construction - Account-Free Bruno Verification
+**Timestamp**: 2026-07-22T17:29:30Z
+**AI Response**: "Installed Bruno Desktop 3.5.3 and pinned Bruno CLI 3.5.2. Added a repeatable account-free generator that converts the complete Postman/OpenAPI-derived contract into an ignored owner-only Bruno workspace containing 60 requests, all 42 canonical operations, five OAuth identities, role folders, translated tests, and guided flows. Local OAuth values are generated into the ignored mode-0600 workspace; no account, import, environment selection, username, secret, or token entry is required. The Bruno CLI authenticated all five clients and passed representative Requester, Reviewer, and Support/Admin requests with custom-CA TLS verification, producing an eight-request JUnit report. An npm audit initially exposed High findings in Bruno's default Axios/FormData dependency tree; pinned safe overrides were applied and the final npm audit reported zero vulnerabilities while the smoke run still passed. Twelve contract tests, Ruff, compilation, Node/shell syntax, JSON/Markdown parsing, Git diff checks, both secret scans, and the source High/Critical scan passed."
+**Context**: CONSTRUCTION - account-free API client amendment verification. Security Baseline: compliant (ignored owner-only generated secrets, verified custom-CA TLS, zero final npm/source/secret findings). Resiliency Baseline: compliant (idempotent collection/tool generation and CLI smoke command). Property-Based Testing: N/A because no business transformation or invariant changed. Database schema, migrations, seeds, and endpoint behavior were not modified.
+
+---

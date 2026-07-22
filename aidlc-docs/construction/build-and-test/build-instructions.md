@@ -4,7 +4,7 @@
 
 - Apple Silicon macOS with FileVault enabled.
 - Docker Desktop with at least 4 CPUs and 8 GiB; 10 GiB is recommended.
-- Python 3.13, OpenSSL, Git, Homebrew OpenJDK, Oracle SQLcl, Postman Desktop, and at least 25 GiB free disk.
+- Python 3.13, Node.js, OpenSSL, Git, Homebrew OpenJDK, Oracle SQLcl, Bruno Desktop, and at least 25 GiB free disk. Postman Desktop is optional.
 - Branch `construction-phase`.
 
 ## Build and Provision
@@ -21,6 +21,8 @@ python3 scripts/seed.py
 Success means two healthy containers, exact 18/189/17 schema parity, zero invalid objects, 47 ordered assets applied or verified, and every application table seeded.
 
 For the complete self-service build and regression workflow, run `./scripts/qa.sh all`.
+
+For the account-free API UI and its authenticated smoke check, run `./scripts/bruno.sh open` and `./scripts/bruno.sh test`.
 
 ## Lifecycle
 
