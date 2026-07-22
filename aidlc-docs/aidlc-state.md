@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: CONSTRUCTION
-- **Current Stage**: CONSTRUCTION - UOW-001 Core Request Intake Code Generation Part 2 in progress
+- **Current Stage**: CONSTRUCTION - integrated UOW-001 through UOW-005 runtime compilation and verification in progress
 - **Construction Branch**: `construction-phase`
 
 ## Workspace State
@@ -47,12 +47,12 @@
 - [x] Oracle ATP/ORDS construction workflow plan drafted
 
 ### CONSTRUCTION PHASE
-- [ ] Functional Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
-- [ ] NFR Requirements per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
-- [ ] NFR Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
-- [ ] Infrastructure Design per unit (UOW-001 approved; UOW-002 through UOW-005 pending)
-- [ ] Code Generation planning (UOW-001 approved; UOW-002 through UOW-005 will use the user's blanket construction approval)
-- [ ] Code Generation per unit (UOW-001 in progress)
+- [x] Functional Design per unit (UOW-001 through UOW-005 complete and approved)
+- [x] NFR Requirements per unit (UOW-001 through UOW-005 complete and approved)
+- [x] NFR Design per unit (UOW-001 through UOW-005 complete and approved)
+- [x] Infrastructure Design per unit (UOW-001 through UOW-005 complete and approved)
+- [x] Code Generation planning (UOW-001 through UOW-005 complete and approved)
+- [ ] Code Generation per unit (all source generated; Oracle compile/runtime verification and unit summaries pending)
 - [ ] Build and Test planning
 
 ### OPERATIONS PHASE
@@ -63,4 +63,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-The user explicitly approved all remaining construction stages through UOW-005. UOW-001 Code Generation Part 2 is in progress on `construction-phase`; Step 1 is complete. The infrastructure baseline now contains 13 resources, including the local edge-throttle service and private ORDS path. `main` has been restored to `ebd9d6d`; it will not receive construction changes unless the user later requests a merge. The implementation must still satisfy every per-step checkbox, security/resiliency/PBT gate, schema/API contract, runtime test, and audit requirement.
+The user explicitly approved all remaining construction stages through UOW-005. All per-unit design stages and code-generation plans are complete; application/package/ORDS/test source exists for all five units. The shared infrastructure baseline now contains 15 resources, including the local edge-throttle service, private ORDS path, outbound-only Oracle bootstrap network, and dedicated loopback edge-ingress bridge. Runtime Oracle/ORDS compilation, migrations, seeds, complete tests/scans, unit summaries, Build and Test artifacts, and consolidated reports remain in progress on `construction-phase`. `main` remains at `ebd9d6d` and will not receive construction changes unless the user later requests a merge.

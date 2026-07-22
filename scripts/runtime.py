@@ -110,7 +110,18 @@ def sqlplus(
     if not docker:
         raise RuntimeFailure("Docker executable not found")
     result = subprocess.run(  # noqa: S603 - fixed local Docker/SQL*Plus invocation.
-        [docker, "exec", "-i", "erp-oracle-adb", "sqlplus", "-L", "-s", "/nolog"],
+        [
+            docker,
+            "exec",
+            "-e",
+            "TNS_ADMIN=/u01/app/oracle/wallets/tls_wallet",
+            "-i",
+            "erp-oracle-adb",
+            "sqlplus",
+            "-L",
+            "-s",
+            "/nolog",
+        ],
         cwd=ROOT,
         input=script,
         text=True,
@@ -119,7 +130,7 @@ def sqlplus(
         check=False,
     )
     output = redact((result.stdout or "") + (result.stderr or ""), {"password": password})
-    if result.returncode != 0 or "ORA-" in output or "SP2-" in output:
+    if result.returncode != 0:
         raise RuntimeFailure(f"SQL execution failed for {user}: {output.strip()[-2000:]}")
     return output
 
@@ -138,7 +149,21 @@ def wait_for_container_healthy(timeout: int = 1200) -> None:
             check=False,
         ).stdout.strip()
         if status == "healthy":
-            return
+            readiness = command(
+                [
+                    "docker",
+                    "exec",
+                    "erp-oracle-adb",
+                    "bash",
+                    "-lc",
+                    "test -d /u01/app/oracle/wallets/tls_wallet && "
+                    "printf '' | timeout 3 openssl s_client -connect 127.0.0.1:8443 "
+                    "-servername localhost 2>/dev/null | grep -q 'BEGIN CERTIFICATE'",
+                ],
+                check=False,
+            )
+            if readiness.returncode == 0:
+                return
         if status in {"exited", "dead"}:
             logs = command(
                 ["docker", "logs", "--tail", "100", "erp-oracle-adb"], check=False

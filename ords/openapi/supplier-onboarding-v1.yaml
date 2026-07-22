@@ -1,0 +1,229 @@
+openapi: 3.0.3
+info:
+  title: ERP Supplier Onboarding API
+  version: 1.0.0
+  description: Role-scoped ORDS API for supplier intake, governed analysis, review, integration, and Admin Settings.
+servers:
+  - url: https://127.0.0.1:8443/ords/erp/supplier-onboarding/v1
+x-common-responses: &commonResponses
+  '200': {description: Successful response, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+  '400': {$ref: '#/components/responses/BadRequest'}
+  '401': {$ref: '#/components/responses/Unauthorized'}
+  '403': {$ref: '#/components/responses/Forbidden'}
+  '404': {$ref: '#/components/responses/NotFound'}
+  '409': {$ref: '#/components/responses/Conflict'}
+  '413': {$ref: '#/components/responses/TooLarge'}
+  '422': {$ref: '#/components/responses/Unprocessable'}
+  '429': {$ref: '#/components/responses/RateLimited'}
+  '500': {$ref: '#/components/responses/InternalError'}
+x-json-body: &jsonBody
+  required: true
+  content:
+    application/json:
+      schema: {type: object, additionalProperties: true}
+security:
+  - oauth2: []
+paths:
+  /requests:
+    post:
+      operationId: createRequest
+      x-roles: [Requester]
+      requestBody: *jsonBody
+      responses:
+        '201': {description: Draft created, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '413': {$ref: '#/components/responses/TooLarge'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+        '500': {$ref: '#/components/responses/InternalError'}
+    get:
+      operationId: listRequests
+      x-roles: [Requester, Reviewer, SupportAdmin]
+      parameters:
+        - {name: status, in: query, schema: {type: string}}
+        - {$ref: '#/components/parameters/Limit'}
+        - {$ref: '#/components/parameters/Offset'}
+      responses: *commonResponses
+  /requests/{requestId}:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getRequest, x-roles: [Requester, Reviewer, SupportAdmin], responses: *commonResponses}
+    patch:
+      operationId: updateRequest
+      x-roles: [Requester]
+      requestBody: *jsonBody
+      responses: *commonResponses
+  /requests/{requestId}/submit:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: submitRequest, x-roles: [Requester], responses: *commonResponses}
+  /requests/{requestId}/validate:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: validateRequest, x-roles: [Reviewer, SupportAdmin, SystemOIC], responses: *commonResponses}
+  /requests/{requestId}/validation-results:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getValidationResults, x-roles: [Requester, Reviewer, SupportAdmin], responses: *commonResponses}
+  /requests/{requestId}/duplicate-check:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: runDuplicateCheck, x-roles: [Reviewer, SupportAdmin, SystemOIC], responses: *commonResponses}
+  /requests/{requestId}/duplicate-matches:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getDuplicateMatches, x-roles: [Reviewer, SupportAdmin], responses: *commonResponses}
+  /requests/{requestId}/risk-score:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: calculateRiskScore, x-roles: [Reviewer, SupportAdmin, SystemOIC], responses: *commonResponses}
+  /requests/{requestId}/risk-assessment:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getRiskAssessment, x-roles: [Reviewer, SupportAdmin], responses: *commonResponses}
+  /requests/{requestId}/ai-summary:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: generateAiSummary, x-roles: [Reviewer, SupportAdmin], responses: *commonResponses}
+  /requests/{requestId}/ai-summaries:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getAiSummaries, x-roles: [Reviewer, SupportAdmin], responses: *commonResponses}
+  /requests/{requestId}/attachments:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    get: {operationId: getAttachments, x-roles: [Requester, Reviewer, SupportAdmin], responses: *commonResponses}
+  /requests/{requestId}/attachment-metadata:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post:
+      operationId: maintainAttachmentMetadata
+      x-roles: [Requester]
+      requestBody: *jsonBody
+      responses: *commonResponses
+  /requests/{requestId}/approve:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: approveRequest, x-roles: [Reviewer], requestBody: *jsonBody, responses: *commonResponses}
+  /requests/{requestId}/reject:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: rejectRequest, x-roles: [Reviewer], requestBody: *jsonBody, responses: *commonResponses}
+  /requests/{requestId}/request-correction:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: requestCorrection, x-roles: [Reviewer], requestBody: *jsonBody, responses: *commonResponses}
+  /requests/{requestId}/mark-duplicate:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: markDuplicate, x-roles: [Reviewer], requestBody: *jsonBody, responses: *commonResponses}
+  /requests/{requestId}/submit-to-fusion:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: submitToFusion, x-roles: [SupportAdmin, SystemOIC], responses: *commonResponses}
+  /integration-logs/{logId}/retry:
+    parameters: [{$ref: '#/components/parameters/LogId'}]
+    post: {operationId: retryIntegration, x-roles: [SupportAdmin], responses: *commonResponses}
+  /dashboard/requester-summary:
+    get: {operationId: getRequesterSummary, x-roles: [Requester], responses: *commonResponses}
+  /dashboard/reviewer-summary:
+    get: {operationId: getReviewerSummary, x-roles: [Reviewer], responses: *commonResponses}
+  /dashboard/support-summary:
+    get: {operationId: getSupportSummary, x-roles: [SupportAdmin], responses: *commonResponses}
+  /integration-logs:
+    get:
+      operationId: listIntegrationLogs
+      x-roles: [SupportAdmin]
+      parameters:
+        - {name: requestId, in: query, schema: {type: integer, format: int64}}
+        - {name: status, in: query, schema: {type: string}}
+        - {$ref: '#/components/parameters/Limit'}
+        - {$ref: '#/components/parameters/Offset'}
+      responses: *commonResponses
+  /integration-logs/{logId}:
+    parameters: [{$ref: '#/components/parameters/LogId'}]
+    get: {operationId: getIntegrationLog, x-roles: [SupportAdmin], responses: *commonResponses}
+  /reference/business-units:
+    get: {operationId: getBusinessUnitReference, x-roles: [Authenticated], responses: *commonResponses}
+  /reference/supplier-types:
+    get: {operationId: getSupplierTypeReference, x-roles: [Authenticated], responses: *commonResponses}
+  /admin-settings/high-risk-countries:
+    get: {operationId: getHighRiskCountries, x-roles: [SupportAdmin], responses: *commonResponses}
+  /admin-settings/high-risk-countries/{countryCode}/periods/{effectiveFrom}:
+    parameters:
+      - {$ref: '#/components/parameters/CountryCode'}
+      - {name: effectiveFrom, in: path, required: true, schema: {type: string, format: date}}
+    put: {operationId: putHighRiskCountry, x-roles: [SupportAdmin], requestBody: *jsonBody, responses: *commonResponses}
+  /admin-settings/validation-rules:
+    get: {operationId: getValidationRules, x-roles: [SupportAdmin], responses: *commonResponses}
+  /admin-settings/validation-rules/{ruleCode}:
+    parameters: [{$ref: '#/components/parameters/RuleCode'}]
+    put: {operationId: putValidationRule, x-roles: [SupportAdmin], requestBody: *jsonBody, responses: *commonResponses}
+  /admin-settings/scoring-rules:
+    get:
+      operationId: getScoringRules
+      x-roles: [SupportAdmin]
+      parameters: [{name: ruleType, in: query, schema: {type: string, enum: [RISK, DUPLICATE]}}]
+      responses: *commonResponses
+  /admin-settings/scoring-rules/{ruleType}/{ruleCode}/versions/{version}:
+    parameters:
+      - {name: ruleType, in: path, required: true, schema: {type: string, enum: [RISK, DUPLICATE]}}
+      - {$ref: '#/components/parameters/RuleCode'}
+      - {name: version, in: path, required: true, schema: {type: string}}
+    put: {operationId: putScoringRule, x-roles: [SupportAdmin], requestBody: *jsonBody, responses: *commonResponses}
+  /admin-settings/business-units:
+    get: {operationId: getAdminBusinessUnits, x-roles: [SupportAdmin], responses: *commonResponses}
+  /admin-settings/business-units/{businessUnitCode}:
+    parameters: [{name: businessUnitCode, in: path, required: true, schema: {type: string, maxLength: 30}}]
+    put: {operationId: putBusinessUnit, x-roles: [SupportAdmin], requestBody: *jsonBody, responses: *commonResponses}
+  /admin-settings/supplier-types:
+    get: {operationId: getAdminSupplierTypes, x-roles: [SupportAdmin], responses: *commonResponses}
+  /admin-settings/supplier-types/{supplierTypeCode}:
+    parameters: [{name: supplierTypeCode, in: path, required: true, schema: {type: string, maxLength: 30}}]
+    put: {operationId: putSupplierType, x-roles: [SupportAdmin], requestBody: *jsonBody, responses: *commonResponses}
+  /admin-settings/supplier-reference-sync:
+    post:
+      operationId: triggerSupplierReferenceSync
+      x-roles: [SupportAdmin]
+      responses:
+        '202': {description: Sync accepted, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+        '500': {$ref: '#/components/responses/InternalError'}
+  /internal/supplier-references/{fusionSupplierId}:
+    parameters: [{$ref: '#/components/parameters/FusionSupplierId'}]
+    put: {operationId: upsertSupplierReference, x-roles: [SystemOIC], requestBody: *jsonBody, responses: *commonResponses}
+  /internal/supplier-references/{fusionSupplierId}/sites/{fusionSiteId}:
+    parameters:
+      - {$ref: '#/components/parameters/FusionSupplierId'}
+      - {name: fusionSiteId, in: path, required: true, schema: {type: string, maxLength: 80}}
+    put: {operationId: upsertSupplierSiteReference, x-roles: [SystemOIC], requestBody: *jsonBody, responses: *commonResponses}
+  /internal/requests/{requestId}/integration-results:
+    parameters: [{$ref: '#/components/parameters/RequestId'}]
+    post: {operationId: recordIntegrationResult, x-roles: [SystemOIC], requestBody: *jsonBody, responses: *commonResponses}
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://127.0.0.1:8443/ords/erp/oauth/token
+          scopes: {}
+  parameters:
+    RequestId: {name: requestId, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+    LogId: {name: logId, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+    Limit: {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}
+    Offset: {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+    CountryCode: {name: countryCode, in: path, required: true, schema: {type: string, minLength: 2, maxLength: 2}}
+    RuleCode: {name: ruleCode, in: path, required: true, schema: {type: string, maxLength: 40}}
+    FusionSupplierId: {name: fusionSupplierId, in: path, required: true, schema: {type: string, maxLength: 80}}
+  schemas:
+    Envelope:
+      type: object
+      required: [traceId, success]
+      properties:
+        traceId: {type: string}
+        success: {type: boolean}
+        data: {nullable: true}
+        error: {$ref: '#/components/schemas/Error'}
+    Error:
+      type: object
+      properties:
+        code: {type: string}
+        message: {type: string}
+        details: {nullable: true}
+  responses:
+    BadRequest: {description: Invalid input, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    Unauthorized: {description: Authentication required, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    Forbidden: {description: Role or object access denied, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    NotFound: {description: Resource not found, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    Conflict: {description: State conflict, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    TooLarge: {description: Request body exceeds one MiB, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    Unprocessable: {description: Blocking governed findings, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    RateLimited: {description: Token rate limit exceeded, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+    InternalError: {description: Safe internal error, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}

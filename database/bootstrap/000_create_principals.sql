@@ -16,5 +16,5 @@ begin
 end;
 /
 
-grant create session, create table, create view, create procedure to ERP_APP;
+grant create session, create table, create sequence, create view, create procedure to ERP_APP;
 grant create session to ERP_VERIFY;

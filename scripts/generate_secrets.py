@@ -54,6 +54,12 @@ def generate_tls() -> None:
             "365",
             "-subj",
             "/CN=ERP Supplier Onboarding Local CA",
+            "-addext",
+            "basicConstraints=critical,CA:TRUE",
+            "-addext",
+            "keyUsage=critical,keyCertSign,cRLSign",
+            "-addext",
+            "subjectKeyIdentifier=hash",
             "-out",
             str(ca_crt),
         ]
@@ -75,6 +81,7 @@ def generate_tls() -> None:
     )
     write_private(
         extension,
+        "basicConstraints=critical,CA:FALSE\n"
         "subjectAltName=DNS:localhost,IP:127.0.0.1\n"
         "keyUsage=digitalSignature,keyEncipherment\n"
         "extendedKeyUsage=serverAuth\n",

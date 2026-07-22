@@ -22,6 +22,7 @@ services:
     volumes:
       - oracle_adb_data:/u01/data
     networks:
+      - oracle_bootstrap_egress
       - erp_backend
     restart: unless-stopped
     shm_size: 2gb
@@ -49,6 +50,7 @@ services:
       - ./.local/secrets/edge.key:/etc/nginx/tls/edge.key:ro
       - ./.local/trust/ords-ca.crt:/etc/nginx/tls/ords-ca.crt:ro
     networks:
+      - edge_ingress
       - erp_backend
     restart: unless-stopped
     read_only: true
@@ -59,12 +61,16 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - --ca-certificate=/etc/nginx/tls/local-ca.crt https://localhost:8443/healthz | grep -q '\"status\":\"UP\"'"]
+      test: ["CMD-SHELL", "curl --silent --fail --cacert /etc/nginx/tls/local-ca.crt https://localhost:8443/healthz | grep -q '\"status\":\"UP\"'"]
       interval: 15s
       timeout: 5s
       retries: 10
 
 networks:
+  edge_ingress:
+    name: erp_edge_ingress
+  oracle_bootstrap_egress:
+    name: erp_oracle_bootstrap_egress
   erp_backend:
     name: erp_backend
     internal: true

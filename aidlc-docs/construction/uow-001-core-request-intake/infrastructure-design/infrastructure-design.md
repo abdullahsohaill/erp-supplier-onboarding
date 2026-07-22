@@ -40,8 +40,10 @@ Oracle's official container documentation confirms ATP workload support, ARM64 s
 | U1-INF-011 | ORDS source | `ords/` | Versioned modules, security definitions, and OpenAPI contract. |
 | U1-INF-012 | Automation source | `scripts/` and `tests/` | Versioned lifecycle commands and executable test suites. |
 | U1-INF-013 | Local HTTPS edge | `erp-edge` Nginx container | Loopback HTTPS ingress, route allowlist, body limits, redacted access logs, and token-scoped read/mutation throttles. |
+| U1-INF-014 | Oracle bootstrap egress network | `erp_oracle_bootstrap_egress` | Gives only the Oracle container outbound HTTPS/DNS needed to obtain the official ATP PDB during first initialization; publishes no host port. |
+| U1-INF-015 | Edge ingress bridge | `erp_edge_ingress` | Allows Docker Desktop to publish only `127.0.0.1:8443` for the edge; it is separate from the internal edge-to-ORDS backend. |
 
-U1-INF-003 and U1-INF-013 are the only long-running services. Test and migration commands run as bounded host processes. The edge is a local enforcement adapter, not a business-logic service or production gateway claim.
+U1-INF-003 and U1-INF-013 are the only long-running services. U1-INF-014 and U1-INF-015 are network plumbing, not services. Test and migration commands run as bounded host processes. The edge is a local enforcement adapter, not a business-logic service or production gateway claim.
 
 ## Logical Component Mapping
 
@@ -83,6 +85,7 @@ U1-INF-003 and U1-INF-013 are the only long-running services. Test and migration
 | Password validation | Setup rejects missing, default, weak, or format-invalid values before Compose starts. |
 | Capability/device | `SYS_ADMIN` and `/dev/fuse` only because the official image requires them for its OFS mount. This exception is documented and limited to the database service. |
 | Volume | `oracle_adb_data:/u01/data`. |
+| Volume ownership | Before the database starts, a bounded root one-shot using the pinned Oracle image sets only the volume root to Oracle's declared `1001:1001` runtime identity and mode `0700`; the long-running service remains non-root. |
 | Restart | `unless-stopped` for developer convenience; readiness is still determined by explicit health gates. |
 | Shutdown | Graceful Compose stop before forced termination; no volume deletion by ordinary stop/down. |
 | Resource preflight | At least 4 Docker CPUs and 8 GiB available memory. Startup fails before image execution if below target. |
@@ -107,8 +110,8 @@ This local token-scoped control approximates the deterministic one-token-per-cli
 
 | Profile/Command Class | Purpose | Persistent Effect |
 |---|---|---|
-| Default | Start/stop U1-INF-003, U1-INF-013, and network. | Preserves U1-INF-005. |
-| Bootstrap | Generate local secrets, start service, copy trust material, and wait for database/ORDS readiness. | Creates ignored local files and persistent database state. |
+| Default | Start/stop U1-INF-003, U1-INF-013, the private network, and Oracle bootstrap egress. | Preserves U1-INF-005. |
+| Bootstrap | Generate local secrets, initialize the named-volume root for Oracle UID/GID, resume and checksum-verify the release-specific official ATP PDB into an ignored cache when absent, start service, copy trust material, and wait for database/ORDS readiness. | Creates ignored local files and persistent database state. |
 | Migrate | Apply ordered schema/package/ORDS definitions after readiness. | Creates approved database and ORDS objects. |
 | Seed | Load deterministic dummy data only after migration/schema checks. | Populates all approved application tables. |
 | Verify/test | Run schema, contract, security, functional, property, and performance checks. | Writes only test data and ignored evidence; cleanup is explicit. |
@@ -166,13 +169,15 @@ Port 27017 is not exposed because Mongo API is outside scope. No HTTP port, publ
 Network controls:
 
 - Docker publishes required ports only to `127.0.0.1`.
+- `erp_edge_ingress` is attached only to Nginx so Docker Desktop can implement the loopback host publication; ORDS is absent from that network.
 - The edge and ORDS upstream both use HTTPS; tests and proxy configuration never disable certificate verification.
 - ORDS port 8443 is private to `erp_backend` and is not published directly to the host.
+- Only `oracle-adb` joins `erp_oracle_bootstrap_egress`; it provides first-boot DNS/HTTPS access to Oracle Object Storage but no host or external ingress.
 - The copied local CA/wallet is the trust source for Python and database clients.
 - CORS contains explicit local development origin values and never uses wildcard origins for authenticated APIs.
 - Body, collection, page-size, and rate controls are applied before expensive business processing.
 - Database clients use generated TLS/mTLS aliases; plaintext database connections are rejected.
-- Outbound remote OIC, Fusion, and AI calls do not exist in UOW-001.
+- Outbound remote OIC, Fusion, and AI calls do not exist in UOW-001. Oracle first-boot retrieval of the official ATP PDB is the sole runtime bootstrap-egress exception.
 
 ## OAuth2 and Authorization Infrastructure
 

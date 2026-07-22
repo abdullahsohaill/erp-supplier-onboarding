@@ -57,7 +57,9 @@ when not matched then insert (
 
 merge into ref_scoring_rule t
 using (
-    select 'RISK' rule_type, 'MISSING_TAX' code, '1.0' version, 'Missing expected tax registration', 25 weight, 'MEDIUM' severity, 0 critical, 1 active from dual union all
+    select 'RISK' rule_type, 'MISSING_TAX' code, '1.0' version,
+           'Missing expected tax registration' rule_name, 25 weight,
+           'MEDIUM' severity, 0 critical, 1 active from dual union all
     select 'RISK', 'HIGH_RISK_COUNTRY', '1.0', 'High-risk country', 25, 'HIGH', 0, 1 from dual union all
     select 'RISK', 'BANK_COUNTRY_MISMATCH', '1.0', 'Bank country mismatch', 20, 'HIGH', 0, 1 from dual union all
     select 'RISK', 'INCOMPLETE_ADDRESS', '1.0', 'Suspicious or incomplete address', 15, 'MEDIUM', 0, 1 from dual union all
@@ -69,7 +71,6 @@ using (
     select 'RISK', 'DUPLICATE_SCORE_MEDIUM', '1.0', 'Medium duplicate score', 15, 'MEDIUM', 0, 1 from dual union all
     select 'RISK', 'RISK_HIGH_THRESHOLD', '1.0', 'High risk threshold', 70, 'CONFIG', 0, 1 from dual union all
     select 'RISK', 'RISK_MEDIUM_THRESHOLD', '1.0', 'Medium risk threshold', 35, 'CONFIG', 0, 1 from dual union all
-    select 'RISK', 'LEGACY_PAYMENT_SETUP', '0.9', 'Retired out-of-scope payment setup factor', 10, 'LOW', 0, 0 from dual union all
     select 'DUPLICATE', 'DUP_EXACT_TAX', '1.0', 'Exact tax registration match', 100, 'CRITICAL', 1, 1 from dual union all
     select 'DUPLICATE', 'DUP_SAME_BANK', '1.0', 'Exact bank token match', 100, 'CRITICAL', 1, 1 from dual union all
     select 'DUPLICATE', 'DUP_NAME_SIMILARITY', '1.0', 'Normalized name match', 30, 'MEDIUM', 0, 1 from dual union all

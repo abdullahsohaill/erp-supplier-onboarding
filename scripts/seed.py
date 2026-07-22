@@ -15,6 +15,8 @@ def main() -> int:
     for relative in SEEDS:
         path = ROOT / relative
         sqlplus("ERP_APP", env["ERP_APP_PASSWORD"], path.read_text(encoding="utf-8"))
+    identity_sync = ROOT / "database/scripts/sync_identity_sequences.sql"
+    sqlplus("ERP_APP", env["ERP_APP_PASSWORD"], identity_sync.read_text(encoding="utf-8"))
     check = ROOT / "database/scripts/seed_completeness.sql"
     print(sqlplus("ERP_APP", env["ERP_APP_PASSWORD"], check.read_text(encoding="utf-8")))
     print("Deterministic representative data seeded")

@@ -13,7 +13,7 @@ def main() -> int:
     containers = [json.loads(line) for line in state.splitlines() if line.strip()]
     if len(containers) != 2 or any(item.get("State") != "running" for item in containers):
         raise RuntimeFailure("Expected Oracle and edge containers are not both running")
-    database = sqlplus("ERP_APP", env["ERP_APP_PASSWORD"], "select 'DATABASE_UP' status from dual;")
+    database = sqlplus("ADMIN", env["ADMIN_PASSWORD"], "select 'DATABASE_UP' status from dual;")
     if "DATABASE_UP" not in database:
         raise RuntimeFailure("Database health query failed")
     context = ssl.create_default_context(cafile=str(TRUST / "local-ca.crt"))

@@ -25,6 +25,11 @@ MIGRATIONS = [
     "database/migrations/007_create_views.sql",
 ]
 
+ALWAYS_RUN = {
+    "database/scripts/assert_schema.sql",
+    "database/scripts/assert_valid_objects.sql",
+}
+
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -69,6 +74,36 @@ def bootstrap(env: dict[str, str]) -> None:
     sqlplus("ADMIN", env["ADMIN_PASSWORD"], bind_setup + source)
 
 
+def schema_has_expected_fingerprint(env: dict[str, str]) -> bool:
+    output = sqlplus(
+        "ERP_APP",
+        env["ERP_APP_PASSWORD"],
+        "set heading off feedback off pagesize 0\n"
+        "select 'ERP_SCHEMA_TABLES=' || count(*) from user_tables;",
+    )
+    return "ERP_SCHEMA_TABLES=18" in output
+
+
+def previous_successes(env: dict[str, str]) -> dict[str, str]:
+    report_path = REPORTS / "migration-run.json"
+    if not report_path.exists() or not schema_has_expected_fingerprint(env):
+        return {}
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if report.get("database") != "ERPATP":
+        return {}
+    accepted = {"PASS", "SKIPPED_VERIFIED"}
+    return {
+        record["path"]: record["sha256"]
+        for record in report.get("files", [])
+        if record.get("result") in accepted
+        and isinstance(record.get("path"), str)
+        and isinstance(record.get("sha256"), str)
+    }
+
+
 def main() -> int:
     require_local_profile()
     env = load_env()
@@ -79,15 +114,32 @@ def main() -> int:
     bootstrap(env)
 
     files = source_files()
+    completed = previous_successes(env)
+    force_packages = any(
+        relative.endswith(".pks")
+        and completed.get(relative) != digest(ROOT / relative)
+        for relative in files
+    )
     records: list[dict[str, object]] = []
     for relative in files:
         path = ROOT / relative
         started = datetime.now(UTC)
+        checksum = digest(path)
         record: dict[str, object] = {
             "path": relative,
-            "sha256": digest(path),
+            "sha256": checksum,
             "started_at": started.isoformat(),
         }
+        package_recompile = force_packages and relative.startswith("database/packages/")
+        if (
+            relative not in ALWAYS_RUN
+            and not package_recompile
+            and completed.get(relative) == checksum
+        ):
+            record["result"] = "SKIPPED_VERIFIED"
+            record["finished_at"] = datetime.now(UTC).isoformat()
+            records.append(record)
+            continue
         try:
             sqlplus("ERP_APP", env["ERP_APP_PASSWORD"], install_source(relative, path))
             record["result"] = "PASS"

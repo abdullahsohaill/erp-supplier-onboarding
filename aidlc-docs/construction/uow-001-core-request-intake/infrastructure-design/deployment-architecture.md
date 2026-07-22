@@ -12,8 +12,8 @@ This is a local deployment architecture, not a production cloud topology.
 |---|---|---|
 | Local clients | Static wireframe/browser inspection, API test clients, Python migration/test/report commands | Untrusted request and operator-input boundary. |
 | Host controls | Docker Compose, generated-secret bootstrap, trust store, `.venv`, lifecycle scripts, local reports | Developer-machine control plane; destructive commands require local target verification. |
-| Edge container boundary | `erp-edge` Nginx | Only loopback HTTPS ingress; route/body/rate controls and redacted access events. |
-| Database container boundary | `oracle-adb` autonomous ATP-mode database plus bundled ORDS/APEX/Database Actions | Private ORDS listener plus explicit loopback database ports. |
+| Edge container boundary | `erp-edge` Nginx | Dedicated loopback-published ingress bridge plus separate internal ORDS backend; route/body/rate controls and redacted access events. |
+| Database container boundary | `oracle-adb` autonomous ATP-mode database plus bundled ORDS/APEX/Database Actions | Private ORDS listener, explicit loopback database ports, and outbound-only first-boot Oracle PDB retrieval. |
 | ORDS security boundary | HTTPS listener, OAuth2 token handling, roles, privileges, route/body controls | Authenticates and performs function-level authorization before PL/SQL. |
 | Application boundary | `ERP_APP` API, authorization, workflow, projection, and utility packages | Enforces object ownership, validation, transactions, and safe envelopes. |
 | Data boundary | Approved 18 application tables, constraints, indexes, and status/evidence rows | Oracle-encrypted persistent state in named volume. |
@@ -30,7 +30,7 @@ This is a local deployment architecture, not a production cloud topology.
 7. ORDS returns a role-safe envelope through the edge; both tiers emit redacted operational metadata.
 8. Host test/report tools collect schema, API, security, recovery, performance, and supply-chain evidence into `.local/reports/`.
 
-No request crosses a public network, message broker, cache, remote AI service, OIC endpoint, or Fusion endpoint in UOW-001.
+No application request crosses a public network, message broker, cache, remote AI service, OIC endpoint, or Fusion endpoint in UOW-001. The Oracle container alone receives outbound DNS/HTTPS for its documented first-boot ATP PDB retrieval from Oracle Object Storage; this creates no ingress route.
 
 ## Deployment Units
 
@@ -53,15 +53,16 @@ No request crosses a public network, message broker, cache, remote AI service, O
 | 1 | Host preflight | Clean checkout | Architecture, Docker daemon, Compose, CPU/memory, FileVault, ports, paths pass. |
 | 2 | Local secret generation | Preflight | Strong ignored files exist with owner-only permissions. |
 | 3 | Image resolution | Preflight | Exact tag resolves; digest is captured and approved scanner can inspect it. |
-| 4 | Network/volume/service creation | Secrets and image | Compose project resources exist under expected names. |
-| 5 | Database startup | Service creation | Expected ATP database is queryable over TLS/mTLS. |
-| 6 | Trust bootstrap | Database startup | Wallet/CA material copied locally and certificate verification passes. |
-| 7 | Schema bootstrap/migrations | Database health | Ordered manifest succeeds; zero invalid application objects. |
-| 8 | ORDS configuration | Required packages | Protected base path and token/role checks pass over HTTPS. |
-| 9 | Schema parity | Migrations | Exact 18 tables, 189 columns, and 17 physical foreign keys. |
-| 10 | Seed | Schema parity | Every approved table has representative, referentially valid dummy data. |
-| 11 | Full verification | Seed and OAuth health | Contract, behavior, security, recovery, PBT, and performance gates pass. |
-| 12 | Evidence/report generation | Verification | Redacted manifest and consolidated result set are complete. |
+| 4 | Network/volume/service creation | Secrets and image | Private backend, outbound-only Oracle bootstrap network, volume, and services exist under expected names. |
+| 5 | Volume ownership and PDB initialization | Named volume and pinned Oracle image | A bounded root one-shot sets only `/u01/data` to Oracle's declared `1001:1001` identity; a resumable ignored cache verifies the official release PDB size and MD5 before installing it as `0600`. |
+| 6 | Database startup | Verified PDB initialization | Expected ATP database is queryable over TLS/mTLS as the non-root Oracle user. |
+| 7 | Trust bootstrap | Database startup | Wallet/CA material copied locally and certificate verification passes. |
+| 8 | Schema bootstrap/migrations | Database health | Ordered manifest succeeds; zero invalid application objects. |
+| 9 | ORDS configuration | Required packages | Protected base path and token/role checks pass over HTTPS. |
+| 10 | Schema parity | Migrations | Exact 18 tables, 189 columns, and 17 physical foreign keys. |
+| 11 | Seed | Schema parity | Every approved table has representative, referentially valid dummy data. |
+| 12 | Full verification | Seed and OAuth health | Contract, behavior, security, recovery, PBT, and performance gates pass. |
+| 13 | Evidence/report generation | Verification | Redacted manifest and consolidated result set are complete. |
 
 A failed step stops all dependent steps. Rerun begins from a verified state; it never silently skips a failed prerequisite.
 
@@ -119,7 +120,7 @@ A failed step stops all dependent steps. Rerun begins from a verified state; it 
 | `127.0.0.1:1521` | 1522 | TLS-capable database tooling according to generated aliases | Local automation only. |
 | `127.0.0.1:1522` | 1522 | mTLS database tooling | Wallet required; local automation only. |
 
-The design intentionally omits public interface bindings, port 27017, port 80, SSH, a public load balancer, and an externally reachable Docker network. The Nginx reverse proxy is local-only and exists solely for enforceable prototype ingress controls.
+The design intentionally omits public interface bindings, port 27017, port 80, SSH, and a public load balancer. `erp_backend` is fully internal. The separate bridge attached only to `oracle-adb` permits outbound first-boot Oracle Object Storage access and publishes no ingress. The Nginx reverse proxy is local-only and exists solely for enforceable prototype ingress controls.
 
 ### CORS and API Base
 

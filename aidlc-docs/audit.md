@@ -1272,3 +1272,32 @@ approved pls proceed"
 **Context**: CONSTRUCTION - UOW-001 Code Generation Part 2, Steps 7 and 10 complete on `construction-phase`; runtime Oracle execution remains part of Steps 20 and 25.
 
 ---
+
+## UOW-001 Oracle Bootstrap Egress Amendment
+**Timestamp**: 2026-07-21T19:07:14Z
+**AI Response**: "Runtime startup proved that the official ARM64 Oracle ADB Free image retrieves its ATP PDB from Oracle Object Storage on first initialization. The fully internal Compose network correctly blocked that retrieval. Added U1-INF-014 as a non-published bridge attached only to `oracle-adb` for outbound DNS/HTTPS bootstrap traffic, while preserving the internal `erp_backend`, private ORDS listener, verified edge-to-ORDS TLS, and loopback-only host bindings. Compose validation passed with no new application schema object."
+**Context**: CONSTRUCTION - UOW-001 Infrastructure and Code Generation runtime correction. Security Baseline remains compliant: the exception is outbound-only, scoped to Oracle bootstrap, and creates no ingress or application route.
+
+---
+
+## UOW-001 Oracle Volume Ownership Amendment
+**Timestamp**: 2026-07-21T19:10:42Z
+**AI Response**: "The first writable PDB bootstrap attempt proved that Docker's fresh named-volume root was owned by UID/GID 0 while the pinned Oracle image declares runtime UID/GID 1001:1001. Added an idempotent bounded root one-shot before service startup to set only the named-volume root to 1001:1001 with mode 0700. The one-shot exits before the long-running non-root Oracle service starts; ownership verification passed."
+**Context**: CONSTRUCTION - UOW-001 Infrastructure and Code Generation runtime correction. Security Baseline remains compliant: no broad world-writable permission or persistent root service was introduced.
+
+---
+
+## UOW-002 through UOW-005 Design and Code Planning Completion
+**Timestamp**: 2026-07-22T06:49:10Z
+**AI Response**: "Completed and validated the Functional Design, NFR Requirements, NFR Design, Infrastructure Design, and Code Generation plans for UOW-002 Validation/Duplicate/Risk/AI, UOW-003 Review/Dashboards, UOW-004 Fusion/OIC Integration/Support, and UOW-005 Governance/Admin/Demo. The artifacts trace US-004 through US-014 and FR-005 through FR-015 to the finalized 18-table schema, shared 42-operation API, package boundaries, role controls, deterministic mocks, test seams, production gates, and enabled extensions. Code-plan source-generation steps are complete; compile/runtime/report steps remain unchecked until executed."
+**Context**: CONSTRUCTION - all required per-unit design and planning gates through UOW-005 are complete under the user's blanket approval. Security Baseline is compliant for role, projection, sensitive-data, network, input, audit, and fail-closed controls. Resiliency Baseline is compliant for atomicity, idempotency, bounded retry, restart persistence, and recovery design; production SLA/RTO/RPO remain N/A customer gates. Partial Property-Based Testing is compliant through explicit normalization, determinism, ownership, state, serialization, and retry invariants. No blocking extension finding remains.
+
+---
+
+## Construction Resume After Interruption
+**Timestamp**: 2026-07-22T07:00:38Z
+**User Input**: "what scene, please continue from the last point"
+**AI Response**: "Resumed at the deterministic seed-data checkpoint after confirming no interrupted seed process remained, both ERP containers were healthy, the migration state was intact, and the seed scripts could be safely rerun idempotently."
+**Context**: CONSTRUCTION - UOW-001 through UOW-005 implementation and verification continuation on `construction-phase`.
+
+---

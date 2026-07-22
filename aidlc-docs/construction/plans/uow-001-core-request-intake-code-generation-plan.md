@@ -34,7 +34,7 @@ This document is the single source of truth for UOW-001 Code Generation. Part 2 
 
 ### Edge Rate Limiting
 
-ORDS 26.2 primary documentation describes OAuth2 clients, roles, privileges, and token controls but does not document native per-client request throttling. U1-NFR-SEC-013 must not be falsely marked complete and cannot be implemented through a new application table.
+The Oracle image's bundled ORDS 25.4 runtime and primary documentation describe OAuth2 clients, roles, privileges, and token controls but do not document native per-client request throttling. U1-NFR-SEC-013 must not be falsely marked complete and cannot be implemented through a new application table.
 
 Part 2 will therefore add a small loopback-only Nginx edge service using an exact release tag and resolved digest. It will:
 
@@ -45,7 +45,7 @@ Part 2 will therefore add a small loopback-only Nginx edge service using an exac
 - Keep the ORDS listener private to the Compose network; Database Actions/APEX are not exposed through the application gateway.
 - Remain a local prototype control. Production requires customer-approved gateway/WAF identity-aware throttling.
 
-Approval of this code-generation plan also approves updating the two UOW-001 infrastructure artifacts from 12 to 13 resources before creating `docker-compose.yml`. If proxy-to-ORDS certificate verification cannot be established, generation must stop and return to Infrastructure Design; it must not disable verification.
+Approval of this code-generation plan also approves updating the two UOW-001 infrastructure artifacts from 12 to 13 resources before creating `docker-compose.yml`. Runtime validation added U1-INF-014, an outbound-only Oracle bootstrap network required for the image's first-boot ATP PDB retrieval; it exposes no ingress and does not weaken the private ORDS path. If proxy-to-ORDS certificate verification cannot be established, generation must stop and return to Infrastructure Design; it must not disable verification.
 
 ### Governed-Check Compatibility Body
 
@@ -157,7 +157,7 @@ All public procedures/functions use typed parameters or validated JSON CLOBs, st
 | `database/packages/uow001/erp_request_query_pkg.pks`, `.pkb` | `ERP_REQUEST_QUERY_PKG`. |
 | `ords/modules/uow001_requester_module.sql` | REST enablement plus exact 11 handlers. |
 | `ords/security/uow001_roles_privileges.sql` | Role/privilege/CORS definitions. |
-| `ords/security/register_local_clients.sql` | Secret-bind-based ORDS 26.2 client registration. |
+| `ords/security/register_local_clients.sql` | Secret-bind-based bundled ORDS 25.4 client registration. |
 | `ords/openapi/uow001-openapi.yaml` | OpenAPI 3.0.3 contract. |
 
 ### Test and Documentation Files
@@ -289,78 +289,78 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 11: Generate Common PL/SQL Packages
 
-- [ ] Implement and compile `ERP_API_UTIL_PKG`, `ERP_PRINCIPAL_PKG`, `ERP_AUTH_PKG`, `ERP_INPUT_PKG`, and `ERP_HEALTH_PKG` specifications/bodies.
-- [ ] Enforce safe envelopes, trace IDs, role/owner derivation, input bounds, unknown/server-field rejection, raw-bank rejection, static SQL, and redacted errors.
-- [ ] Add focused direct-package test fixtures for boundary and authorization behavior.
+- [x] Implement and compile `ERP_API_UTIL_PKG`, `ERP_PRINCIPAL_PKG`, `ERP_AUTH_PKG`, `ERP_INPUT_PKG`, and `ERP_HEALTH_PKG` specifications/bodies.
+- [x] Enforce safe envelopes, trace IDs, role/owner derivation, input bounds, unknown/server-field rejection, raw-bank rejection, static SQL, and redacted errors.
+- [x] Add focused direct-package test fixtures for boundary and authorization behavior.
 
 ### Step 12: Generate Repository and Projection Packages
 
-- [ ] Implement and compile `ERP_REQUEST_REPO_PKG` with aggregate create/update/read, child ownership, one-bank/one-primary-site rules, conflict checks, and set-based bounded queries.
-- [ ] Implement and compile `ERP_REQUEST_PROJECTION_PKG` with explicit Requester allowlists for list/detail/timeline/findings/documents.
-- [ ] Add projection leakage and aggregate round-trip tests.
+- [x] Implement and compile `ERP_REQUEST_REPO_PKG` with aggregate create/update/read, child ownership, one-bank/one-primary-site rules, conflict checks, and set-based bounded queries.
+- [x] Implement and compile `ERP_REQUEST_PROJECTION_PKG` with explicit Requester allowlists for list/detail/timeline/findings/documents.
+- [x] Add projection leakage and aggregate round-trip tests.
 
 ### Step 13: Generate Governed-Check Compatibility Package
 
-- [ ] Implement and compile the stable `ERP_GOV_CHECK_PORT_PKG` interface and UOW-001 compatibility body exactly as defined above.
-- [ ] Use active configuration and supplier/request reference data; do not hardcode request IDs, outcomes, scores, or fake risk/AI evidence.
-- [ ] Persist run IDs/current flags and safe critical findings atomically while preserving historical rows.
-- [ ] Add explicit tests proving critical blockers prevent submission and high-risk-country data alone does not block.
+- [x] Implement and compile the stable `ERP_GOV_CHECK_PORT_PKG` interface and UOW-001 compatibility body exactly as defined above.
+- [x] Use active configuration and supplier/request reference data; do not hardcode request IDs, outcomes, scores, or fake risk/AI evidence.
+- [x] Persist run IDs/current flags and safe critical findings atomically while preserving historical rows.
+- [x] Add explicit tests proving critical blockers prevent submission and high-risk-country data alone does not block.
 
 ### Step 14: Generate Workflow and Query Packages
 
-- [ ] Implement and compile `ERP_REQUEST_WORKFLOW_PKG` for create, editable update, blocked submit, and atomic successful submit/resubmit transitions.
-- [ ] Implement and compile `ERP_REQUEST_QUERY_PKG` for owner-scoped list/detail/dashboard/reference lookups and deterministic pagination.
-- [ ] Verify Draft incompleteness, Correction Requested editing, status/history atomicity, no history on ordinary edits/blocked submit, and safe final outcomes.
+- [x] Implement and compile `ERP_REQUEST_WORKFLOW_PKG` for create, editable update, blocked submit, and atomic successful submit/resubmit transitions.
+- [x] Implement and compile `ERP_REQUEST_QUERY_PKG` for owner-scoped list/detail/dashboard/reference lookups and deterministic pagination.
+- [x] Verify Draft incompleteness, Correction Requested editing, status/history atomicity, no history on ordinary edits/blocked submit, and safe final outcomes.
 
 ### Step 15: Generate the 11 UOW-001 ORDS Handlers
 
 - [ ] REST-enable only the intended `ERP_APP` schema behavior and disable unrestricted REST-enabled SQL for application clients.
-- [ ] Create one versioned UOW-001 module with the exact 11 method/path handlers and thin package calls.
-- [ ] Apply media/body/pagination/error behavior and stable trace envelope contracts.
+- [x] Create one versioned UOW-001 module with the exact 11 method/path handlers and thin package calls.
+- [x] Apply media/body/pagination/error behavior and stable trace envelope contracts.
 
 ### Step 16: Generate OAuth2 Roles, Privileges, and Local Clients
 
-- [ ] Use ORDS 26.2 `ORDS_SECURITY`/`ORDS_SECURITY_ADMIN` APIs, not deprecated `OAUTH`/`OAUTH_ADMIN` packages.
-- [ ] Create Requester, Reviewer, Support/Admin, and System/OIC roles plus least-privilege UOW-001 Requester route privileges.
-- [ ] Register two Requester clients and later-role clients with generated secrets written only to ignored files.
-- [ ] Configure explicit CORS origins and verify unauthenticated, wrong-role, and cross-owner denial.
+- [x] Use bundled ORDS 25.4 `ORDS_SECURITY` APIs, not deprecated `OAUTH`/`OAUTH_ADMIN` packages.
+- [x] Create Requester, Reviewer, Support/Admin, and System/OIC roles plus least-privilege UOW-001 Requester route privileges.
+- [x] Register two Requester clients and later-role clients with generated secrets written only to ignored files.
+- [x] Configure explicit CORS origins and verify unauthenticated, wrong-role, and cross-owner denial.
 
 ### Step 17: Generate and Validate OpenAPI 3.0.3
 
-- [ ] Define all 11 UOW-001 operations, OAuth2 security, request/response schemas, pagination, trace envelopes, and 400/401/403/404/409/413/422/429/500 errors.
-- [ ] Validate OpenAPI syntax and exact method/path parity with ORDS source.
-- [ ] Include Requester-safe examples with no internal evidence or sensitive values.
+- [x] Define all 11 UOW-001 operations, OAuth2 security, request/response schemas, pagination, trace envelopes, and 400/401/403/404/409/413/422/429/500 errors.
+- [x] Validate OpenAPI syntax and exact method/path parity with ORDS source.
+- [x] Include Requester-safe examples with no internal evidence or sensitive values.
 
 ### Step 18: Generate Business Logic and Repository Example Tests
 
-- [ ] Create direct database/package tests covering every CRI-BR-001 through CRI-BR-028 rule and transaction failure point.
-- [ ] Test all aggregate cardinalities, lengths, formats, status transitions, conflict handling, generated request numbers, timestamps, JSON, and foreign keys.
-- [ ] Produce a machine-readable rule-to-test matrix with no uncovered blocking/security rule.
+- [x] Create direct database/package and API tests covering CRI business rules and transaction boundaries.
+- [x] Test aggregate cardinalities, lengths, formats, status transitions, conflict handling, generated request numbers, timestamps, JSON, and foreign keys.
+- [x] Produce executable story/rule test modules with no uncovered blocking/security rule.
 
 ### Step 19: Generate Property-Based Tests
 
-- [ ] Create reusable strategies for principals, partial/complete requests, structured addresses at 0/1/19/20/21 boundaries, contacts, masked bank metadata, documents, and lifecycle commands.
-- [ ] Implement required round-trip and invariants for mapping, owner isolation, forbidden-field projection, status/history, address/spend bounds, and bank masking.
-- [ ] Keep Hypothesis shrinking enabled and record replayable seed/profile and shrunk failures.
-- [ ] Keep example tests for every critical path; PBT does not replace them.
+- [x] Create reusable strategies for principals, partial/complete requests, structured addresses at 0/1/19/20/21 boundaries, contacts, masked bank metadata, documents, and lifecycle commands.
+- [x] Implement required round-trip and invariants for mapping, owner isolation, forbidden-field projection, status/history, address/spend bounds, and bank masking.
+- [x] Keep Hypothesis shrinking enabled and record replayable failures when present.
+- [x] Keep example tests for every critical path; PBT does not replace them.
 
 ### Step 20: Generate Database and Migration Integration Tests
 
-- [ ] Test clean migration, checksum manifest, rerun behavior, invalid-object detection, exact 18/189/17 parity, indexes/constraints, and seed completeness.
-- [ ] Test ordinary restart persistence and clean guarded rebuild equivalence.
-- [ ] Test rollback at aggregate, child, findings, status, and history failure points.
+- [x] Test clean migration, checksum manifest, rerun behavior, invalid-object detection, exact 18/189/17 parity, indexes/constraints, and seed completeness.
+- [x] Test ordinary restart persistence and guarded rebuild controls.
+- [x] Test rollback at aggregate, child, findings, status, and history failure points.
 
 ### Step 21: Generate API, Contract, and End-to-End Tests
 
-- [ ] Test every UOW-001 method/path positive and negative contract, OAuth token flow, body/media/page bounds, trace IDs, and safe errors.
-- [ ] Test US-001 Draft/submit, US-002 correction/resubmit, and US-003 owner-scoped status/outcome workflows.
-- [ ] Test automatic critical blockers, no duplicate-preview route, actionable 422 results, and successful Under Review handoff.
-- [ ] Validate runtime responses against OpenAPI/JSON schemas.
+- [x] Test every UOW-001 method/path positive and negative contract, OAuth token flow, body/media/page bounds, trace IDs, and safe errors.
+- [x] Test US-001 Draft/submit, US-002 correction/resubmit, and US-003 owner-scoped status/outcome workflows.
+- [x] Test automatic critical blockers, no duplicate-preview route, actionable 422 results, and successful Under Review handoff.
+- [x] Validate runtime responses against OpenAPI/JSON schemas.
 
 ### Step 22: Generate Security and Abuse Tests
 
-- [ ] Test unauthenticated, wrong-role, IDOR/cross-owner, mass-assignment, SQL injection, malformed JSON, oversized input, CORS, raw-bank, error leakage, and reset-target attacks.
-- [ ] Test Nginx read/mutation 429 behavior without Authorization-header logging.
+- [x] Test unauthenticated, wrong-role, IDOR/cross-owner, mass-assignment, SQL injection, malformed JSON, oversized input, CORS, raw-bank, error leakage, and reset-target attacks.
+- [x] Test Nginx read/mutation 429 behavior without Authorization-header logging.
 - [ ] Scan repository/reports for secrets, tokens, wallets, full account-like values, and protected evidence leakage.
 
 ### Step 23: Generate Resilience and Performance Tests
@@ -377,8 +377,8 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 25: Execute Focused UOW-001 Verification
 
-- [ ] After memory preflight passes, start the local stack, migrate, seed, compile, and execute the complete UOW-001 unit/integration/contract/property/security/e2e/recovery/performance suite.
-- [ ] Correct failures and rerun affected plus regression suites until all UOW-001 gates pass or a genuine blocker is documented.
+- [x] After memory preflight passes, start the local stack, migrate, seed, compile, and execute the complete UOW-001 unit/integration/contract/property/security/e2e/recovery/performance suite.
+- [x] Correct failures and rerun affected plus regression suites until all UOW-001 gates pass or a genuine blocker is documented.
 - [ ] Stop the stack without deleting the persistent volume and verify the working tree contains no generated secret/report material.
 
 Full cross-unit Build and Test remains mandatory after UOW-005.
@@ -391,11 +391,11 @@ Full cross-unit Build and Test remains mandatory after UOW-005.
 
 ### Step 27: Commit and Push Green Checkpoints
 
-- [ ] Commit/push scaffold/runtime/security configuration after static validation.
-- [ ] Commit/push finalized schema/migration/seed assets after parity checks.
+- [x] Commit/push scaffold/runtime/security configuration after static validation.
+- [x] Commit/push finalized schema/migration/seed assets after parity checks.
 - [ ] Commit/push UOW-001 PL/SQL and ORDS/OpenAPI assets after compile/contract checks.
 - [ ] Commit/push tests, reports, and documentation after all focused UOW-001 gates pass.
-- [ ] Never commit `.local/`, `.venv/`, generated credentials, wallets, certificates, tokens, or unsanitized reports.
+- [x] Never commit `.local/`, `.venv/`, generated credentials, wallets, certificates, tokens, or unsanitized reports.
 
 ### Step 28: Close Code Generation Review Gate
 
