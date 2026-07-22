@@ -1375,3 +1375,10 @@ also i want to set up stuff locally, not on oracle playground, but yes i wanna s
 **Context**: CONSTRUCTION - Build and Test local-runtime amendment complete. Security Baseline is compliant for application-controlled TLS, OAuth2, exact roles, least privilege, ignored secrets, hardening, and scans; SECURITY-09/SECURITY-10 remain blocked only for production use by the documented Oracle vendor-image findings. Resiliency Baseline is compliant for idempotent local startup, migration, seed, persistence, and bounded retry. Partial Property-Based Testing remains compliant with four retained property tests. No database schema or API behavior was changed.
 
 ---
+
+## Local Oracle and Broad Test Suite Amendment Publication
+**Timestamp**: 2026-07-22T14:08:07Z
+**AI Response**: "Committed the local-only runtime and 66-test verification amendment as `f5dc112` and `b772c02`, then pushed both commits to `origin/construction-phase` after confirming no remote divergence. Historical cloud artifacts remain represented only in the append-only audit and explicitly superseded historical plan."
+**Context**: CONSTRUCTION - local Oracle broad-test amendment publication complete. Remote `main` remains unchanged at `ebd9d6d`.
+
+---

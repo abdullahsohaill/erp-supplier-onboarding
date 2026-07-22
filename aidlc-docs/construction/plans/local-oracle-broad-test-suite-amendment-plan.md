@@ -29,7 +29,7 @@ Approved by the user's direct request on 2026-07-22. This Build and Test amendme
 
 - [x] Update README, Build/Test instructions, reports, limitations, manual steps, AI-DLC state, and audit for the local-only 60-70-test workflow.
 - [x] Mark the prior cloud-target expansion plan as superseded where applicable without rewriting its historical completion record.
-- [ ] Validate Markdown and repository references, commit the amendment in logical checkpoints, and push `construction-phase` without changing `main`.
+- [x] Validate Markdown and repository references, commit the amendment in logical checkpoints, and push `construction-phase` without changing `main`.
 
 ## Extension Compliance
 
