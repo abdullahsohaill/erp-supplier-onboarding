@@ -27,7 +27,7 @@ tnsnames.ora
 sqlnet.ora
 
 # Test and security reports
-reports/
+/reports/
 *.junit.xml
 sbom*.json
 

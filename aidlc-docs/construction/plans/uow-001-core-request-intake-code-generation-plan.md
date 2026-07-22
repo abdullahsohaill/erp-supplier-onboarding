@@ -366,14 +366,14 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 ### Step 23: Generate Resilience and Performance Tests
 
 - [x] Test bounded startup/health failures, Docker restart persistence, package/transaction fault injection, certificate failure, and recovery reruns.
-- [ ] Generate local dataset and harness for p50/p95/max list/detail/create/update/dashboard/submit targets and ten-client mixed-operation smoke tests.
-- [ ] Record host allocation, image digests, dataset, warm-up, concurrency, errors, and measurements without making production claims.
+- [x] Generate local dataset and harness for p50/p95/max list/detail/create/update/dashboard/submit targets and ten-client mixed-operation smoke tests.
+- [x] Record host allocation, image digests, dataset, warm-up, concurrency, errors, and measurements without making production claims.
 
 ### Step 24: Generate Supply-Chain and Quality Gates
 
-- [ ] Run Ruff/compile checks, hash-lock verification, `pip-audit`, Gitleaks, Trivy filesystem/image scans, and CycloneDX SBOM generation.
+- [x] Run Ruff/compile checks, hash-lock verification, `pip-audit`, Gitleaks, Trivy filesystem/image scans, and CycloneDX SBOM generation.
 - [ ] Fail on unresolved High/Critical findings or secret leakage and preserve sanitized evidence.
-- [ ] Verify images/actions/tools use pinned versions/digests and only trusted registries/releases.
+- [x] Verify images/actions/tools use pinned versions/digests and only trusted registries/releases.
 
 ### Step 25: Execute Focused UOW-001 Verification
 
@@ -385,9 +385,9 @@ Full cross-unit Build and Test remains mandatory after UOW-005.
 
 ### Step 26: Generate Documentation and UOW-001 Code Summaries
 
-- [ ] Update root README with exact safe setup/lifecycle commands and manual Docker memory prerequisite.
-- [ ] Create `aidlc-docs/construction/uow-001-core-request-intake/code/implementation-summary.md`, `database-summary.md`, `api-summary.md`, and `test-summary.md` using only sanitized results.
-- [ ] Record created files, migration purposes/checksums/results, schema parity, package/route inventory, tests, performance, scans, limitations, UOW-002 handoff, and production gates.
+- [x] Update root README with exact safe setup/lifecycle commands and manual Docker memory prerequisite.
+- [x] Create `aidlc-docs/construction/uow-001-core-request-intake/code/implementation-summary.md`, `database-summary.md`, `api-summary.md`, and `test-summary.md` using only sanitized results.
+- [x] Record created files, migration purposes/checksums/results, schema parity, package/route inventory, tests, performance, scans, limitations, UOW-002 handoff, and production gates.
 
 ### Step 27: Commit and Push Green Checkpoints
 
@@ -399,8 +399,8 @@ Full cross-unit Build and Test remains mandatory after UOW-005.
 
 ### Step 28: Close Code Generation Review Gate
 
-- [ ] Mark every completed plan checkbox immediately and update story completion only after executable coverage passes.
-- [ ] Validate Git diff, traceability, extension compliance, schema/API parity, and absence of duplicate/generated-secret files.
+- [x] Mark every completed plan checkbox immediately and update story completion only after executable coverage passes.
+- [x] Validate Git diff, traceability, extension compliance, schema/API parity, and absence of duplicate/generated-secret files.
 - [ ] Update AI-DLC state/audit and present the mandatory Code Generation completion review before UOW-002.
 
 ## Story and Requirement Traceability

@@ -8,31 +8,63 @@ The project defines a supplier onboarding solution using Oracle Visual Builder, 
 
 ## Current Phase
 
-Construction is in progress on the `construction-phase` branch. The local target is Oracle Autonomous AI Database Free 26ai in ATP mode with bundled ORDS, fronted by a loopback-only HTTPS Nginx gateway. The finalized 18-table, 189-column, 17-relationship schema remains the database contract.
+Construction through UOW-005 is implemented on the `construction-phase` branch. The local target is Oracle Autonomous AI Database Free 26ai in ATP mode with bundled ORDS, fronted by a loopback-only HTTPS Nginx gateway. The finalized 18-table, 189-column, 17-relationship schema remains the database contract.
 
 ## Safe Prerequisites
 
 - Apple Silicon macOS with FileVault enabled.
-- Docker Desktop with at least 4 CPUs and 8 GiB available to its Linux VM.
+- Docker Desktop with at least 4 CPUs and 8 GiB available to its Linux VM. Ten GiB is recommended when scans and tests run beside Oracle.
 - Python 3.13 and OpenSSL.
 - At least 25 GiB free disk space for the Oracle image and persistent database volume.
 
 Do not put real supplier, bank, customer, Fusion, OIC, SSO, or AI credentials in this repository. Local secrets and certificates are generated under ignored `.local/` paths.
 
-## Construction Commands
+## Local Setup
 
-The lifecycle commands are added and validated during UOW-001 construction. The intended command surface is:
+Create the hash-verified Python environment once:
+
+```bash
+python3.13 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements.txt
+```
+
+Start the local ATP/ORDS runtime, apply all ordered assets, seed every table, and verify the contract:
 
 ```bash
 ./scripts/start.sh
 python3 scripts/migrate.py
 python3 scripts/seed.py
-python3 scripts/verify.py
-./scripts/test.sh
+.venv/bin/python scripts/verify.py
+```
+
+The first Oracle startup downloads the ATP PDB and can take several minutes. Generated passwords, OAuth clients, certificates, and wallets remain under ignored `.local/` paths and are never printed by the setup scripts.
+
+## Test and Evidence Commands
+
+```bash
+ERP_RUNTIME_TESTS=1 ./scripts/test.sh -q
+ERP_PERF_DURATION_SECONDS=300 \
+  ERP_PERF_READ_SAMPLES=60 \
+  ERP_PERF_WRITE_CYCLES=10 \
+  .venv/bin/python scripts/performance.py
+.venv/bin/python scripts/report.py
+```
+
+Install and run the pinned scanners using the commands in `aidlc-docs/construction/build-and-test/security-test-instructions.md`. Raw local evidence is written under ignored `.local/reports/`.
+
+Stop without deleting data:
+
+```bash
 ./scripts/stop.sh
 ```
 
-`stop.sh` preserves the named database volume. Destructive local reset requires an explicit confirmation argument and refuses non-local targets.
+`stop.sh` preserves the named database volume. Destructive local reset requires `./scripts/reset-local.sh --confirm-local-reset` and refuses non-local targets.
+
+To trust the local edge certificate in macOS browsers, manually add `.local/trust/local-ca.crt` to the login keychain and mark it trusted. CLI tests use the generated CA file directly and do not disable TLS verification.
+
+## Security Gate
+
+Python dependency, source-secret, filesystem, and Nginx image scans are clean. The latest official Oracle ADB Free 26ai image available during construction contains vendor-fixed High/Critical package findings. The local prototype mitigates exposure with loopback-only ingress, verified TLS, OAuth2, a route allowlist, and disabled optional ORDS surfaces, but the image finding remains a release gate until Oracle publishes a patched image or the customer explicitly accepts the documented local-prototype exception. Do not use this stack as a production deployment baseline.
 
 Key documents:
 

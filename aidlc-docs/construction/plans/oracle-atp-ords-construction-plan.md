@@ -188,9 +188,9 @@ Secrets will be generated into ignored local files. They will not be committed o
 - [x] Complete and approve the UOW-005 code-generation plan and implementation.
 - [x] Start the pinned local ATP/ORDS runtime and apply all migrations.
 - [x] Seed every approved application table and verify referential integrity.
-- [ ] Execute unit, property, integration, contract, security, end-to-end, and performance tests.
-- [ ] Correct failures and rerun the complete suite.
-- [ ] Generate migration, test, and consolidated implementation reports.
+- [x] Execute unit, property, integration, contract, security, end-to-end, and performance tests.
+- [x] Correct failures and rerun the complete suite.
+- [x] Generate migration, test, and consolidated implementation reports.
 - [ ] Present the final build-and-test review gate.
 
 ## Planning Checklist

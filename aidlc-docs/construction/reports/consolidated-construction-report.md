@@ -1,0 +1,56 @@
+# Consolidated Construction Report
+
+## Executive Result
+
+AI-DLC construction through UOW-005 produced a runnable local Oracle ATP-mode supplier-onboarding backend with deterministic data, 42 protected ORDS operations, OAuth2 role controls, automatic validation/duplicate/risk logic, advisory AI, Reviewer decisions, Fusion/OIC mock integration, controlled retry, Admin Settings, and executable coverage for all 14 stories.
+
+Application build, runtime, migrations, data, API contracts, tests, persistence, and local performance pass. Overall release security remains blocked by findings in Oracle's latest official ADB Free 26ai base image.
+
+## Delivered Baseline
+
+| Area | Delivered |
+|---|---|
+| Data | Finalized 18 tables, 189 columns, 17 foreign keys, 4 views |
+| PL/SQL | 15 package specifications and 15 bodies |
+| Migrations | 46 ordered install/validation/ORDS assets |
+| APIs | 42 OpenAPI 3.0.3 operations across five ORDS modules |
+| Security | OAuth2 roles, object/function authorization, verified TLS, loopback edge, throttling, route allowlist, masking/redaction |
+| Mock behavior | Deterministic AI and Fusion/OIC outcomes |
+| Data | Representative rows in every application table |
+| Tests | 45 passing tests plus five-minute ten-worker performance evidence |
+| Operations | Start, stop, migrate, seed, verify, health, logs, report, guarded reset |
+
+## Unit Outcomes
+
+| Unit | Scope | Status |
+|---|---|---|
+| UOW-001 | Intake, correction, tracking, shared runtime | Implemented and verified |
+| UOW-002 | Validation, duplicate, risk, advisory AI | Implemented and verified |
+| UOW-003 | Review decisions and role dashboards | Implemented and verified |
+| UOW-004 | Fusion/OIC mock, logs, retry, reference sync | Implemented and verified |
+| UOW-005 | Admin Settings, governance, demo/evidence | Implemented and verified |
+
+## Database and API Verification
+
+The authoritative `database-schema-design.md` remains unchanged. Runtime inventory confirms 18/189/17 and zero invalid objects. All 18 tables contain data, and retry counts equal embedded history lengths. A normal Compose stop/start preserved the named volume. The final migration rerun reported 44 unchanged assets skipped/verified and two validators passed.
+
+OpenAPI and ORDS source match exactly. Handler distribution is UOW-001 11, UOW-002 7, UOW-003 5, UOW-004 9, and UOW-005 10.
+
+## Test and Performance
+
+All 45 tests passed. This includes 15 E2E tests covering US-001 through US-014, plus unit, property, integration, contract, security, and performance suites. The five-minute ten-worker run completed 570 requests with no errors; measured p95 values ranged from 95.78 ms to 415.00 ms and met every local threshold.
+
+## Security and Extension Compliance
+
+- SECURITY-01 through SECURITY-08 and SECURITY-11 through SECURITY-15: compliant for the local prototype where applicable; production centralized logging, MFA/SSO, alerting, retention, and cloud key management remain deployment gates.
+- SECURITY-09/SECURITY-10: application-controlled checks pass, but overall status is blocked by 184 High and 3 Critical findings in the current official Oracle base image.
+- Resiliency baseline: local atomicity, idempotency, retry, health, restart, and recovery evidence pass. Production SLA/RTO/RPO/HA are N/A pending customer decisions.
+- Partial property-based testing: enabled normalization, round-trip, ownership, state, serialization, and retry invariants pass.
+
+## Manual Work Before Real Deployment
+
+Provide real ATP/OIC/Fusion/SSO/AI configuration, approve field mappings and production NFRs, implement cloud observability/backup/HA, and replace or explicitly accept the Oracle image finding for local-only use. See `manual-steps.md`, `limitations.md`, and `security-report.md`.
+
+## Git Isolation
+
+All construction commits are on `construction-phase`. Local and remote `main` remain at `ebd9d6d`. No construction merge to `main` has been performed.

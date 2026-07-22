@@ -16,7 +16,7 @@ Approved under the user's blanket authorization. Implements US-010 through US-01
 - [x] Implement atomic embedded retry history and role-safe diagnostics.
 
 ### Step 3: Generate ORDS and OpenAPI
-- [x] Generate `ords/modules/uow004_integration_module.sql` with eight approved handlers.
+- [x] Generate `ords/modules/uow004_integration_module.sql` with nine approved handlers.
 - [x] Add exact Support/Admin and System/OIC operations/schemas/privileges to shared contracts.
 
 ### Step 4: Generate Tests
@@ -27,5 +27,5 @@ Approved under the user's blanket authorization. Implements US-010 through US-01
 - [x] Run database, API, story, security, recovery, contract, and performance tests to green.
 
 ### Step 6: Summarize and Close
-- [ ] Create implementation/API/test summary in the UOW-004 code directory.
+- [x] Create implementation/API/test summary in the UOW-004 code directory.
 - [ ] Update state/audit/traceability and commit/push the verified unit on `construction-phase`.

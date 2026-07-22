@@ -16,7 +16,7 @@ Approved under the user's blanket authorization. Implements US-013/US-014 and FR
 - [x] Preserve Admin Settings label and Reviewer-only decision-factor selection boundary.
 
 ### Step 3: Generate ORDS and OpenAPI
-- [x] Generate `ords/modules/uow005_admin_module.sql` with eleven approved handlers.
+- [x] Generate `ords/modules/uow005_admin_module.sql` with ten approved handlers.
 - [x] Complete shared ORDS roles/privileges, client registration, and exact 42-operation OpenAPI contract.
 
 ### Step 4: Generate Data and Tests
@@ -28,6 +28,6 @@ Approved under the user's blanket authorization. Implements US-013/US-014 and FR
 - [x] Run complete 14-story/database/API/property/security/recovery/performance suite to green.
 
 ### Step 6: Report and Close
-- [ ] Generate migration, implementation, test, security, performance, limitation, and manual-step reports.
-- [ ] Generate Build and Test instruction set and consolidated report.
+- [x] Generate migration, implementation, test, security, performance, limitation, and manual-step reports.
+- [x] Generate Build and Test instruction set and consolidated report.
 - [ ] Update state/audit/traceability and commit/push all verified construction artifacts on `construction-phase`.
