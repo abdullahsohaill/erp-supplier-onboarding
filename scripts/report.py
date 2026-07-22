@@ -55,6 +55,9 @@ def security_summary() -> dict[str, object]:
 
 def main() -> int:
     ensure_local_dirs()
+    pytest_report = REPORTS / "pytest-full.xml"
+    if not pytest_report.exists():
+        pytest_report = REPORTS / "pytest.xml"
     sections = {
         "Preflight": read_json("preflight.json"),
         "Images": read_json("image-metadata.json"),
@@ -62,7 +65,8 @@ def main() -> int:
         "Migrations": read_json("migration-run.json"),
         "Health": read_json("health.json"),
         "Verification": read_json("verification.json"),
-        "Tests": test_summary(REPORTS / "pytest.xml"),
+        "SQLcl": read_json("sqlcl-smoke.json"),
+        "Tests": test_summary(pytest_report),
         "Performance": read_json("performance.json"),
         "Security": security_summary(),
     }

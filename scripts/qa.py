@@ -24,6 +24,7 @@ def runtime_pytest(label: str, paths: list[str]) -> None:
 def generate() -> None:
     run_python("scripts/generate_postman.py")
     run_python("scripts/generate_postman_environment.py")
+    run_python("scripts/generate_demo_access.py")
 
 
 def require_runtime() -> None:
@@ -44,6 +45,8 @@ def main() -> int:
         run_python("scripts/seed.py")
         generate()
         run_python("scripts/verify.py")
+        run_python("scripts/health.py")
+        run_python("scripts/sqlcl_smoke.py")
         command(
             [str(ROOT / "scripts/test.sh"), "-q", f"--junitxml={REPORTS / 'pytest-full.xml'}"],
             capture=False,

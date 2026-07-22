@@ -4,13 +4,13 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from runtime import RuntimeFailure, command
+from runtime import RuntimeFailure, command, wait_for_container_healthy
 
 SETTINGS = {
-    "database.api.enabled": "false",
-    "feature.sdw": "false",
+    "database.api.enabled": "true",
+    "restEnabledSql.active": "true",
+    "feature.sdw": "true",
     "mongo.enabled": "false",
-    "restEnabledSql.active": "false",
 }
 CONFIG_FILES = {
     "/u01/ords/global/settings.xml": ("database.api.enabled", "mongo.enabled"),
@@ -40,7 +40,8 @@ def _persisted_settings() -> dict[str, str]:
 
 def main() -> int:
     current = _persisted_settings()
-    if any(current.get(name, "").lower() != expected for name, expected in SETTINGS.items()):
+    changed = any(current.get(name, "").lower() != expected for name, expected in SETTINGS.items())
+    if changed:
         for name, value in SETTINGS.items():
             command(
                 [
@@ -57,12 +58,14 @@ def main() -> int:
                 ],
                 timeout=120,
             )
+        command(["docker", "restart", "erp-oracle-adb"], timeout=180)
+        wait_for_container_healthy(timeout=900)
         current = _persisted_settings()
 
     for name, expected in SETTINGS.items():
         if current.get(name, "").lower() != expected:
             raise RuntimeFailure(f"ORDS hardening setting did not persist: {name}")
-    print("ORDS optional SQL, Database API, Database Actions, and Mongo features disabled")
+    print("ORDS Database Actions enabled for loopback demo; Mongo remains disabled")
     return 0
 
 

@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import requests
 
 from tests.e2e.helpers import complete_payload
 
@@ -34,15 +35,22 @@ def test_nginx_logs_are_redacted_and_cors_is_explicit() -> None:
     assert "p_origins_allowed => '*'" not in clients
 
 
-def test_optional_ords_surfaces_are_disabled_by_startup() -> None:
+def test_database_actions_is_loopback_only_and_mongo_remains_disabled() -> None:
     hardening = (ROOT / "scripts/harden_ords.py").read_text(encoding="utf-8")
-    for setting in (
-        "database.api.enabled",
-        "feature.sdw",
-        "mongo.enabled",
-        "restEnabledSql.active",
-    ):
-        assert f'"{setting}": "false"' in hardening
+    compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
+    nginx = (ROOT / "config/nginx/nginx.conf").read_text(encoding="utf-8")
+    bootstrap = (ROOT / "database/bootstrap/000_create_principals.sql").read_text(
+        encoding="utf-8"
+    )
+    assert '"database.api.enabled": "true"' in hardening
+    assert '"feature.sdw": "true"' in hardening
+    assert '"restEnabledSql.active": "true"' in hardening
+    assert '"mongo.enabled": "false"' in hardening
+    assert '"127.0.0.1:8444:8444"' in compose
+    assert "listen 8444 ssl" in nginx
+    assert "p_schema              => 'ERP_VERIFY'" in bootstrap
+    assert "p_url_mapping_pattern => 'erp-inspector'" in bootstrap
+    assert "p_auto_rest_auth      => true" in bootstrap
 
 
 @pytest.mark.runtime
@@ -56,6 +64,17 @@ def test_ords_hardening_is_persisted() -> None:
         timeout=60,
     )
     assert result.returncode == 0, result.stderr or result.stdout
+
+
+@pytest.mark.runtime
+def test_database_actions_login_is_available_only_on_local_tls(runtime_config) -> None:
+    response = requests.get(
+        "https://127.0.0.1:8444/ords/sql-developer",
+        verify=runtime_config.ca_file,
+        timeout=30,
+    )
+    assert response.status_code == 200
+    assert "sql" in response.text.lower() or "sign" in response.text.lower()
 
 
 @pytest.mark.runtime

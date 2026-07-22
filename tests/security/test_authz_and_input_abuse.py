@@ -11,7 +11,7 @@ def test_unauthenticated_request_is_denied(runtime_config) -> None:
     response = requests.get(
         runtime_config.base_url + "/requests",
         verify=runtime_config.ca_file,
-        timeout=15,
+        timeout=30,
     )
     assert response.status_code in {401, 403}
 

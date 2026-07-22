@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import ssl
+import time
+import urllib.error
 import urllib.request
 
 from runtime import REPORTS, TRUST, RuntimeFailure, command, load_env, sqlplus, write_json
@@ -23,7 +25,61 @@ def main() -> int:
         edge = json.loads(response.read().decode("utf-8"))
     if edge.get("status") != "UP":
         raise RuntimeFailure("Edge health endpoint did not report UP")
-    write_json(REPORTS / "health.json", {"containers": containers, "database": "UP", "edge": edge})
+    application_api: dict[str, object] | None = None
+    for attempt in range(1, 7):
+        try:
+            urllib.request.urlopen(  # noqa: S310 - fixed local HTTPS endpoint.
+                "https://127.0.0.1:8443/ords/erp/supplier-onboarding/v1/requests",
+                context=context,
+                timeout=30,
+            )
+        except urllib.error.HTTPError as exc:
+            if exc.code not in {401, 403}:
+                raise
+            application_api = {
+                "status": "UP",
+                "unauthenticated_status": exc.code,
+                "attempt": attempt,
+            }
+            break
+        except (TimeoutError, urllib.error.URLError):
+            if attempt == 6:
+                raise
+            time.sleep(5)
+        else:
+            raise RuntimeFailure("Application API did not deny unauthenticated readiness probe")
+    if application_api is None:
+        raise RuntimeFailure("Application API readiness probe did not complete")
+    database_actions_request = urllib.request.Request(
+        "https://127.0.0.1:8444/ords/sql-developer", method="GET"
+    )
+    try:
+        with urllib.request.urlopen(  # noqa: S310 - fixed local HTTPS endpoint.
+            database_actions_request, context=context, timeout=20
+        ) as response:
+            database_actions = {
+                "status": "UP",
+                "http_status": response.status,
+                "final_url": response.url,
+            }
+    except urllib.error.HTTPError as exc:
+        if exc.code not in {401, 302, 303}:
+            raise
+        database_actions = {
+            "status": "UP",
+            "http_status": exc.code,
+            "final_url": exc.url,
+        }
+    write_json(
+        REPORTS / "health.json",
+        {
+            "containers": containers,
+            "database": "UP",
+            "edge": edge,
+            "application_api": application_api,
+            "database_actions": database_actions,
+        },
+    )
     print("Local stack health passed")
     return 0
 
