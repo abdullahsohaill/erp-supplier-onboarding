@@ -37,7 +37,7 @@ No application request crosses a public network, message broker, cache, remote A
 | Unit | Type | Lifecycle | Version/Identity |
 |---|---|---|---|
 | Oracle ADB Free image | OCI container image | Pull once, start/stop/recreate through Compose | Exact `26.2.4.2-26ai` tag plus resolved digest. |
-| Nginx edge image | OCI container image | Starts after private ORDS trust is available | Exact `1.28.0-alpine` tag plus resolved digest. |
+| Nginx edge image | OCI container image | Starts after private ORDS trust is available | Exact `1.30.4-alpine3.24` tag plus resolved ARM64 digest; selected after Trivy rejected the former image. |
 | Compose definition | Versioned configuration | Validated before every startup | Repository commit and Compose config hash. |
 | Database migrations | Ordered SQL/PLSQL | Applied after DB readiness; fail-fast | Sequence plus SHA-256 in external manifest. |
 | ORDS definitions | SQL/PLSQL metadata definitions | Applied after packages and before API tests | Versioned base path and endpoint inventory. |

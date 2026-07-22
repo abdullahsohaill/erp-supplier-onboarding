@@ -1,0 +1,4 @@
+[allowlist]
+description = "Known documentation phrase that triggers generic-api-key"
+regexTarget = "match"
+regexes = ['''API list, validation/risk/AI logic''']

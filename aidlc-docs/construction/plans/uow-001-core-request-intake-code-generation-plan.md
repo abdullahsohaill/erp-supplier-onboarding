@@ -220,7 +220,7 @@ Versions were resolved from the official PyPI registry on 2026-07-21. `requireme
 | `pip-tools` | 7.6.0 | Hash-locked dependency resolution. |
 | `ruff` | 0.15.22 | Python lint/format gate. |
 
-External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image remains `ghcr.io/oracle/adb-free:26.2.4.2-26ai`; the Nginx image uses `nginx:1.28.0-alpine`. Both image digests and official release checksums must be captured before execution. High/Critical vulnerabilities block progress unless fixed or explicitly returned for review.
+External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image remains `ghcr.io/oracle/adb-free:26.2.4.2-26ai`; the Nginx image uses `nginx:1.30.4-alpine3.24` after the former 1.28.0/Alpine 3.21 image failed the High/Critical vulnerability gate. Both image digests and official release checksums must be captured before execution. High/Critical vulnerabilities block progress unless fixed or explicitly returned for review.
 
 ## Numbered Generation Steps
 
@@ -314,7 +314,7 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 ### Step 15: Generate the 11 UOW-001 ORDS Handlers
 
-- [ ] REST-enable only the intended `ERP_APP` schema behavior and disable unrestricted REST-enabled SQL for application clients.
+- [x] REST-enable only the intended `ERP_APP` schema behavior and disable unrestricted REST-enabled SQL for application clients.
 - [x] Create one versioned UOW-001 module with the exact 11 method/path handlers and thin package calls.
 - [x] Apply media/body/pagination/error behavior and stable trace envelope contracts.
 
@@ -361,11 +361,11 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 - [x] Test unauthenticated, wrong-role, IDOR/cross-owner, mass-assignment, SQL injection, malformed JSON, oversized input, CORS, raw-bank, error leakage, and reset-target attacks.
 - [x] Test Nginx read/mutation 429 behavior without Authorization-header logging.
-- [ ] Scan repository/reports for secrets, tokens, wallets, full account-like values, and protected evidence leakage.
+- [x] Scan repository/reports for secrets, tokens, wallets, full account-like values, and protected evidence leakage.
 
 ### Step 23: Generate Resilience and Performance Tests
 
-- [ ] Test bounded startup/health failures, Docker restart persistence, package/transaction fault injection, certificate failure, and recovery reruns.
+- [x] Test bounded startup/health failures, Docker restart persistence, package/transaction fault injection, certificate failure, and recovery reruns.
 - [ ] Generate local dataset and harness for p50/p95/max list/detail/create/update/dashboard/submit targets and ten-client mixed-operation smoke tests.
 - [ ] Record host allocation, image digests, dataset, warm-up, concurrency, errors, and measurements without making production claims.
 
@@ -379,7 +379,7 @@ External tools are pinned to Gitleaks 8.30.1 and Trivy 0.72.0. The Oracle image 
 
 - [x] After memory preflight passes, start the local stack, migrate, seed, compile, and execute the complete UOW-001 unit/integration/contract/property/security/e2e/recovery/performance suite.
 - [x] Correct failures and rerun affected plus regression suites until all UOW-001 gates pass or a genuine blocker is documented.
-- [ ] Stop the stack without deleting the persistent volume and verify the working tree contains no generated secret/report material.
+- [x] Stop the stack without deleting the persistent volume and verify the working tree contains no generated secret/report material.
 
 Full cross-unit Build and Test remains mandatory after UOW-005.
 
@@ -393,7 +393,7 @@ Full cross-unit Build and Test remains mandatory after UOW-005.
 
 - [x] Commit/push scaffold/runtime/security configuration after static validation.
 - [x] Commit/push finalized schema/migration/seed assets after parity checks.
-- [ ] Commit/push UOW-001 PL/SQL and ORDS/OpenAPI assets after compile/contract checks.
+- [x] Commit/push UOW-001 PL/SQL and ORDS/OpenAPI assets after compile/contract checks.
 - [ ] Commit/push tests, reports, and documentation after all focused UOW-001 gates pass.
 - [x] Never commit `.local/`, `.venv/`, generated credentials, wallets, certificates, tokens, or unsanitized reports.
 

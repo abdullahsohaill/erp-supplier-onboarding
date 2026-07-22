@@ -7,7 +7,7 @@ from runtime import REPORTS, RuntimeFailure, command, ensure_local_dirs, write_j
 
 IMAGES = [
     "ghcr.io/oracle/adb-free:26.2.4.2-26ai",
-    "nginx:1.28.0-alpine",
+    "nginx:1.30.4-alpine3.24",
 ]
 
 

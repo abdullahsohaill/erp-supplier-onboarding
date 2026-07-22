@@ -14,6 +14,7 @@ docker run --rm --user 0:0 --entrypoint /bin/sh \
 ./scripts/cache_oracle_pdb.sh
 docker compose up -d oracle-adb
 .venv/bin/python -c 'from scripts.runtime import wait_for_container_healthy; wait_for_container_healthy()'
+python3 scripts/harden_ords.py
 python3 scripts/trust.py
 docker compose up -d erp-edge
 python3 scripts/health.py

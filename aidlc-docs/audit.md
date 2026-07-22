@@ -1301,3 +1301,17 @@ approved pls proceed"
 **Context**: CONSTRUCTION - UOW-001 through UOW-005 implementation and verification continuation on `construction-phase`.
 
 ---
+
+## Integrated Runtime and Recovery Verification
+**Timestamp**: 2026-07-22T07:38:32Z
+**AI Response**: "Compiled and installed all UOW-001 through UOW-005 packages and all 42 ORDS operations, seeded all 18 application tables, verified exactly 18 tables/189 columns/17 foreign keys and zero invalid objects, disabled optional ORDS REST SQL/Database API/Database Actions/Mongo surfaces, and completed a stop/start recovery with the named Oracle volume preserved. The 46-asset migration runner and deterministic seed set reran successfully after restart."
+**Context**: CONSTRUCTION - integrated runtime, schema, hardening, and resilience gates. Generated credentials, wallets, certificates, and raw evidence remain under ignored `.local/` paths.
+
+---
+
+## Supply-Chain Security Finding
+**Timestamp**: 2026-07-22T07:38:32Z
+**AI Response**: "Dependency, repository, filesystem, and Nginx scans passed with zero findings, and a CycloneDX SBOM was generated. Trivy identified 184 High and 3 Critical fixed-version findings in Oracle's latest official `ghcr.io/oracle/adb-free:26.2.4.2-26ai` image. Oracle's official repository currently lists that release as the latest 26ai image. The finding is retained as a blocking SECURITY-09/SECURITY-10 vendor-image review gate; it is not suppressed or represented as resolved."
+**Context**: CONSTRUCTION - enabled Security Baseline enforcement. Local network isolation and ORDS surface reduction mitigate exposure but do not constitute a vulnerability remediation or waiver.
+
+---

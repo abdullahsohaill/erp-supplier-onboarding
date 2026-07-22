@@ -46,7 +46,10 @@ def restore_mutable_demo_scenarios():
                retry_count = 1, retry_eligible_flag = 1,
                last_retry_at = systimestamp - interval '1' hour,
                last_retry_by = 'support_admin_test',
-               retry_history_json = '[{"attempt":1,"actor":"support_admin_test","timestamp":"2026-07-21T15:00:00Z","result":"FAILED","message":"Temporary timeout","oicInstanceId":"OIC-MOCK-107-2"}]'
+               retry_history_json = '[{"attempt":1,"actor":"support_admin_test",'
+                   || '"timestamp":"2026-07-21T15:00:00Z","result":"FAILED",'
+                   || '"message":"Temporary timeout",'
+                   || '"oicInstanceId":"OIC-MOCK-107-2"}]'
          where log_id = 10002;
 
         delete from existing_supplier_site_ref

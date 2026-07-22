@@ -177,17 +177,17 @@ Secrets will be generated into ignored local files. They will not be committed o
 
 - [x] Approve this construction workflow plan.
 - [x] Complete and approve UOW-001 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-001 code-generation plan and implementation. The plan is approved and implementation is in progress on `construction-phase`.
-- [ ] Complete and approve UOW-002 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-002 code-generation plan and implementation.
-- [ ] Complete and approve UOW-003 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-003 code-generation plan and implementation.
-- [ ] Complete and approve UOW-004 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-004 code-generation plan and implementation.
-- [ ] Complete and approve UOW-005 functional, NFR, NFR-design, and infrastructure artifacts.
-- [ ] Complete and approve the UOW-005 code-generation plan and implementation.
-- [ ] Start the pinned local ATP/ORDS runtime and apply all migrations.
-- [ ] Seed every approved application table and verify referential integrity.
+- [x] Complete and approve the UOW-001 code-generation plan and implementation.
+- [x] Complete and approve UOW-002 functional, NFR, NFR-design, and infrastructure artifacts.
+- [x] Complete and approve the UOW-002 code-generation plan and implementation.
+- [x] Complete and approve UOW-003 functional, NFR, NFR-design, and infrastructure artifacts.
+- [x] Complete and approve the UOW-003 code-generation plan and implementation.
+- [x] Complete and approve UOW-004 functional, NFR, NFR-design, and infrastructure artifacts.
+- [x] Complete and approve the UOW-004 code-generation plan and implementation.
+- [x] Complete and approve UOW-005 functional, NFR, NFR-design, and infrastructure artifacts.
+- [x] Complete and approve the UOW-005 code-generation plan and implementation.
+- [x] Start the pinned local ATP/ORDS runtime and apply all migrations.
+- [x] Seed every approved application table and verify referential integrity.
 - [ ] Execute unit, property, integration, contract, security, end-to-end, and performance tests.
 - [ ] Correct failures and rerun the complete suite.
 - [ ] Generate migration, test, and consolidated implementation reports.

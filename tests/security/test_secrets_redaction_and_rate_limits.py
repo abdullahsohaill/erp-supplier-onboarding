@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -31,6 +32,30 @@ def test_nginx_logs_are_redacted_and_cors_is_explicit() -> None:
     assert "$http_authorization" not in nginx.split("log_format safe_access", 1)[1].split(";", 1)[0]
     assert "http://127.0.0.1:5500" in clients
     assert "p_origins_allowed => '*'" not in clients
+
+
+def test_optional_ords_surfaces_are_disabled_by_startup() -> None:
+    hardening = (ROOT / "scripts/harden_ords.py").read_text(encoding="utf-8")
+    for setting in (
+        "database.api.enabled",
+        "feature.sdw",
+        "mongo.enabled",
+        "restEnabledSql.active",
+    ):
+        assert f'"{setting}": "false"' in hardening
+
+
+@pytest.mark.runtime
+def test_ords_hardening_is_persisted() -> None:
+    result = subprocess.run(  # noqa: S603 - executable and arguments are fixed repo paths.
+        [str(ROOT / ".venv/bin/python"), "scripts/harden_ords.py"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
 
 
 @pytest.mark.runtime

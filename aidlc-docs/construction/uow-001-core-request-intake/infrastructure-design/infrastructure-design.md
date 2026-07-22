@@ -96,7 +96,7 @@ The current host has 10 Docker CPUs but reports approximately 7.65 GiB to contai
 
 | Setting | Design Value |
 |---|---|
-| Image | `nginx:1.28.0-alpine`; resolved digest recorded before startup. |
+| Image | `nginx:1.30.4-alpine3.24`; resolved ARM64 digest recorded before startup. |
 | Ingress | `127.0.0.1:8443` only, with a generated local CA/server certificate. |
 | Upstream | Private `https://oracle-adb:8443`; hostname and certificate chain verification are mandatory. |
 | Routes | Application base path and OAuth token path only; Database Actions, APEX, REST-enabled SQL, and unrecognized paths are denied. |
