@@ -10,6 +10,7 @@
     {"path": "database/migrations/005_add_constraints.sql", "phase": "schema"},
     {"path": "database/migrations/006_add_indexes.sql", "phase": "schema"},
     {"path": "database/migrations/007_create_views.sql", "phase": "schema"},
+    {"path": "database/scripts/grant_verify_read.sql", "phase": "local-qa-security"},
     {"path": "database/scripts/assert_schema.sql", "phase": "schema-verification"},
 
     {"path": "database/packages/common/erp_api_util_pkg.pks", "phase": "package-spec"},

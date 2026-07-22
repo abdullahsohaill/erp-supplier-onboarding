@@ -1,0 +1,2564 @@
+{
+  "info": {
+    "name": "ERP Supplier Onboarding - Complete Local QA",
+    "description": "Generated from the approved 42-operation OpenAPI contract. Run the token folder before role folders. Secrets belong only in the ignored local environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Authentication",
+      "item": [
+        {
+          "name": "Token - requester_a",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{requesterClientId}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{requesterClientSecret}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                }
+              ]
+            },
+            "url": "{{tokenUrl}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Access token returned\", () => pm.expect(body.access_token).to.be.a(\"string\"));",
+                  "pm.environment.set(\"requesterToken\", body.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Token - requester_b",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{requesterBClientId}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{requesterBClientSecret}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                }
+              ]
+            },
+            "url": "{{tokenUrl}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Access token returned\", () => pm.expect(body.access_token).to.be.a(\"string\"));",
+                  "pm.environment.set(\"requesterBToken\", body.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Token - reviewer_test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{reviewerClientId}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{reviewerClientSecret}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                }
+              ]
+            },
+            "url": "{{tokenUrl}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Access token returned\", () => pm.expect(body.access_token).to.be.a(\"string\"));",
+                  "pm.environment.set(\"reviewerToken\", body.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Token - support_admin_test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{supportClientId}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{supportClientSecret}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                }
+              ]
+            },
+            "url": "{{tokenUrl}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Access token returned\", () => pm.expect(body.access_token).to.be.a(\"string\"));",
+                  "pm.environment.set(\"supportToken\", body.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Token - system_oic_test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{systemClientId}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{systemClientSecret}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                }
+              ]
+            },
+            "url": "{{tokenUrl}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Access token returned\", () => pm.expect(body.access_token).to.be.a(\"string\"));",
+                  "pm.environment.set(\"systemToken\", body.access_token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 Requester Operations",
+      "item": [
+        {
+          "name": "POST createRequest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests",
+            "description": "Canonical operationId: createRequest. Allowed roles: Requester.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierName\": \"Matrix Verification Supplier\",\n  \"supplierTypeCode\": \"CORPORATE\",\n  \"countryCode\": \"PK\",\n  \"businessUnitCode\": \"PK-OPS\",\n  \"businessJustification\": \"Complete matrix verification business requirement.\",\n  \"productServiceCategory\": \"Professional Services\",\n  \"expectedAnnualSpend\": 225000,\n  \"taxRegistrationNumber\": \"PK-MATRIX-VERIFY\",\n  \"sites\": [\n    {\n      \"siteName\": \"Primary\",\n      \"countryCode\": \"PK\",\n      \"addressLine1\": \"10 Matrix Road\",\n      \"addressLine2\": \"Office 4\",\n      \"city\": \"Lahore\",\n      \"region\": \"Punjab\",\n      \"postalCode\": \"54000\",\n      \"intendedBusinessUnitId\": 1,\n      \"isPrimary\": true\n    }\n  ],\n  \"contacts\": [\n    {\n      \"contactName\": \"Matrix Contact\",\n      \"contactEmail\": \"matrix@example.invalid\",\n      \"phoneNumber\": \"+923001234567\"\n    }\n  ],\n  \"bank\": {\n    \"bankCountryCode\": \"PK\",\n    \"maskedAccountDisplay\": \"****9001\",\n    \"accountLast4\": \"9001\",\n    \"accountHash\": \"sha256:matrix-verification-9001\",\n    \"bankProvided\": true\n  },\n  \"documents\": [\n    {\n      \"documentType\": \"REGISTRATION\",\n      \"documentStatus\": \"CAPTURED\",\n      \"isRequired\": true,\n      \"metadata\": {\n        \"fileName\": \"matrix-registration.pdf\",\n        \"size\": 1200\n      },\n      \"missing\": false\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [201, 400, 401, 403, 413, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET listRequests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests",
+            "description": "Canonical operationId: listRequests. Allowed roles: Requester, Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getRequest",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103",
+            "description": "Canonical operationId: getRequest. Allowed roles: Requester, Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH updateRequest",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/101",
+            "description": "Canonical operationId: updateRequest. Allowed roles: Requester.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessJustification\": \"Updated matrix verification business requirement.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST submitRequest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/999999999/submit",
+            "description": "Canonical operationId: submitRequest. Allowed roles: Requester."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getValidationResults",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103/validation-results",
+            "description": "Canonical operationId: getValidationResults. Allowed roles: Requester, Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getAttachments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/101/attachments",
+            "description": "Canonical operationId: getAttachments. Allowed roles: Requester, Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST maintainAttachmentMetadata",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/999999999/attachment-metadata",
+            "description": "Canonical operationId: maintainAttachmentMetadata. Allowed roles: Requester.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"REGISTRATION\",\n  \"documentStatus\": \"CAPTURED\",\n  \"isRequired\": true,\n  \"metadata\": {\n    \"fileName\": \"matrix.pdf\",\n    \"size\": 1200\n  },\n  \"missing\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getRequesterSummary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/dashboard/requester-summary",
+            "description": "Canonical operationId: getRequesterSummary. Allowed roles: Requester."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getBusinessUnitReference",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/reference/business-units",
+            "description": "Canonical operationId: getBusinessUnitReference. Allowed roles: Requester, Reviewer, SupportAdmin, SystemOIC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getSupplierTypeReference",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{requesterToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/reference/supplier-types",
+            "description": "Canonical operationId: getSupplierTypeReference. Allowed roles: Requester, Reviewer, SupportAdmin, SystemOIC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Reviewer Operations",
+      "item": [
+        {
+          "name": "POST validateRequest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103/validate",
+            "description": "Canonical operationId: validateRequest. Allowed roles: Reviewer, SupportAdmin, SystemOIC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST runDuplicateCheck",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103/duplicate-check",
+            "description": "Canonical operationId: runDuplicateCheck. Allowed roles: Reviewer, SupportAdmin, SystemOIC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getDuplicateMatches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/104/duplicate-matches",
+            "description": "Canonical operationId: getDuplicateMatches. Allowed roles: Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST calculateRiskScore",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103/risk-score",
+            "description": "Canonical operationId: calculateRiskScore. Allowed roles: Reviewer, SupportAdmin, SystemOIC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getRiskAssessment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103/risk-assessment",
+            "description": "Canonical operationId: getRiskAssessment. Allowed roles: Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST generateAiSummary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103/ai-summary",
+            "description": "Canonical operationId: generateAiSummary. Allowed roles: Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getAiSummaries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/103/ai-summaries",
+            "description": "Canonical operationId: getAiSummaries. Allowed roles: Reviewer, SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST approveRequest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/999999999/approve",
+            "description": "Canonical operationId: approveRequest. Allowed roles: Reviewer.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Matrix authorization reachability.\",\n  \"selectedRiskFactorCodes\": [],\n  \"correctionItems\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST rejectRequest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/999999999/reject",
+            "description": "Canonical operationId: rejectRequest. Allowed roles: Reviewer.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Matrix authorization reachability.\",\n  \"selectedRiskFactorCodes\": [],\n  \"correctionItems\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST requestCorrection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/999999999/request-correction",
+            "description": "Canonical operationId: requestCorrection. Allowed roles: Reviewer.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Matrix authorization reachability.\",\n  \"selectedRiskFactorCodes\": [],\n  \"correctionItems\": [\n    {\n      \"fieldName\": \"businessJustification\",\n      \"reasonCode\": \"WEAK_JUSTIFICATION\",\n      \"message\": \"Provide more detail.\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST markDuplicate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/999999999/mark-duplicate",
+            "description": "Canonical operationId: markDuplicate. Allowed roles: Reviewer.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Matrix authorization reachability.\",\n  \"selectedRiskFactorCodes\": [],\n  \"correctionItems\": [],\n  \"existingSupplierNumber\": \"SUP-100884\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getReviewerSummary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reviewerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/dashboard/reviewer-summary",
+            "description": "Canonical operationId: getReviewerSummary. Allowed roles: Reviewer."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 SupportAdmin Operations",
+      "item": [
+        {
+          "name": "POST submitToFusion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/requests/999999999/submit-to-fusion",
+            "description": "Canonical operationId: submitToFusion. Allowed roles: SupportAdmin, SystemOIC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST retryIntegration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/integration-logs/999999999/retry",
+            "description": "Canonical operationId: retryIntegration. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getSupportSummary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/dashboard/support-summary",
+            "description": "Canonical operationId: getSupportSummary. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET listIntegrationLogs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/integration-logs",
+            "description": "Canonical operationId: listIntegrationLogs. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getIntegrationLog",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/integration-logs/10002",
+            "description": "Canonical operationId: getIntegrationLog. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getHighRiskCountries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/high-risk-countries",
+            "description": "Canonical operationId: getHighRiskCountries. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT putHighRiskCountry",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/high-risk-countries/AF/periods/2026-01-01",
+            "description": "Canonical operationId: putHighRiskCountry. Allowed roles: SupportAdmin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"countryName\": \"Afghanistan\",\n  \"riskLevel\": \"HIGH\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getValidationRules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/validation-rules",
+            "description": "Canonical operationId: getValidationRules. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT putValidationRule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/validation-rules/VAL-009",
+            "description": "Canonical operationId: putValidationRule. Allowed roles: SupportAdmin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getScoringRules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/scoring-rules",
+            "description": "Canonical operationId: getScoringRules. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT putScoringRule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/scoring-rules/RISK/VAL-009/versions/1.0",
+            "description": "Canonical operationId: putScoringRule. Allowed roles: SupportAdmin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": true,\n  \"weight\": 15,\n  \"severity\": \"MEDIUM\",\n  \"criticalTrigger\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getAdminBusinessUnits",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/business-units",
+            "description": "Canonical operationId: getAdminBusinessUnits. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT putBusinessUnit",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/business-units/PK-OPS",
+            "description": "Canonical operationId: putBusinessUnit. Allowed roles: SupportAdmin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pakistan Operations\",\n  \"fusionMappingCode\": \"PK_OPERATIONS\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET getAdminSupplierTypes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/supplier-types",
+            "description": "Canonical operationId: getAdminSupplierTypes. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT putSupplierType",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/supplier-types/CORPORATE",
+            "description": "Canonical operationId: putSupplierType. Allowed roles: SupportAdmin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Corporate Supplier\",\n  \"taxRequired\": true,\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST triggerSupplierReferenceSync",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supportToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/admin-settings/supplier-reference-sync",
+            "description": "Canonical operationId: triggerSupplierReferenceSync. Allowed roles: SupportAdmin."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [202, 401, 403, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 SystemOIC Operations",
+      "item": [
+        {
+          "name": "PUT upsertSupplierReference",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{systemToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/internal/supplier-references/FUS-100884",
+            "description": "Canonical operationId: upsertSupplierReference. Allowed roles: SystemOIC.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierNumber\": \"SUP-100884\",\n  \"supplierName\": \"Al Noor Packaging\",\n  \"countryCode\": \"PK\",\n  \"taxRegistrationNumber\": \"PK-NTN-100884\",\n  \"emailDomain\": \"alnoor.example\",\n  \"phoneNormalized\": \"+9221000100884\",\n  \"addressNormalized\": \"12 INDUSTRIAL AREA KARACHI SINDH PK\",\n  \"bankAccountHash\": \"sha256:demo-bank-token-100884\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT upsertSupplierSiteReference",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{systemToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/internal/supplier-references/FUS-100884/sites/SITE-100884-1",
+            "description": "Canonical operationId: upsertSupplierSiteReference. Allowed roles: SystemOIC.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"siteName\": \"Karachi Primary\",\n  \"countryCode\": \"PK\",\n  \"addressNormalized\": \"12 INDUSTRIAL AREA KARACHI SINDH PK\",\n  \"businessUnitCode\": \"PK-OPS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST recordIntegrationResult",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{systemToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/internal/requests/999999999/integration-results",
+            "description": "Canonical operationId: recordIntegrationResult. Allowed roles: SystemOIC.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oicInstanceId\": \"OIC-MATRIX-INVALID-REQUEST\",\n  \"status\": \"FAILED\",\n  \"errorCategory\": \"TEST_ONLY\",\n  \"payloadRef\": \"mock://matrix/payload\",\n  \"responseRef\": \"mock://matrix/response\",\n  \"userMessage\": \"Matrix reachability result.\",\n  \"technicalMessage\": \"Expected foreign-key rejection for unknown request.\",\n  \"retryEligible\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const allowed = [200, 400, 401, 403, 404, 409, 413, 422, 429, 500];",
+                  "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                  "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10 Guided Flows",
+      "item": [
+        {
+          "name": "Requester Create and Submit",
+          "item": [
+            {
+              "name": "1. Create draft",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{requesterToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests",
+                "description": "Guided flow step using the same verified API contract.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"supplierName\": \"Postman Guided Flow {{$timestamp}}\",\n  \"supplierTypeCode\": \"CORPORATE\",\n  \"countryCode\": \"PK\",\n  \"businessUnitCode\": \"PK-OPS\",\n  \"businessJustification\": \"Complete matrix verification business requirement.\",\n  \"productServiceCategory\": \"Professional Services\",\n  \"expectedAnnualSpend\": 225000,\n  \"taxRegistrationNumber\": \"PK-PM-{{$timestamp}}\",\n  \"sites\": [\n    {\n      \"siteName\": \"Primary\",\n      \"countryCode\": \"PK\",\n      \"addressLine1\": \"10 Matrix Road\",\n      \"addressLine2\": \"Office 4\",\n      \"city\": \"Lahore\",\n      \"region\": \"Punjab\",\n      \"postalCode\": \"54000\",\n      \"intendedBusinessUnitId\": 1,\n      \"isPrimary\": true\n    }\n  ],\n  \"contacts\": [\n    {\n      \"contactName\": \"Matrix Contact\",\n      \"contactEmail\": \"matrix@example.invalid\",\n      \"phoneNumber\": \"+923001234567\"\n    }\n  ],\n  \"bank\": {\n    \"bankCountryCode\": \"PK\",\n    \"maskedAccountDisplay\": \"****9001\",\n    \"accountLast4\": \"9001\",\n    \"accountHash\": \"sha256:matrix-verification-9001\",\n    \"bankProvided\": true\n  },\n  \"documents\": [\n    {\n      \"documentType\": \"REGISTRATION\",\n      \"documentStatus\": \"CAPTURED\",\n      \"isRequired\": true,\n      \"metadata\": {\n        \"fileName\": \"matrix-registration.pdf\",\n        \"size\": 1200\n      },\n      \"missing\": false\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [201];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));",
+                      "const body = pm.response.json();",
+                      "pm.environment.set(\"flowRequestId\", body.data.requestId);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "2. Read draft",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{requesterToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests/{{flowRequestId}}",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "3. Submit draft with automatic checks",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{requesterToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests/{{flowRequestId}}/submit",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200, 422];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "4. Read validation results",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{requesterToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests/{{flowRequestId}}/validation-results",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Reviewer Analysis",
+          "item": [
+            {
+              "name": "1. Reviewer dashboard",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{reviewerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/dashboard/reviewer-summary",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "2. Validation evidence",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{reviewerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests/{{reviewRequestId}}/validation-results",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "3. Duplicate evidence",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{reviewerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests/{{duplicateRequestId}}/duplicate-matches",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "4. Risk evidence",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{reviewerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests/{{reviewRequestId}}/risk-assessment",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "5. AI summaries",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{reviewerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/requests/{{reviewRequestId}}/ai-summaries",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Support and Admin Inspection",
+          "item": [
+            {
+              "name": "1. Support dashboard",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{supportToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/dashboard/support-summary",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "2. Integration logs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{supportToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/integration-logs",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "3. Validation rules",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{supportToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/admin-settings/validation-rules",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "4. Scoring rules",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{supportToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "url": "{{baseUrl}}/admin-settings/scoring-rules",
+                "description": "Guided flow step using the same verified API contract."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const allowed = [200];",
+                      "pm.test(\"Declared response status\", () => pm.expect(allowed).to.include(pm.response.code));",
+                      "pm.test(\"Response time under 10 seconds\", () => pm.expect(pm.response.responseTime).to.be.below(10000));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

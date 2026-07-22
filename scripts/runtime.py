@@ -63,7 +63,7 @@ def command(
         timeout=timeout,
     )
     if check and result.returncode != 0:
-        message = result.stderr.strip() or result.stdout.strip() or "command failed"
+        message = (result.stderr or "").strip() or (result.stdout or "").strip() or "command failed"
         raise RuntimeFailure(f"{args[0]} failed: {message}")
     return result
 

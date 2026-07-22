@@ -26,6 +26,7 @@ MIGRATIONS = [
 ]
 
 ALWAYS_RUN = {
+    "database/scripts/grant_verify_read.sql",
     "database/scripts/assert_schema.sql",
     "database/scripts/assert_valid_objects.sql",
 }

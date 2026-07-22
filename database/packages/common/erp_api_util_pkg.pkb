@@ -40,6 +40,16 @@ create or replace package body erp_api_util_pkg as
             return '{"success":false,"error":{"code":"INTERNAL_ERROR","message":"The request could not be completed."}}';
     end;
 
+    function authorize(p_allowed_csv varchar2) return number is
+    begin
+        erp_principal_pkg.assert_role(p_allowed_csv);
+        return 1;
+    exception
+        when others then
+            emit(failure('FORBIDDEN', 'The authenticated role cannot perform this action.'));
+            return 0;
+    end;
+
     procedure emit(p_body clob) is
         l_offset pls_integer := 1;
         l_length pls_integer;

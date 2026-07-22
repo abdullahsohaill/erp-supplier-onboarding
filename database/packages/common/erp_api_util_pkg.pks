@@ -7,6 +7,7 @@ create or replace package erp_api_util_pkg authid definer as
         p_trace_id varchar2 default null,
         p_details clob default null
     ) return clob;
+    function authorize(p_allowed_csv varchar2) return number;
     procedure emit(p_body clob);
 end erp_api_util_pkg;
 /

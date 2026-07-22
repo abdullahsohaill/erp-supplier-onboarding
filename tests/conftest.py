@@ -52,6 +52,11 @@ def restore_mutable_demo_scenarios():
                    || '"oicInstanceId":"OIC-MOCK-107-2"}]'
          where log_id = 10002;
 
+        delete from duplicate_match
+         where candidate_supplier_ref_id in (
+             select supplier_ref_id from existing_supplier_ref
+              where fusion_supplier_id = 'FUS-E2E-9001'
+         );
         delete from existing_supplier_site_ref
          where supplier_ref_id in (
              select supplier_ref_id from existing_supplier_ref
