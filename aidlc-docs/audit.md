@@ -1358,3 +1358,20 @@ approved pls proceed"
 **Context**: CONSTRUCTION - verification framework expansion publication complete. The final plan checkbox is closed by this follow-up audit commit.
 
 ---
+
+## Local Oracle and Broad Test Suite Amendment Request
+**Timestamp**: 2026-07-22T11:48:13Z
+**User Input**: "these are too many tests, i think max 60-70 would be great broadness was better than specific 500 ish tests
+
+also i want to set up stuff locally, not on oracle playground, but yes i wanna sue oracle local free db"
+**AI Response**: "Started a Build and Test amendment to consolidate parameterized verification into 60-70 broad tests while preserving the full database, 42-operation API, authentication, authorization, workflow, property, Postman, and performance coverage. Selected the existing official local Oracle ADB Free runtime in ATP mode with bundled ORDS as the only active execution path and began removing the managed-cloud setup workflow."
+**Context**: CONSTRUCTION - Local Oracle runtime and broad verification-suite amendment on `construction-phase`; no database schema or API behavior change.
+
+---
+
+## Local Oracle and Broad Test Suite Amendment Completion
+**Timestamp**: 2026-07-22T14:08:07Z
+**AI Response**: "Selected the official local Oracle ADB Free 26ai runtime in ATP mode with bundled ORDS as the only active execution path and removed the managed-cloud profile, preflight, test, and guide. Consolidated per-row pytest parameterization into 66 broad tests while preserving every database object, 42-operation contract, unauthenticated, wrong-role, allowed-role, Postman, property, story, and performance assertion. Corrected repeat-start ORDS hardening verification to read persisted configuration without a blocking live `ords config get`. The complete local workflow reapplied 47 ordered assets, seeded all 18 tables, regenerated all 42 Postman operations, reconfirmed 18 tables/189 columns/17 foreign keys, and passed 66 of 66 tests in 209.18 seconds. Ruff, compile, dependency audit, secret scan, and source High/Critical scan passed."
+**Context**: CONSTRUCTION - Build and Test local-runtime amendment complete. Security Baseline is compliant for application-controlled TLS, OAuth2, exact roles, least privilege, ignored secrets, hardening, and scans; SECURITY-09/SECURITY-10 remain blocked only for production use by the documented Oracle vendor-image findings. Resiliency Baseline is compliant for idempotent local startup, migration, seed, persistence, and bounded retry. Partial Property-Based Testing remains compliant with four retained property tests. No database schema or API behavior was changed.
+
+---

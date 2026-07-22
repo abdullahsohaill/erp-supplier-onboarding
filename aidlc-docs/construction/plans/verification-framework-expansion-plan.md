@@ -1,5 +1,7 @@
 # Verification Framework Expansion Plan
 
+> Historical plan: its managed-cloud preparation and per-row pytest presentation were superseded on 2026-07-22 by `local-oracle-broad-test-suite-amendment-plan.md`. The original completion record is retained for auditability.
+
 ## Status and Scope
 
 Approved by the user's direct request on 2026-07-22. This Build and Test amendment expands self-service verification without changing the finalized 18-table, 189-column, 17-relationship schema.

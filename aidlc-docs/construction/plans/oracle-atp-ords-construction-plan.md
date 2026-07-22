@@ -2,7 +2,7 @@
 
 ## Status
 
-**Approved and implemented through UOW-005 on `construction-phase`. Build/Test evidence is complete; managed cloud execution awaits user-supplied OCI access and wallet.**
+**Approved and implemented through UOW-005 on `construction-phase`. Build/Test evidence is complete against the selected local Oracle ADB Free ATP-mode runtime.**
 
 ## Objective
 
@@ -25,7 +25,7 @@ Create a reproducible local Oracle Autonomous Transaction Processing environment
 | Area | Selected Approach | Rationale |
 |---|---|---|
 | Local database | `ghcr.io/oracle/adb-free:26.2.4.2-26ai` | Official Oracle Autonomous AI Database Free image, native ARM64, pinned release, and supports ATP workload mode. Local use retains the documented vendor-image gate. |
-| Shared/cloud database | Oracle Always Free Autonomous AI Database, Transaction Processing workload | Oracle-managed service is the supported clean target; wallet/tenancy setup requires the user's OCI account. |
+| Shared/cloud database | Out of scope for the current construction phase | The approved execution target is local Oracle ADB Free; no OCI account, cloud wallet, or Oracle Playground is required. |
 | Workload | `WORKLOAD_TYPE=ATP` | Closest supported local equivalent to the target Oracle ATP service. |
 | ORDS | ORDS bundled with the Autonomous Database Free image | Avoids a second ORDS installation and provides HTTPS on port 8443. |
 | Orchestration | Docker Compose | Reproducible startup, persistence, health checks, resource settings, and teardown. |
@@ -170,7 +170,7 @@ The following may require user interaction only if local automation cannot compl
 1. Keep Docker Desktop running and raise its available memory from approximately 7.65 GiB to at least 8 GiB. Docker currently exposes 10 CPUs and its daemon is running.
 2. Approve any macOS prompt raised by Docker Desktop for privileged networking or filesystem access.
 3. Trust the generated local self-signed ORDS certificate in the browser only if interactive Database Actions/APEX access is desired. Automated tests will use the copied local CA certificate rather than disabling TLS verification.
-4. Later provide customer-managed credentials and tenancy details when replacing mocks with Oracle Cloud ATP, OIC, Fusion, SSO, or a live AI provider.
+4. Later provide customer-managed credentials and endpoint details when replacing the local OIC, Fusion, SSO, or AI mocks; selecting a production database target is a separate future decision.
 
 Secrets will be generated into ignored local files. They will not be committed or written into documentation.
 

@@ -8,7 +8,7 @@ The project defines a supplier onboarding solution using Oracle Visual Builder, 
 
 ## Current Phase
 
-Construction through UOW-005 is implemented on the `construction-phase` branch. The local target is Oracle Autonomous AI Database Free 26ai in ATP mode with bundled ORDS, fronted by a loopback-only HTTPS Nginx gateway. Managed Oracle Always Free Autonomous AI Database in Transaction Processing mode is the supported shared/cloud target. The finalized 18-table, 189-column, 17-relationship schema remains the database contract.
+Construction through UOW-005 is implemented on the `construction-phase` branch. The execution target is Oracle Autonomous AI Database Free 26ai running locally in ATP mode with bundled ORDS, fronted by a loopback-only HTTPS Nginx gateway. The finalized 18-table, 189-column, 17-relationship schema remains the database contract.
 
 ## Safe Prerequisites
 
@@ -55,7 +55,7 @@ ERP_PERF_DURATION_SECONDS=300 \
 .venv/bin/python scripts/report.py
 ```
 
-The full QA command currently runs 583 tests and writes JUnit evidence under ignored `.local/reports/`. See `aidlc-docs/construction/build-and-test/self-service-testing-instructions.md` for suite meanings, read-only Oracle queries, Postman setup, and authorization checks.
+The full QA command runs 66 broad tests and writes JUnit evidence under ignored `.local/reports/`. The broad tests retain the complete per-table, per-operation, and role matrices as internal assertions. See `aidlc-docs/construction/build-and-test/self-service-testing-instructions.md` for suite meanings, read-only Oracle queries, Postman setup, and authorization checks.
 
 Generate the complete 42-operation Postman collection and ignored local credential environment:
 
@@ -84,20 +84,9 @@ Stop without deleting data:
 
 To trust the local edge certificate in macOS browsers, manually add `.local/trust/local-ca.crt` to the login keychain and mark it trusted. CLI tests use the generated CA file directly and do not disable TLS verification.
 
-## Managed Always Free ATP
-
-The repository includes a secret-free cloud profile and wallet/TLS connection preflight. Creating the OCI database and downloading its instance wallet require the user's OCI account:
-
-```bash
-cp config/atp-cloud.env.example .local/secrets/atp-cloud.env
-.venv/bin/python scripts/cloud_atp_preflight.py
-```
-
-Follow `aidlc-docs/construction/build-and-test/oracle-always-free-atp-instructions.md`. No cloud deployment is claimed until the supplied wallet, credentials, network policy, and ORDS endpoint have been tested.
-
 ## Security Gate
 
-Python dependency, source-secret, filesystem, and Nginx image scans are clean. The latest official Oracle ADB Free 26ai image available during construction contains vendor-fixed High/Critical package findings. The local prototype mitigates exposure with loopback-only ingress, verified TLS, OAuth2, exact per-operation role guards, a route allowlist, and disabled optional ORDS surfaces, but the image finding remains a local-container release gate. Use managed Always Free ATP for shared/cloud verification because Oracle manages service patching. Do not use the local stack as a production deployment baseline.
+Python dependency, source-secret, filesystem, and Nginx image scans are clean. The latest official Oracle ADB Free 26ai image available during construction contains vendor-fixed High/Critical package findings. The local prototype mitigates exposure with loopback-only ingress, verified TLS, OAuth2, exact per-operation role guards, a route allowlist, and disabled optional ORDS surfaces, but the image finding remains a local-container release gate. Use this stack for controlled local development and demonstration only; it is not a production deployment baseline.
 
 Key documents:
 

@@ -12,7 +12,7 @@
 | Seed completeness | PASS: data in all 18 tables |
 | OpenAPI/ORDS parity | PASS: 42 operations |
 | Stop/start persistence | PASS |
-| Application tests | PASS: 583 of 583 |
+| Application tests | PASS: 66 of 66 broad tests |
 | Local performance | PASS |
 | Application-controlled security scans | PASS |
 | Oracle base-image vulnerability gate | BLOCKED |
@@ -21,14 +21,14 @@
 
 | Suite | Passed |
 |---|---:|
-| Unit | 17 |
+| Unit | 10 |
 | Property | 4 |
-| Integration | 151 |
-| Contract | 262 |
-| Security | 133 |
+| Integration | 12 |
+| Contract | 12 |
+| Security | 12 |
 | E2E/story | 15 |
 | Pytest performance | 1 |
-| Total | 583 |
+| Total | 66 |
 
 The post-authorization-fix performance harness passed ten workers for 300 seconds with 574 requests and zero errors. Every measured p95 was below its local threshold.
 
@@ -38,4 +38,4 @@ UOW-001 through UOW-005 application code, migrations, APIs, seeds, mocks, self-s
 
 ## Required Decision
 
-Use managed Oracle Always Free ATP for the supported shared/cloud target, or use a patched official local image when Oracle publishes one. A time-bounded local-only exception still requires explicit informed acceptance. Managed cloud execution remains pending the user's OCI database, wallet, network, credentials, and ORDS endpoint.
+Continue using the pinned local Oracle ADB Free image for controlled development and demonstration, with the vendor finding explicitly accepted for that limited purpose, or adopt a patched official local image when Oracle publishes one. Do not treat the current image as production-ready.

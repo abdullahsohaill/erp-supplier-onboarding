@@ -4,7 +4,7 @@
 
 AI-DLC construction through UOW-005 produced a runnable local Oracle ATP-mode supplier-onboarding backend with deterministic data, 42 protected ORDS operations, OAuth2 role controls, automatic validation/duplicate/risk logic, advisory AI, Reviewer decisions, Fusion/OIC mock integration, controlled retry, Admin Settings, and executable coverage for all 14 stories.
 
-Application build, runtime, migrations, data, API contracts, tests, persistence, and local performance pass. Managed Oracle Always Free ATP is the supported shared/cloud target. The local container release gate remains blocked by findings in Oracle's latest official ADB Free 26ai base image.
+Application build, runtime, migrations, data, API contracts, tests, persistence, and local performance pass on Oracle ADB Free running locally in ATP mode. The local container production-use gate remains blocked by findings in Oracle's current ADB Free 26ai base image.
 
 ## Delivered Baseline
 
@@ -17,8 +17,8 @@ Application build, runtime, migrations, data, API contracts, tests, persistence,
 | Security | OAuth2 roles, exact handler role guards, object/function authorization, verified TLS, loopback edge, throttling, route allowlist, masking/redaction |
 | Mock behavior | Deterministic AI and Fusion/OIC outcomes |
 | Data | Representative rows in every application table |
-| Tests | 583 passing tests plus five-minute ten-worker performance evidence |
-| Self-service | Category QA runner, complete Postman collection/environment generator, read-only SQL catalog, cloud preflight |
+| Tests | 66 passing broad tests plus five-minute ten-worker performance evidence |
+| Self-service | Category QA runner, complete Postman collection/environment generator, read-only SQL catalog |
 | Operations | Start, stop, migrate, seed, verify, health, logs, report, guarded reset |
 
 ## Unit Outcomes
@@ -39,20 +39,20 @@ OpenAPI and ORDS source match exactly. Handler distribution is UOW-001 11, UOW-0
 
 ## Test and Performance
 
-All 583 tests passed: 17 unit, 4 property, 151 integration/database, 262 contract, 133 security, 15 E2E/story, and 1 performance smoke. This includes per-operation OpenAPI/ORDS/Postman checks, exact role-guard parity, 42 unauthenticated denials, 40 wrong-role denials, 42 allowed-role reachability cases, and per-object database verification. The post-authorization-fix five-minute run completed 574 requests across ten workers with no errors. Sequential p95 values ranged from 177.29 ms to 2,527.11 ms and remained below every local threshold.
+All 66 broad tests passed in 209.18 seconds: 10 unit, 4 property, 12 integration/database, 12 contract, 12 security, 15 E2E/story, and 1 performance smoke. The broad tests internally retain per-operation OpenAPI/ORDS/Postman checks, exact role-guard parity, 42 unauthenticated denials, 40 wrong-role denials, 42 allowed-role reachability cases, and per-object database verification. The post-authorization-fix five-minute run completed 574 requests across ten workers with no errors. Sequential p95 values ranged from 177.29 ms to 2,527.11 ms and remained below every local threshold.
 
 The expansion found and corrected inconsistent wrong-role HTTP handling. Every ORDS handler now rejects disallowed roles with HTTP `403` before business logic executes. Repeated-run fixture cleanup and QA subprocess failure reporting were also corrected.
 
 ## Security and Extension Compliance
 
 - SECURITY-01 through SECURITY-08 and SECURITY-11 through SECURITY-15: compliant for the local prototype where applicable; production centralized logging, MFA/SSO, alerting, retention, and cloud key management remain deployment gates.
-- SECURITY-09/SECURITY-10: application-controlled checks pass. The local container remains blocked by 184 High and 3 Critical findings in the current official Oracle base image. Managed Always Free ATP moves service image patching to Oracle but still requires a cloud execution report.
+- SECURITY-09/SECURITY-10: application-controlled checks pass. The local container remains blocked for production use by 184 High and 3 Critical findings in the current official Oracle base image; local prototype use requires explicit informed acceptance.
 - Resiliency baseline: local atomicity, idempotency, retry, health, restart, and recovery evidence pass. Production SLA/RTO/RPO/HA are N/A pending customer decisions.
 - Partial property-based testing: enabled normalization, round-trip, ownership, state, serialization, and retry invariants pass.
 
 ## Manual Work Before Real Deployment
 
-Create the Always Free ATP instance, download its instance wallet, provide the ignored cloud profile, choose managed or customer-managed ORDS, and run cloud migrations/tests. Also provide real OIC/Fusion/SSO/AI configuration, approve field mappings and production NFRs, and implement cloud observability/backup/HA. See `manual-steps.md`, `limitations.md`, `security-report.md`, and the Always Free ATP instructions.
+For real integrations, provide OIC/Fusion/SSO/AI configuration, approve field mappings and production NFRs, and define the eventual deployment, observability, backup, and HA controls. The implemented and tested database path remains local Oracle ADB Free in ATP mode. See `manual-steps.md`, `limitations.md`, and `security-report.md`.
 
 ## Git Isolation
 

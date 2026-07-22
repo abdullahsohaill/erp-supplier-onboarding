@@ -2,7 +2,7 @@
 
 ## Status
 
-Application-controlled security gates pass. The local-container release remains blocked pending Oracle vendor-image remediation or explicit informed acceptance for local prototype use. Managed Oracle Always Free ATP is the recommended supported target for shared/cloud verification.
+Application-controlled security gates pass. The local-container production-use gate remains blocked pending Oracle vendor-image remediation or explicit informed acceptance for local prototype use. The selected and tested environment is the loopback-only local Oracle ADB Free ATP-mode stack.
 
 ## Passing Evidence
 
@@ -14,7 +14,7 @@ Application-controlled security gates pass. The local-container release remains 
 | Filesystem vulnerability/secret/misconfiguration scan | Zero High/Critical findings |
 | Nginx image | Zero High/Critical findings after upgrade to 1.30.4 Alpine 3.24 |
 | CycloneDX SBOM | Generated with 78 components |
-| Runtime security tests | 133 OAuth, role-matrix, ownership, input, CORS, masking, redaction, throttling, and hardening tests |
+| Runtime security tests | 12 broad OAuth, role-matrix, ownership, input, CORS, masking, redaction, throttling, and hardening tests |
 
 ## Blocking Vendor Finding
 
@@ -24,4 +24,4 @@ The stack mitigates exposure through loopback ingress, private ORDS networking, 
 
 ## Decision Required
 
-Use managed Oracle Always Free ATP, where Oracle controls service image patching, for shared/cloud verification. A cloud security decision still requires the tenancy, region, network, wallet, identity, ORDS, logging, backup, and retention configuration to be tested. If the team retains the current image strictly for a local, non-production demo, record explicit informed acceptance with an expiry/review date. Do not carry that exception into production.
+If the team retains the current image strictly for local development and a non-production demonstration, record explicit informed acceptance with an expiry/review date. Replace it with a patched official image when available, and do not carry the local exception into production.

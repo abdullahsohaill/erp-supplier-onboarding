@@ -8,7 +8,9 @@ Run the complete reproducible local workflow:
 ./scripts/qa.sh all
 ```
 
-This starts the pinned local stack, reapplies 47 ordered assets, reseeds all 18 tables, regenerates Postman assets, validates the schema/OpenAPI source, and runs all 583 tests. JUnit output is written to ignored `.local/reports/pytest-full.xml`.
+This starts the pinned local stack, reapplies 47 ordered assets, reseeds all 18 tables, regenerates Postman assets, validates the schema/OpenAPI source, and runs all 66 broad tests. JUnit output is written to ignored `.local/reports/pytest-full.xml`.
+
+The broad suite keeps detailed matrices inside capability-level tests: all 42 operations, role combinations, database objects, and user stories are still checked even though pytest no longer reports each matrix row as a separate test.
 
 Run a smaller suite against an already healthy stack:
 
@@ -22,7 +24,7 @@ Run a smaller suite against an already healthy stack:
 | Mode | Coverage |
 |---|---|
 | `db` | Tables, columns, keys, indexes, JSON data, seeds, packages, views, migrations, and read-only verifier |
-| `contract` | OpenAPI, ORDS, all 42 operations, handler roles, Postman assets, and cloud profile |
+| `contract` | OpenAPI, ORDS, all 42 operations, handler roles, and Postman assets |
 | `auth` | Authentication, every wrong/allowed role route, ownership, abuse, TLS/CORS, masking, redaction, and throttling |
 | `flows` | All 14 approved user stories |
 

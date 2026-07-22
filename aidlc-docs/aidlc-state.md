@@ -5,7 +5,7 @@
 - **Project Type**: Greenfield
 - **Start Date**: 2026-07-15T11:41:29Z
 - **Current Phase**: CONSTRUCTION
-- **Current Stage**: CONSTRUCTION - Build and Test managed-cloud review gate
+- **Current Stage**: CONSTRUCTION - Build and Test local-runtime review gate
 - **Construction Branch**: `construction-phase`
 
 ## Workspace State
@@ -65,4 +65,4 @@
 - [x] Complete ATP database schema ERD with all tables and physical relationships (`aidlc-docs/inception/application-design/database-schema-design.md`)
 
 ## Current Review Gate
-UOW-001 through UOW-005 implementation is complete on `construction-phase`: 47 ordered assets, 18/189/17 schema parity, zero invalid objects, data in every table, 42 ORDS operations with exact transport role guards, all 14 stories, 583 passing tests, read-only SQL inspection, complete Postman assets, restart persistence, and passing local performance evidence. Application-controlled security scans pass. The local image remains blocked because Trivy reports 184 High and 3 Critical fixed-version findings in Oracle's latest official ADB Free 26ai image. Managed Oracle Always Free ATP is the supported shared/cloud path; cloud execution awaits the user's OCI database, wallet, network/identity decisions, and ORDS endpoint. `main` remains at `ebd9d6d` and will not receive construction changes unless the user later requests a merge.
+UOW-001 through UOW-005 implementation is complete on `construction-phase`: 47 ordered assets, 18/189/17 schema parity, zero invalid objects, data in every table, 42 ORDS operations with exact transport role guards, all 14 stories, 66 passing broad tests, read-only SQL inspection, complete Postman assets, restart persistence, and passing local performance evidence. Every database and endpoint matrix remains fully evaluated inside the broad suites. Application-controlled security scans pass. The local image remains blocked for production use because Trivy reports 184 High and 3 Critical fixed-version findings in Oracle's current ADB Free 26ai image. The selected runtime is the local Oracle ADB Free ATP-mode stack; no OCI account, Oracle Playground, cloud wallet, or managed database is required. `main` remains at `ebd9d6d` and will not receive construction changes unless the user later requests a merge.
